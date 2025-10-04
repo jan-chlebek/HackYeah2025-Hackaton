@@ -49,7 +49,7 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
                 options.UseNpgsql(_connectionString);
                 // Suppress PendingModelChangesWarning for tests
                 // This warning appears when there are minor differences between model and migration snapshot
-                options.ConfigureWarnings(warnings => 
+                options.ConfigureWarnings(warnings =>
                     warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
         });
@@ -149,9 +149,9 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
         {
             try
             {
-                #pragma warning disable EF1002 // Risk of SQL injection - table names are from hardcoded array
+#pragma warning disable EF1002 // Risk of SQL injection - table names are from hardcoded array
                 await dbContext.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE \"{table}\" RESTART IDENTITY CASCADE");
-                #pragma warning restore EF1002
+#pragma warning restore EF1002
             }
             catch
             {

@@ -46,10 +46,10 @@ public class DatabaseSeeder
             await SeedRolesAndPermissionsAsync();
             await SeedUsersAsync();
             await SeedSupervisedEntitiesAsync();
-            
+
             // Save users and entities first, as messages and reports depend on them
             await _context.SaveChangesAsync();
-            
+
             await SeedMessagesAsync();
             await SeedReportsAsync();
 

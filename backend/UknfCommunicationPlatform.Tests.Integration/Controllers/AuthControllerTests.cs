@@ -19,6 +19,7 @@ namespace UknfCommunicationPlatform.Tests.Integration.Controllers;
 ///
 /// TODO: Refactor to use TestServer or separate HTTP client setup
 /// </summary>
+[Collection(nameof(DatabaseCollection))]
 public class AuthControllerTests : IClassFixture<TestDatabaseFixture>, IAsyncLifetime
 {
     private readonly TestDatabaseFixture _factory;
