@@ -1,0 +1,57 @@
+Write-Host "=== HackYeah 2025 - Windows Setup ===" -ForegroundColor Green
+
+# Check if running as Administrator
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Host "❌ Please run as Administrator" -ForegroundColor Red
+    Exit
+}
+
+# Install Chocolatey (package manager)
+Write-Host "Installing Chocolatey..." -ForegroundColor Yellow
+Set-ExecutionPolicy Bypass -Scope Process -Force
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Refresh environment
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# Install Docker Desktop
+Write-Host "Installing Docker Desktop..." -ForegroundColor Yellow
+choco install docker-desktop -y
+
+# Install .NET 9 SDK
+Write-Host "Installing .NET 9 SDK..." -ForegroundColor Yellow
+choco install dotnet-sdk -y
+
+# Install Node.js 20
+Write-Host "Installing Node.js 20..." -ForegroundColor Yellow
+choco install nodejs-lts -y
+
+# Install Git
+Write-Host "Installing Git..." -ForegroundColor Yellow
+choco install git -y
+
+# Refresh environment again
+refreshenv
+
+# Install Angular CLI globally
+Write-Host "Installing Angular CLI..." -ForegroundColor Yellow
+npm install -g @angular/cli@20
+
+Write-Host ""
+Write-Host "=== Installation Verification ===" -ForegroundColor Green
+docker --version
+docker-compose --version
+dotnet --version
+node --version
+npm --version
+ng version
+
+Write-Host ""
+Write-Host "✅ Setup complete!" -ForegroundColor Green
+Write-Host "⚠️  IMPORTANT: Restart your computer for all changes to take effect" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Next steps:" -ForegroundColor Cyan
+Write-Host "1. Restart your computer"
+Write-Host "2. Open Docker Desktop and ensure it's running"
+Write-Host "3. Run: .\create-project.ps1  # Create project structure"
