@@ -71,12 +71,13 @@ public class MessageService
 
         var totalCount = await query.CountAsync();
 
-        var messages = await query
+        var messageEntities = await query
             .OrderByDescending(m => m.SentAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(m => MapToResponse(m))
             .ToListAsync();
+
+        var messages = messageEntities.Select(m => MapToResponse(m)).ToList();
 
         return (messages, totalCount);
     }
