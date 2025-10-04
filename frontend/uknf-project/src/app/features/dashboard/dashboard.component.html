@@ -1,0 +1,158 @@
+<div class="dashboard-container">
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb">
+    <span class="breadcrumb-item">{{ systemName }}: </span>
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-item">Podmiot: </span>
+    <span class="breadcrumb-value">{{ entityName }}</span>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button 
+        class="tab"
+        [class.active]="activeTab === 'pulpit'"
+        (click)="setActiveTab('pulpit')">
+        Pulpit użytkownika
+        <span class="tab-close" *ngIf="activeTab === 'pulpit'">×</span>
+      </button>
+      <button 
+        class="tab"
+        [class.active]="activeTab === 'wnioski'"
+        (click)="setActiveTab('wnioski')">
+        Wnioski o dostęp
+        <span class="tab-close" *ngIf="activeTab === 'wnioski'">×</span>
+      </button>
+      <button 
+        class="tab"
+        [class.active]="activeTab === 'biblioteka'"
+        (click)="setActiveTab('biblioteka')">
+        Biblioteka - repozytorium plików
+        <span class="tab-close" *ngIf="activeTab === 'biblioteka'">×</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="content-area">
+    <!-- Communications Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">Komunikaty</h2>
+      </div>
+
+      <!-- Search/Filter Section -->
+      <div class="filter-section">
+        <button class="filter-toggle" (click)="toggleSearch()">
+          <span class="filter-icon">{{ searchExpanded ? '▼' : '▶' }}</span>
+          <span>Wyszukiwanie</span>
+        </button>
+        
+        <div class="filter-content" *ngIf="searchExpanded">
+          <div class="filter-fields">
+            <!-- Search fields would go here -->
+            <p class="filter-placeholder">Opcje wyszukiwania...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="sortable" (click)="sortBy('publicationDate')">
+                Data publikacji
+                <span class="sort-icon">
+                  {{ sortColumn === 'publicationDate' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}
+                </span>
+              </th>
+              <th class="sortable" (click)="sortBy('subject')">
+                Temat
+                <span class="sort-icon">
+                  {{ sortColumn === 'subject' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}
+                </span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let comm of filteredCommunications">
+              <td class="date-column">{{ comm.publicationDate }}</td>
+              <td class="subject-column">{{ comm.subject }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Info -->
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} entries
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container">
+        <div class="pagination-controls">
+          <button 
+            class="pagination-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToFirstPage()"
+            title="First page">
+            «
+          </button>
+          <button 
+            class="pagination-btn"
+            [disabled]="currentPage === 1"
+            (click)="previousPage()"
+            title="Previous page">
+            ‹
+          </button>
+          
+          <button 
+            *ngFor="let page of pageNumbers"
+            class="pagination-btn page-number"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+          
+          <button 
+            class="pagination-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="nextPage()"
+            title="Next page">
+            ›
+          </button>
+          <button 
+            class="pagination-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="goToLastPage()"
+            title="Last page">
+            »
+          </button>
+        </div>
+
+        <div class="items-per-page">
+          <select (change)="changeItemsPerPage($event)" [value]="itemsPerPage">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-preview" (click)="preview()">
+          <span class="btn-icon">🔍</span>
+          Podgląd
+        </button>
+        <button class="btn btn-export" (click)="export()">
+          <span class="btn-icon">📄</span>
+          Eksportuj
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
