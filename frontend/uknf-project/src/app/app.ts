@@ -1,7 +1,9 @@
-import { Component, signal, OnInit, OnDestroy, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal, OnInit, OnDestroy, inject, computed } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
 import { ThemeService } from './services/theme.service';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +14,11 @@ import { ThemeService } from './services/theme.service';
 export class App implements OnInit, OnDestroy {
   protected readonly title = signal('uknf-project');
   private themeService = inject(ThemeService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  
+  // Track if current route is auth route
+  private currentUrl = signal<string>('');
   
   // Session timer
   sessionEndTime = '12:46';
@@ -31,9 +38,22 @@ export class App implements OnInit, OnDestroy {
   // Accessibility section toggle (mobile)
   accessibilitySectionOpen = false;
   
-  // User info
-  userName = 'Jan Nowak';
-  userRole = 'Użytkownik podmiotu';
+  // User info from AuthService
+  currentUser = computed(() => this.authService.currentUser());
+  isAuthenticated = computed(() => this.authService.isAuthenticated());
+  
+  get userName(): string {
+    return this.currentUser()?.fullName || 'Gość';
+  }
+  
+  get userRole(): string {
+    const roles = this.currentUser()?.roles || [];
+    if (roles.includes('Administrator systemu')) return 'Administrator systemu';
+    if (roles.includes('Pracownik UKNF')) return 'Pracownik UKNF';
+    if (roles.includes('Admin Podmiotu')) return 'Administrator podmiotu';
+    if (roles.includes('Pracownik Podmiotu')) return 'Użytkownik podmiotu';
+    return 'Użytkownik';
+  }
   
   // Menu state
   menuOpen = true;
@@ -86,12 +106,30 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.startSessionTimer();
+    
+    // Track route changes to determine if we're on auth routes
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.currentUrl.set(event.urlAfterRedirects);
+    });
+    
+    // Set initial URL
+    this.currentUrl.set(this.router.url);
   }
 
   ngOnDestroy() {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+  }
+  
+  /**
+   * Check if current route is an auth route (login, logout, register, etc.)
+   */
+  isAuthRoute(): boolean {
+    const url = this.currentUrl();
+    return url.startsWith('/auth');
   }
 
   startSessionTimer() {
@@ -138,7 +176,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   logout() {
-    console.log('Logout clicked');
-    // TODO: Implement logout functionality
+    // Navigate to logout confirmation page
+    this.router.navigate(['/auth/logout']);
   }
 }
