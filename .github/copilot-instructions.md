@@ -68,4 +68,4 @@ When you debug failing tests:
 - after making something to fix the failing tests run only these tests that fail. Don't run other tests - it is a waste of time. You should NOT run the other tests, don't use grep over running all tests for that!
 - only all failing tests passes rerun all tests to check for other regressions.
 
-Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee file` and then grep this file and remove it after it is not needed!
+Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee file` and then grep this file and remove it after it is not needed! Again, don't use tail after `| tee file`, use tail after that on the file itself.

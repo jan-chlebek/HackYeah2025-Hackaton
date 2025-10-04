@@ -23,8 +23,8 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
     public async Task InitializeAsync()
     {
-        await _factory.ResetDatabaseAsync();
-        await _factory.SeedTestDataAsync();
+        // Use lightweight reset - only clean test-created data, keep seed data
+        await _factory.ResetTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

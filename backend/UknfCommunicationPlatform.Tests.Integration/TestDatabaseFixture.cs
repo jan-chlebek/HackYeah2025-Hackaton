@@ -17,6 +17,7 @@ namespace UknfCommunicationPlatform.Tests.Integration;
 public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly string _connectionString;
+    private bool _isSeeded = false;
 
     public TestDatabaseFixture()
     {
@@ -52,6 +53,15 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
                 options.ConfigureWarnings(warnings =>
                     warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
+
+            // Replace password hashing service with faster version for tests
+            var passwordHasherDescriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(IPasswordHashingService));
+            if (passwordHasherDescriptor != null)
+            {
+                services.Remove(passwordHasherDescriptor);
+            }
+            services.AddScoped<IPasswordHashingService>(sp => new PasswordHashingService(workFactor: 4));
         });
 
         builder.UseEnvironment("Testing");
@@ -68,8 +78,13 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
         // Ensure migrations are applied
         await dbContext.Database.MigrateAsync();
 
-        // Clean the database before tests start
-        await ResetDatabaseAsync();
+        // Clean and seed the database once before all tests
+        if (!_isSeeded)
+        {
+            await ResetDatabaseAsync();
+            await SeedTestDataAsync();
+            _isSeeded = true;
+        }
     }
 
     /// <summary>
@@ -102,6 +117,35 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
 
         var seeder = new DatabaseSeeder(dbContext, passwordHasher, logger);
         await seeder.SeedAsync();
+    }
+
+    /// <summary>
+    /// Reset only test-created data (not seed data) between tests for better performance.
+    /// This deletes only data created by tests, keeping the seeded data intact.
+    /// </summary>
+    public async Task ResetTestDataAsync()
+    {
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        try
+        {
+            // Delete only test-created data (IDs higher than seed data)
+            // Seeded data: 20 messages, 63 reports
+            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM message_attachments WHERE message_id > 20");
+            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM messages WHERE id > 20");
+            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM reports WHERE id > 63");
+
+            // Reset any modified seed data back to original state (if needed)
+            await dbContext.Database.ExecuteSqlRawAsync("UPDATE messages SET is_read = false, read_at = NULL WHERE id <= 20");
+            await dbContext.Database.ExecuteSqlRawAsync("UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE id <= 10");
+        }
+        catch
+        {
+            // If selective reset fails, fall back to full reset
+            await ResetDatabaseAsync();
+            await SeedTestDataAsync();
+        }
     }
 
     /// <summary>

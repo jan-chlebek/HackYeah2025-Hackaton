@@ -7,7 +7,23 @@ namespace UknfCommunicationPlatform.Infrastructure.Services;
 /// </summary>
 public class PasswordHashingService : IPasswordHashingService
 {
-    private const int WorkFactor = 12; // BCrypt work factor (higher = more secure but slower)
+    private readonly int _workFactor;
+
+    /// <summary>
+    /// Creates a new PasswordHashingService with default work factor
+    /// </summary>
+    public PasswordHashingService() : this(12)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new PasswordHashingService with specified work factor
+    /// </summary>
+    /// <param name="workFactor">BCrypt work factor (higher = more secure but slower). Use 4 for tests, 12 for production.</param>
+    public PasswordHashingService(int workFactor)
+    {
+        _workFactor = workFactor;
+    }
 
     /// <summary>
     /// Hash a plain text password
@@ -16,7 +32,7 @@ public class PasswordHashingService : IPasswordHashingService
     /// <returns>Hashed password</returns>
     public string HashPassword(string password)
     {
-        return BCrypt.Net.BCrypt.HashPassword(password, WorkFactor);
+        return BCrypt.Net.BCrypt.HashPassword(password, _workFactor);
     }
 
     /// <summary>
