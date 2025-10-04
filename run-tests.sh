@@ -88,6 +88,16 @@ echo -e "${BLUE}  Backend Tests (.NET)${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
+# Ensure PostgreSQL is running for integration tests
+if [ "$RUN_INTEGRATION" = true ]; then
+    echo -e "${YELLOW}▶ Ensuring PostgreSQL test database is available...${NC}"
+    if ! ./ensure-test-db.sh; then
+        echo -e "${RED}✗ Failed to setup PostgreSQL test database${NC}"
+        exit 1
+    fi
+    echo ""
+fi
+
 cd backend
 
     # Backend Unit Tests

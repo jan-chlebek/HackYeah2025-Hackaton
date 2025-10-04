@@ -180,12 +180,23 @@ app.MapControllers();
 // Map health check endpoint
 app.MapHealthChecks("/health");
 
-// Auto-apply migrations in development
-if (app.Environment.IsDevelopment())
+// Auto-apply migrations in development (but not in Testing environment)
+if (app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Testing"))
 {
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        // Log but don't fail - migrations might fail for valid reasons in dev
+        Console.WriteLine($"Warning: Migration failed: {ex.Message}");
+    }
 }
 
 app.Run();
+
+// Make Program class accessible for integration tests
+public partial class Program { }
