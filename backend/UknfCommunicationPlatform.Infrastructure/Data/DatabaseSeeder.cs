@@ -669,9 +669,14 @@ public class DatabaseSeeder
                 "Potwierdzamy rejestrację nowego produktu inwestycyjnego zgodnie z otrzymaną dokumentacją."
             };
 
+            var statusWiadomosciOptions = new[] { "Odpowiedziano", "Oczekuje na odpowiedź UKNF", "Oczekuje na odpowiedź podmiotu", "Nowa" };
+            var priorytetOptions = new[] { "Wysoki", "Średni", "Niski" };
+            var sygnaturaSprawyOptions = new[] { "001/2025", "002/2025", "003/2025", "004/2025", "005/2025" };
+
             Message message;
             if (isFromInternal)
             {
+                var entityName = externalUsers.FirstOrDefault(u => u.Id == externalUser.Id)?.SupervisedEntity?.Name ?? "Podmiot nadzorowany";
                 message = new Message
                 {
                     Subject = messageSubjects[i],
@@ -682,11 +687,24 @@ public class DatabaseSeeder
                     Folder = MessageFolder.Sent,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 4 != 0,
-                    ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null
+                    ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null,
+                    // Polish UI fields
+                    Identyfikator = $"2024/System14/{i + 1}",
+                    SygnaturaSprawy = sygnaturaSprawyOptions[i % sygnaturaSprawyOptions.Length],
+                    Podmiot = entityName,
+                    StatusWiadomosci = statusWiadomosciOptions[i % statusWiadomosciOptions.Length],
+                    Priorytet = priorytetOptions[i % priorytetOptions.Length],
+                    DataPrzeslaniaPodmiotu = null,
+                    Uzytkownik = "",
+                    WiadomoscUzytkownika = "",
+                    DataPrzeslaniaUKNF = DateTime.UtcNow.AddDays(-daysAgo),
+                    PracownikUKNF = $"{internalUser.FirstName} {internalUser.LastName}",
+                    WiadomoscPracownikaUKNF = messageBodies[i]
                 };
             }
             else
             {
+                var entityName = externalUsers.FirstOrDefault(u => u.Id == externalUser.Id)?.SupervisedEntity?.Name ?? "Podmiot nadzorowany";
                 message = new Message
                 {
                     Subject = messageSubjects[i],
@@ -697,7 +715,19 @@ public class DatabaseSeeder
                     Folder = MessageFolder.Inbox,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 3 != 0,
-                    ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null
+                    ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null,
+                    // Polish UI fields
+                    Identyfikator = $"2024/System14/{i + 1}",
+                    SygnaturaSprawy = sygnaturaSprawyOptions[i % sygnaturaSprawyOptions.Length],
+                    Podmiot = entityName,
+                    StatusWiadomosci = statusWiadomosciOptions[i % statusWiadomosciOptions.Length],
+                    Priorytet = priorytetOptions[i % priorytetOptions.Length],
+                    DataPrzeslaniaPodmiotu = DateTime.UtcNow.AddDays(-daysAgo),
+                    Uzytkownik = $"Przedstawiciel {entityName}",
+                    WiadomoscUzytkownika = messageBodies[i],
+                    DataPrzeslaniaUKNF = null,
+                    PracownikUKNF = "",
+                    WiadomoscPracownikaUKNF = ""
                 };
             }
 

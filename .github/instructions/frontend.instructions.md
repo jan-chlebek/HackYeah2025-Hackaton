@@ -132,6 +132,9 @@ This includes all role-based UI customization rules, component specifications, i
 - Mobile-first approach
 - PrimeFlex breakpoints (sm: 576px, md: 768px, lg: 992px, xl: 1200px)
 
+### Additional notes
+- Do not use emojis, implement own svg-based icons or PrimeIcons
+
 ---
 
 ## Localization
