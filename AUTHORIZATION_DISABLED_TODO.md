@@ -1,7 +1,7 @@
 # Authorization Temporarily Disabled - TODO Tracking
 
-**Date**: 2025-10-04  
-**Status**: ⚠️ AUTHORIZATION DISABLED FOR TESTING  
+**Date**: 2025-10-04
+**Status**: ⚠️ AUTHORIZATION DISABLED FOR TESTING
 **Branch**: krzys
 
 ## ⚠️ CRITICAL: RE-ENABLE BEFORE PRODUCTION
@@ -170,8 +170,8 @@ if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var use
         userId = 1,
         email = "admin@uknf.gov.pl",
         roles = new[] { "Administrator" },
-        permissions = new[] { "users.read", "users.write", "users.delete", "entities.read", 
-                             "entities.write", "messages.read", "messages.write", 
+        permissions = new[] { "users.read", "users.write", "users.delete", "entities.read",
+                             "entities.write", "messages.read", "messages.write",
                              "reports.read", "reports.write" },
         supervisedEntityId = (long?)null
     });

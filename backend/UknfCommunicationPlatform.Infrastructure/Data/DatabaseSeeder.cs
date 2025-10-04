@@ -47,6 +47,7 @@ public class DatabaseSeeder
             await SeedUsersAsync();
             await SeedSupervisedEntitiesAsync();
             await SeedMessagesAsync();
+            await SeedReportsAsync();
 
             await _context.SaveChangesAsync();
 
@@ -108,6 +109,7 @@ public class DatabaseSeeder
 
         var adminRole = await _context.Roles.FirstAsync(r => r.Name == "Administrator");
         var internalRole = await _context.Roles.FirstAsync(r => r.Name == "InternalUser");
+        var supervisorRole = await _context.Roles.FirstAsync(r => r.Name == "Supervisor");
 
         var users = new List<User>
         {
@@ -130,6 +132,26 @@ public class DatabaseSeeder
                 PasswordHash = _passwordHasher.HashPassword("User123!"),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                FirstName = "Anna",
+                LastName = "Nowak",
+                Email = "anna.nowak@uknf.gov.pl",
+                Phone = "+48345678901",
+                PasswordHash = _passwordHasher.HashPassword("Supervisor123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                FirstName = "Piotr",
+                LastName = "Wiśniewski",
+                Email = "piotr.wisniewski@uknf.gov.pl",
+                Phone = "+48456789012",
+                PasswordHash = _passwordHasher.HashPassword("User123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
             }
         };
 
@@ -140,7 +162,9 @@ public class DatabaseSeeder
         var userRoles = new List<EntityUserRole>
         {
             new EntityUserRole { UserId = users[0].Id, RoleId = adminRole.Id, AssignedAt = DateTime.UtcNow },
-            new EntityUserRole { UserId = users[1].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow }
+            new EntityUserRole { UserId = users[1].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[2].Id, RoleId = supervisorRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[3].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow }
         };
 
         await _context.UserRoles.AddRangeAsync(userRoles);
@@ -211,6 +235,82 @@ public class DatabaseSeeder
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "Allianz Polska S.A.",
+                NIP = "5260231971",
+                REGON = "012267870",
+                KRS = "0000028261",
+                EntityType = "Insurance",
+                UKNFCode = "INS002",
+                Street = "Inflancka",
+                BuildingNumber = "4B",
+                City = "Warszawa",
+                PostalCode = "00-189",
+                Country = "Polska",
+                Email = "kontakt@allianz.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "ING Bank Śląski S.A.",
+                NIP = "6340011111",
+                REGON = "270834354",
+                KRS = "0000005459",
+                EntityType = "Bank",
+                UKNFCode = "BANK003",
+                Street = "Sokolska",
+                BuildingNumber = "34",
+                City = "Katowice",
+                PostalCode = "40-086",
+                Country = "Polska",
+                Email = "kontakt@ingbank.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "mBank S.A.",
+                NIP = "5260252172",
+                REGON = "000026730",
+                KRS = "0000025237",
+                EntityType = "Bank",
+                UKNFCode = "BANK004",
+                Street = "Senatorska",
+                BuildingNumber = "18",
+                City = "Warszawa",
+                PostalCode = "00-082",
+                Country = "Polska",
+                Email = "kontakt@mbank.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "Santander Bank Polska S.A.",
+                NIP = "8961512764",
+                REGON = "930041341",
+                KRS = "0000008580",
+                EntityType = "Bank",
+                UKNFCode = "BANK005",
+                Street = "pl. Władysława Andersa",
+                BuildingNumber = "5",
+                City = "Warszawa",
+                PostalCode = "00-159",
+                Country = "Polska",
+                Email = "kontakt@santander.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
             }
         };
 
@@ -260,8 +360,13 @@ public class DatabaseSeeder
     {
         _logger.LogInformation("Seeding messages...");
 
-        var internalUser = await _context.Users.FirstAsync(u => u.Email == "jan.kowalski@uknf.gov.pl");
-        var externalUser = await _context.Users.FirstAsync(u => u.SupervisedEntityId != null);
+        var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).ToListAsync();
+        var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).ToListAsync();
+
+        var internalUser1 = internalUsers.First(u => u.Email == "jan.kowalski@uknf.gov.pl");
+        var internalUser2 = internalUsers.First(u => u.Email == "anna.nowak@uknf.gov.pl");
+        var externalUser1 = externalUsers.First();
+        var externalUser2 = externalUsers.Skip(1).First();
 
         var messages = new List<Message>
         {
@@ -269,8 +374,8 @@ public class DatabaseSeeder
             {
                 Subject = "Prośba o przesłanie raportu kwartalnego",
                 Body = "Uprzejmie prosimy o przesłanie raportu finansowego za IV kwartał 2024 roku zgodnie z wymogami regulacyjnymi.",
-                SenderId = internalUser.Id,
-                RecipientId = externalUser.Id,
+                SenderId = internalUser1.Id,
+                RecipientId = externalUser1.Id,
                 Status = MessageStatus.Sent,
                 Folder = MessageFolder.Sent,
                 SentAt = DateTime.UtcNow.AddDays(-5),
@@ -281,8 +386,8 @@ public class DatabaseSeeder
             {
                 Subject = "Raport kwartalny - dostarczone",
                 Body = "W załączeniu przesyłamy żądany raport finansowy za IV kwartał 2024.",
-                SenderId = externalUser.Id,
-                RecipientId = internalUser.Id,
+                SenderId = externalUser1.Id,
+                RecipientId = internalUser1.Id,
                 Status = MessageStatus.Sent,
                 Folder = MessageFolder.Inbox,
                 SentAt = DateTime.UtcNow.AddDays(-3),
@@ -292,16 +397,135 @@ public class DatabaseSeeder
             {
                 Subject = "Harmonogram kontroli",
                 Body = "Informujemy o zaplanowanej kontroli w dniach 20-22 stycznia 2025.",
-                SenderId = internalUser.Id,
-                RecipientId = externalUser.Id,
+                SenderId = internalUser1.Id,
+                RecipientId = externalUser1.Id,
                 Status = MessageStatus.Sent,
                 Folder = MessageFolder.Sent,
                 SentAt = DateTime.UtcNow.AddDays(-1),
                 IsRead = false
+            },
+            new Message
+            {
+                Subject = "Wyjaśnienie dotyczące raportu ryzyka",
+                Body = "Prosimy o wyjaśnienie rozbieżności w raporcie ryzyka za Q3 2024, w szczególności w sekcji dotyczącej ryzyka operacyjnego.",
+                SenderId = internalUser2.Id,
+                RecipientId = externalUser2.Id,
+                Status = MessageStatus.Sent,
+                Folder = MessageFolder.Sent,
+                SentAt = DateTime.UtcNow.AddDays(-7),
+                IsRead = true,
+                ReadAt = DateTime.UtcNow.AddDays(-6)
+            },
+            new Message
+            {
+                Subject = "Re: Wyjaśnienie dotyczące raportu ryzyka",
+                Body = "Przekazujemy szczegółowe wyjaśnienie rozbieżności. Załączamy poprawiony raport.",
+                SenderId = externalUser2.Id,
+                RecipientId = internalUser2.Id,
+                Status = MessageStatus.Sent,
+                Folder = MessageFolder.Inbox,
+                SentAt = DateTime.UtcNow.AddDays(-6),
+                IsRead = true,
+                ReadAt = DateTime.UtcNow.AddDays(-5)
+            },
+            new Message
+            {
+                Subject = "Zaproszenie na szkolenie",
+                Body = "Zapraszamy na szkolenie dotyczące nowych wymogów raportowania, które odbędzie się 15 lutego 2025.",
+                SenderId = internalUser1.Id,
+                RecipientId = externalUser1.Id,
+                Status = MessageStatus.Sent,
+                Folder = MessageFolder.Sent,
+                SentAt = DateTime.UtcNow.AddDays(-2),
+                IsRead = false
+            },
+            new Message
+            {
+                Subject = "Pytanie dotyczące wymogów kapitałowych",
+                Body = "Czy możemy uzyskać wyjaśnienie dotyczące nowych wymogów kapitałowych wprowadzonych w grudniu 2024?",
+                SenderId = externalUser2.Id,
+                RecipientId = internalUser2.Id,
+                Status = MessageStatus.Sent,
+                Folder = MessageFolder.Inbox,
+                SentAt = DateTime.UtcNow.AddHours(-12),
+                IsRead = false
+            },
+            new Message
+            {
+                Subject = "Potwierdzenie otrzymania dokumentacji",
+                Body = "Potwierdzamy otrzymanie kompletnej dokumentacji dotyczącej procesu due diligence.",
+                SenderId = internalUser1.Id,
+                RecipientId = externalUser1.Id,
+                Status = MessageStatus.Sent,
+                Folder = MessageFolder.Sent,
+                SentAt = DateTime.UtcNow.AddDays(-10),
+                IsRead = true,
+                ReadAt = DateTime.UtcNow.AddDays(-9)
             }
         };
 
         await _context.Messages.AddRangeAsync(messages);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedReportsAsync()
+    {
+        _logger.LogInformation("Seeding reports...");
+
+        var entities = await _context.SupervisedEntities.ToListAsync();
+        var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).ToListAsync();
+
+        var reports = new List<Report>();
+        var reportStatuses = new[] { ReportStatus.Submitted, ReportStatus.ValidationSuccessful, ReportStatus.ValidationErrors, ReportStatus.QuestionedByUKNF };
+        var reportTypes = new[] { "FinancialReport", "RiskReport", "ComplianceReport", "QuarterlyReport" };
+        var periods = new[] { "2024-Q1", "2024-Q2", "2024-Q3", "2024-Q4" };
+
+        int reportCounter = 1;
+        for (int i = 0; i < entities.Count; i++)
+        {
+            var entity = entities[i];
+            var user = externalUsers.FirstOrDefault(u => u.SupervisedEntityId == entity.Id);
+
+            if (user == null) continue;
+
+            // Create 3-5 reports per entity
+            int reportCount = 3 + (i % 3);
+            for (int j = 0; j < reportCount; j++)
+            {
+                var status = reportStatuses[j % reportStatuses.Length];
+                var reportType = reportTypes[j % reportTypes.Length];
+                var period = periods[j % periods.Length];
+                var daysAgo = 30 + (j * 20);
+
+                var report = new Report
+                {
+                    ReportNumber = $"RPT-{entity.UKNFCode}-{reportCounter:D4}",
+                    FileName = $"report_{entity.UKNFCode}_{period}_{reportType}.pdf",
+                    FilePath = $"/reports/{entity.UKNFCode}/{period}_{reportType}.pdf",
+                    ReportingPeriod = period,
+                    ReportType = reportType,
+                    Status = status,
+                    ErrorDescription = status == ReportStatus.ValidationErrors 
+                        ? "Missing required financial data in section 3.2" 
+                        : status == ReportStatus.QuestionedByUKNF 
+                            ? "Please update the balance sheet figures" 
+                            : null,
+                    SubmittedAt = DateTime.UtcNow.AddDays(-daysAgo),
+                    ValidatedAt = status == ReportStatus.ValidationSuccessful 
+                        ? DateTime.UtcNow.AddDays(-daysAgo + 2) 
+                        : null,
+                    IsCorrection = j > 3,
+                    OriginalReportId = j > 3 ? (long?)(reportCounter - 3) : null,
+                    SupervisedEntityId = entity.Id,
+                    SubmittedByUserId = user.Id
+                };
+
+                reports.Add(report);
+                reportCounter++;
+            }
+        }
+
+        await _context.Reports.AddRangeAsync(reports);
         await _context.SaveChangesAsync();
     }
 }

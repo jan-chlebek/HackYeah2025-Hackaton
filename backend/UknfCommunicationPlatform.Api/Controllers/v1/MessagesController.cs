@@ -287,7 +287,7 @@ public class MessagesController : ControllerBase
             _logger.LogWarning("Authorization disabled - using default user ID 2 (jan.kowalski@uknf.gov.pl)");
             return 2; // Default to jan.kowalski user who has seeded messages
         }
-        
+
         if (!long.TryParse(userIdClaim, out var userId))
         {
             throw new UnauthorizedAccessException("User ID not found in token");

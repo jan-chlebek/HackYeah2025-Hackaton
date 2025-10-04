@@ -1,6 +1,11 @@
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using UknfCommunicationPlatform.Api;
 using UknfCommunicationPlatform.Infrastructure.Data;
+using UknfCommunicationPlatform.Infrastructure.Services;
 
 namespace UknfCommunicationPlatform.Tests.Integration;
 
@@ -9,10 +14,9 @@ namespace UknfCommunicationPlatform.Tests.Integration;
 /// Uses the development database and cleans it between tests to ensure isolation.
 /// NOTE: Ensure PostgreSQL is running before tests (use ensure-test-db.sh)
 /// </summary>
-public class TestDatabaseFixture : IAsyncLifetime
+public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly string _connectionString;
-    private readonly ServiceProvider _serviceProvider;
 
     public TestDatabaseFixture()
     {
@@ -24,12 +28,29 @@ public class TestDatabaseFixture : IAsyncLifetime
         var database = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? "uknf_db";
 
         _connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password}";
+    }
 
-        // Create a minimal service provider with just the DbContext
-        var services = new ServiceCollection();
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(_connectionString));
-        _serviceProvider = services.BuildServiceProvider();
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureServices(services =>
+        {
+            // Remove the app's DbContext registration
+            var descriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+            
+            if (descriptor != null)
+            {
+                services.Remove(descriptor);
+            }
+
+            // Add DbContext pointing to test database
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseNpgsql(_connectionString);
+            });
+        });
+
+        builder.UseEnvironment("Testing");
     }
 
     /// <summary>
@@ -37,7 +58,7 @@ public class TestDatabaseFixture : IAsyncLifetime
     /// </summary>
     public async Task InitializeAsync()
     {
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         // Ensure migrations are applied
@@ -50,11 +71,11 @@ public class TestDatabaseFixture : IAsyncLifetime
     /// <summary>
     /// Clean up after all tests complete
     /// </summary>
-    public async Task DisposeAsync()
+    public new async Task DisposeAsync()
     {
         // Clean the database after tests finish
         await ResetDatabaseAsync();
-        await _serviceProvider.DisposeAsync();
+        await base.DisposeAsync();
     }
 
     /// <summary>
@@ -62,7 +83,21 @@ public class TestDatabaseFixture : IAsyncLifetime
     /// </summary>
     public IServiceScope CreateDbContextScope()
     {
-        return _serviceProvider.CreateScope();
+        return Services.CreateScope();
+    }
+
+    /// <summary>
+    /// Seed test data into the database
+    /// </summary>
+    public async Task SeedTestDataAsync()
+    {
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHashingService>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<DatabaseSeeder>>();
+
+        var seeder = new DatabaseSeeder(dbContext, passwordHasher, logger);
+        await seeder.SeedAsync();
     }
 
     /// <summary>
@@ -70,7 +105,7 @@ public class TestDatabaseFixture : IAsyncLifetime
     /// </summary>
     public async Task ResetDatabaseAsync()
     {
-        using var scope = _serviceProvider.CreateScope();
+        using var scope = Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         try
