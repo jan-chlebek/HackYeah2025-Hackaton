@@ -1,7 +1,14 @@
 # UKNF Color Palette Configuration
 
 ## Overview
-This document describes the color palette configuration for the UKNF Angular project using PrimeNG and Tailwind CSS.
+This document describes the color palette configuration for the UKNF Angular project using PrimeNG v20 and Tailwind CSS v3.
+
+## Version Requirements
+- **Tailwind CSS**: v3.x (stable PostCSS integration)
+- **PrimeNG**: v20.x (uses provider-based configuration)
+- **@primeng/themes**: v20.x (required for theming)
+- **Angular**: v20.x
+- **Node.js**: v22.x
 
 ## Color Palette
 
@@ -82,12 +89,12 @@ Additional utility classes are provided for convenience:
 
 ### 4. PrimeNG Components
 
-PrimeNG components automatically use the color palette through theme variable overrides:
+PrimeNG v20 components automatically use the Aura theme configured in `app.config.ts`:
 
 ```html
-<!-- Buttons automatically use primary colors -->
+<!-- Buttons automatically use theme colors -->
 <p-button label="Primary Action"></p-button>
-<p-button label="Secondary Action" styleClass="p-button-secondary"></p-button>
+<p-button label="Secondary Action" severity="secondary"></p-button>
 
 <!-- Other components inherit the theme -->
 <p-card>
@@ -97,21 +104,100 @@ PrimeNG components automatically use the color palette through theme variable ov
 </p-card>
 ```
 
+**Important**: PrimeNG v20 requires programmatic theme configuration, not CSS imports!
+
 ## Implementation Details
 
 ### Files Modified/Created
 
 1. **tailwind.config.js** - Tailwind configuration with custom color palette
-2. **postcss.config.js** - PostCSS configuration for Tailwind
+2. **postcss.config.js** - PostCSS configuration for Tailwind v3
 3. **src/styles.css** - Global styles with:
-   - Tailwind imports
-   - PrimeNG theme imports
+   - PrimeIcons and PrimeFlex imports
+   - Tailwind directives
    - CSS custom properties
    - Component overrides
+4. **src/app/app.config.ts** - PrimeNG v20 theme configuration
 
-### PrimeNG Theme Integration
+### PrimeNG v20 Theme Integration
 
-The project uses PrimeNG's Aura Light Blue theme as a base, with custom variable overrides to match the UKNF color palette. This ensures consistent styling across all PrimeNG components while maintaining the brand colors.
+**CRITICAL**: PrimeNG v20 uses a provider-based configuration system instead of CSS imports.
+
+#### Configuration in app.config.ts:
+
+```typescript
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // ... other providers
+    provideAnimationsAsync(),  // Required for PrimeNG animations
+    providePrimeNG({
+      theme: {
+        preset: Aura,  // Using Aura theme preset
+        options: {
+          darkModeSelector: false,
+          cssLayer: false
+        }
+      }
+    })
+  ]
+};
+```
+
+#### Required Package:
+
+```bash
+npm install @primeng/themes
+```
+
+### Tailwind CSS v3 Integration
+
+Tailwind CSS v3 is used for utility classes. Configuration in `tailwind.config.js` extends the default theme with UKNF colors:
+
+```javascript
+module.exports = {
+  content: ["./src/**/*.{html,ts}"],
+  theme: {
+    extend: {
+      colors: {
+        'primary': {
+          DEFAULT: '#003366',
+          blue: '#003366',
+        },
+        'accent': {
+          DEFAULT: '#0073E6',
+          blue: '#0073E6',
+        },
+        // ... other colors
+      }
+    }
+  }
+}
+```
+
+PostCSS configuration (`postcss.config.js`) processes Tailwind:
+
+```javascript
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+### Integration Summary
+
+The project combines:
+- **PrimeNG v20** with Aura theme (provider-based configuration)
+- **Tailwind CSS v3** for utilities (PostCSS integration)
+- **CSS Custom Properties** for theme variables
+- **PrimeFlex** for flexbox/grid utilities
+
+All three systems reference the same UKNF color palette, ensuring visual consistency.
 
 ### Accessibility
 
@@ -160,17 +246,59 @@ The color palette includes proper focus states for accessibility:
 ## Troubleshooting
 
 ### CSS @tailwind warnings
-The CSS linter may show warnings for `@tailwind` directives. These are expected and won't affect functionality.
+The CSS linter may show warnings for `@tailwind` directives. These are expected and won't affect functionality. Tailwind processes these at build time.
 
-### PrimeNG styles not applying
-Ensure the imports in `styles.css` are in the correct order:
-1. Tailwind base/components/utilities
-2. PrimeNG theme
-3. PrimeNG core CSS
-4. Custom overrides
+### PrimeNG v20 Error: "Could not resolve primeng/resources/..."
+**PrimeNG v20 does NOT use CSS imports!**
+
+❌ **Wrong** (old PrimeNG versions):
+```css
+@import "primeng/resources/themes/aura-light-blue/theme.css";
+@import "primeng/resources/primeng.css";
+```
+
+✅ **Correct** (PrimeNG v20):
+```typescript
+// In app.config.ts
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
+
+providers: [
+  providePrimeNG({
+    theme: { preset: Aura }
+  })
+]
+```
+
+### Tailwind CSS PostCSS Error
+If you see: "PostCSS plugin has moved to a separate package"
+
+**Solution**: Use Tailwind CSS v3.x, not v4:
+```bash
+npm install -D tailwindcss@^3 postcss autoprefixer
+```
+
+### Import Order Warnings
+CSS `@import` rules must come before `@tailwind` directives:
+
+✅ **Correct order**:
+```css
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
 
 ### Colors not showing in Tailwind IntelliSense
-Restart the TypeScript/Angular language server or VS Code to refresh IntelliSense.
+Restart the TypeScript/Angular language server or VS Code to refresh IntelliSense. You may need to reload the window after changing `tailwind.config.js`.
+
+### PrimeNG Components Not Styled
+Ensure you have:
+1. ✅ Installed `@primeng/themes` package
+2. ✅ Added `provideAnimationsAsync()` to providers
+3. ✅ Added `providePrimeNG()` with theme configuration
+4. ✅ Imported component modules where needed
 
 ## Resources
 
