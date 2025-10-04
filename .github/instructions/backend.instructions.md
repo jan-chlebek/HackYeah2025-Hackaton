@@ -5,7 +5,7 @@ applyTo: "Backend/**/*.cs,Backend/**/*.csproj,Backend/**/Dockerfile,Backend/**/*
 # Copilot Guide – Backend (ASP.NET Core)
 
 ## Tech baseline
-- Runtime: **.NET 8/9** (`net8.0` target unless otherwise noted).
+- Runtime: **.NET 9** (`net9.0` target unless otherwise noted).
 - Stack: **ASP.NET Core Web API** with minimal controllers, **Entity Framework Core** for data access, **FluentValidation** for request validation, **MediatR**/**CQRS** for application flows.
 - Database: **SQL Server** (use Dockerised `mssql` locally). Keep schema migrations in `Backend/Infrastructure/Migrations` via `dotnet ef`.
 - Background work: abstract queue integrations (Kafka/RabbitMQ) behind interfaces; provide in-memory stubs until infra is plugged in.

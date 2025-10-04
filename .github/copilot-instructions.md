@@ -31,4 +31,5 @@
 - ✅ Code conforms to Angular/ASP.NET Core style guides and linting rules.
 - ✅ Tests (unit + integration) and linters pass locally; capture command output in the PR/issue comment.
 - ✅ Security, accessibility, and performance considerations from the requirements are addressed or explicitly deferred.
-- ✅ `prompts.md` updated with the latest prompting steps and lessons learned.
+- ✅ `.documentation/prompts.md` updated with the latest prompting steps and lessons learned.
+
