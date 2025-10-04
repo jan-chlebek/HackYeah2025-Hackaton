@@ -36,7 +36,8 @@ public class AuthControllerTests : IClassFixture<TestDatabaseFixture>, IAsyncLif
     /// </summary>
     public async Task InitializeAsync()
     {
-        await _factory.ResetDatabaseAsync();
+        // Use lightweight reset - only clean test-created data, keep seed data
+        await _factory.ResetTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

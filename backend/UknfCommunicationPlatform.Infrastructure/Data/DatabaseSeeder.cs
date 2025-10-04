@@ -32,6 +32,7 @@ public class DatabaseSeeder
     /// </summary>
     public async Task SeedAsync()
     {
+        using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             // Check if data already exists
@@ -42,6 +43,10 @@ public class DatabaseSeeder
             }
 
             _logger.LogInformation("Starting database seeding...");
+
+            // Disable change tracking for better performance during bulk inserts
+            var originalAutoDetectChanges = _context.ChangeTracker.AutoDetectChangesEnabled;
+            _context.ChangeTracker.AutoDetectChangesEnabled = false;
 
             await SeedRolesAndPermissionsAsync();
             await SeedUsersAsync();
@@ -55,10 +60,15 @@ public class DatabaseSeeder
 
             await _context.SaveChangesAsync();
 
+            // Re-enable change tracking
+            _context.ChangeTracker.AutoDetectChangesEnabled = originalAutoDetectChanges;
+
+            await transaction.CommitAsync();
             _logger.LogInformation("Database seeding completed successfully!");
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             _logger.LogError(ex, "Error occurred while seeding database");
             throw;
         }
