@@ -1,0 +1,25 @@
+# Development Dockerfile with hot reload support
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS development
+WORKDIR /app
+
+# Install dotnet-ef tools
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Copy project files for restore
+COPY ["UknfCommunicationPlatform.Api/UknfCommunicationPlatform.Api.csproj", "UknfCommunicationPlatform.Api/"]
+COPY ["UknfCommunicationPlatform.Core/UknfCommunicationPlatform.Core.csproj", "UknfCommunicationPlatform.Core/"]
+COPY ["UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj", "UknfCommunicationPlatform.Infrastructure/"]
+
+# Restore dependencies
+RUN dotnet restore "UknfCommunicationPlatform.Api/UknfCommunicationPlatform.Api.csproj"
+
+# Set working directory to API project
+WORKDIR /app/UknfCommunicationPlatform.Api
+
+# Expose ports
+EXPOSE 8080
+EXPOSE 8081
+
+# Use dotnet watch for hot reload
+ENTRYPOINT ["dotnet", "watch", "run", "--non-interactive", "--urls", "http://0.0.0.0:8080"]

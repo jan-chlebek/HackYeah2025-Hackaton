@@ -38,9 +38,10 @@ Always take into consideration the contents of and all:
 - .requirements/DETAILS_UKNF_Prompt2Code2.md
 - .requirements/RULES_UKNF_Prompt2Code2.md
 - .requirements/UX&UI Recomendations/knf_color_palette_recommendations.csv
+Also take into account all files in `.requirements/Prompt2Code2/ENG_attachments/` that are not gitignored.
 
 Also prefer the solutions that you are more proficient with.
 
-Also always write Swagger documentation for the backend API endpoints!
+Also always write and update the Swagger documentation for the backend API endpoints!
 
-From now on, after you finish responding and modifying files, always write the user provided prompt (that you respond to) to prompts/ directory saved with filename `<branch_name>-<timestamp>.md` where `<branch_name>` is the name of the current git branch and `<timestamp>` is the current timestamp in `YYYY-MM-DD_HH:MM:SS` + also paste to the file the full response to the prompt.
+From now on, after you finish responding and modifying files, always write the user provided prompt (that you respond to) to prompts/ directory saved with filename `<branch_name>-<timestamp>.md` where `<branch_name>` is the name of the current git branch and `<timestamp>` is the current timestamp in `YYYY-MM-DD_HHMMSS` + also paste to the file the full response to the prompt.

@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uknf-postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=uknf_db
+      - POSTGRES_USER=uknf_user
+      - POSTGRES_PASSWORD=uknf_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - uknf-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uknf_user -d uknf_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./src/Backend
+      dockerfile: Dockerfile.dev
+    container_name: uknf-backend-dev
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=uknf_db;Username=uknf_user;Password=uknf_password
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+    volumes:
+      # Mount source code for hot reload
+      - ./src/Backend:/app:delegated
+      # Exclude obj and bin directories to avoid conflicts
+      - /app/UknfCommunicationPlatform.Api/obj
+      - /app/UknfCommunicationPlatform.Api/bin
+      - /app/UknfCommunicationPlatform.Core/obj
+      - /app/UknfCommunicationPlatform.Core/bin
+      - /app/UknfCommunicationPlatform.Infrastructure/obj
+      - /app/UknfCommunicationPlatform.Infrastructure/bin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - uknf-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./src/Frontend/uknf-portal
+      dockerfile: Dockerfile
+    container_name: uknf-frontend-dev
+    ports:
+      - "4200:4200"
+    volumes:
+      # Mount source code for hot reload
+      - ./src/Frontend/uknf-portal:/app:delegated
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm start
+    depends_on:
+      - backend
+    networks:
+      - uknf-network
+
+volumes:
+  postgres_data:
+
+networks:
+  uknf-network:
+    driver: bridge
