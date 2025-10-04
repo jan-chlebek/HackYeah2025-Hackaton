@@ -11,7 +11,7 @@
 - Favour open-source/licence-compatible snippets. Never paste content from paid or proprietary sources.
 
 ## Architecture guardrails
-- Keep a clear separation between the Angular SPA (`Frontend/`) and the ASP.NET Core Web API (`Backend/`). Shared models belong in versioned contracts (OpenAPI/TypeScript DTOs generated from C#).
+- Keep a clear separation between the Angular SPA (`frontend/`) and the ASP.NET Core Web API (`backend/`). Shared models belong in versioned contracts (OpenAPI/TypeScript DTOs generated from C#).
 - Enforce REST conventions: plural nouns, `/api/v1/...`, problem+json for errors, and include pagination/filter metadata in list responses.
 - All user-facing flows must respect the functional spec: communication dashboard, messaging with attachments, file library, case folders, FAQs, contact registry, and podmiot data updater.
 - Non-functional must-haves:
