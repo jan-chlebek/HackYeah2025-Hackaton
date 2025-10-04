@@ -228,3 +228,21 @@ TestResults/
 !tsconfig.json
 !angular.json
 
+# ==============================================================================
+# MCP (Model Context Protocol) Server Files
+# ==============================================================================
+# MCP server runtime data and logs
+.mcp/
+.mcp/memory/
+.mcp/logs/
+
+# MCP environment configuration (contains secrets)
+.env.mcp
+
+# MCP log files
+mcp-*.log
+**/mcp-*.log
+
+# Keep MCP template file
+!.env.mcp.template
+
