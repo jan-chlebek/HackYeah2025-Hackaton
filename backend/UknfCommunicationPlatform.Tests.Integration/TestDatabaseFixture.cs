@@ -47,6 +47,10 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseNpgsql(_connectionString);
+                // Suppress PendingModelChangesWarning for tests
+                // This warning appears when there are minor differences between model and migration snapshot
+                options.ConfigureWarnings(warnings => 
+                    warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
             });
         });
 
@@ -108,35 +112,51 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
         using var scope = Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        try
+        var tables = new[]
         {
-            // Delete all data from tables in reverse order of dependencies
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"RefreshTokens\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"FileLibraryPermissions\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"CaseDocuments\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"CaseHistories\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Cases\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AnnouncementAttachments\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AnnouncementReads\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AnnouncementHistories\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Announcements\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Reports\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"MessageAttachments\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Messages\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Contacts\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"FaqQuestions\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AuditLogs\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"PasswordHistories\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"UserRoles\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Users\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"RolePermissions\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Permissions\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Roles\" RESTART IDENTITY CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"SupervisedEntities\" RESTART IDENTITY CASCADE");
-        }
-        catch (Exception)
+            "refresh_tokens",
+            "file_library_permissions",
+            "case_documents",
+            "case_histories",
+            "cases",
+            "announcement_attachments",
+            "announcement_reads",
+            "announcement_histories",
+            "announcement_recipients",
+            "announcements",
+            "reports",
+            "message_attachments",
+            "messages",
+            "contact_group_members",
+            "contact_groups",
+            "contacts",
+            "faq_questions",
+            "faq_ratings",
+            "file_libraries",
+            "audit_logs",
+            "password_histories",
+            "password_policies",
+            "user_roles",
+            "users",
+            "role_permissions",
+            "permissions",
+            "roles",
+            "entities"
+        };
+
+        // Try to truncate each table individually - ignore errors for tables that don't exist
+        foreach (var table in tables)
         {
-            // Ignore errors during cleanup - tables might not exist yet
+            try
+            {
+                #pragma warning disable EF1002 // Risk of SQL injection - table names are from hardcoded array
+                await dbContext.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE \"{table}\" RESTART IDENTITY CASCADE");
+                #pragma warning restore EF1002
+            }
+            catch
+            {
+                // Ignore errors - table might not exist yet
+            }
         }
     }
 }

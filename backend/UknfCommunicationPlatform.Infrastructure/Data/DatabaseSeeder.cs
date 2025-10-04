@@ -46,6 +46,10 @@ public class DatabaseSeeder
             await SeedRolesAndPermissionsAsync();
             await SeedUsersAsync();
             await SeedSupervisedEntitiesAsync();
+            
+            // Save users and entities first, as messages and reports depend on them
+            await _context.SaveChangesAsync();
+            
             await SeedMessagesAsync();
             await SeedReportsAsync();
 
@@ -606,10 +610,11 @@ public class DatabaseSeeder
         var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).ToListAsync();
         var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).ToListAsync();
 
+        // Use actual users that were created in SeedUsersAsync
         var internalUser1 = internalUsers.First(u => u.Email == "jan.kowalski@uknf.gov.pl");
-        var internalUser2 = internalUsers.First(u => u.Email == "anna.nowak@uknf.gov.pl");
-        var internalUser3 = internalUsers.First(u => u.Email == "tomasz.wisniewski@uknf.gov.pl");
-        var internalUser4 = internalUsers.First(u => u.Email == "marta.kowalczyk@uknf.gov.pl");
+        var internalUser2 = internalUsers.First(u => u.Email == "piotr.wisniewski@uknf.gov.pl");
+        var internalUser3 = internalUsers.First(u => u.Email == "marek.dabrowski@uknf.gov.pl");
+        var internalUser4 = internalUsers.First(u => u.Email == "tomasz.lewandowski@uknf.gov.pl");
 
         var messages = new List<Message>();
 

@@ -11,6 +11,7 @@ namespace UknfCommunicationPlatform.Tests.Integration.Controllers;
 /// Integration tests for all data-returning API endpoints
 /// Tests that each endpoint returns data successfully
 /// </summary>
+[Collection(nameof(DatabaseCollection))]
 public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLifetime
 {
     private readonly TestDatabaseFixture _factory;
