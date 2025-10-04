@@ -41,6 +41,11 @@ public class SupervisedEntity
     public string? KRS { get; set; }
 
     /// <summary>
+    /// National Business Registry Number (REGON)
+    /// </summary>
+    public string? REGON { get; set; }
+
+    /// <summary>
     /// Street address
     /// </summary>
     public string Street { get; set; } = string.Empty;
@@ -66,6 +71,11 @@ public class SupervisedEntity
     public string City { get; set; } = string.Empty;
 
     /// <summary>
+    /// Country
+    /// </summary>
+    public string? Country { get; set; }
+
+    /// <summary>
     /// Phone number
     /// </summary>
     public string? Phone { get; set; }
@@ -74,6 +84,11 @@ public class SupervisedEntity
     /// Email address
     /// </summary>
     public string Email { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Website URL
+    /// </summary>
+    public string? Website { get; set; }
 
     /// <summary>
     /// UKNF registry entry number
@@ -104,6 +119,11 @@ public class SupervisedEntity
     /// Is cross-border entity
     /// </summary>
     public bool IsCrossBorder { get; set; }
+
+    /// <summary>
+    /// Is entity active
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 
     /// <summary>
     /// Creation date
