@@ -1,4 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using UknfCommunicationPlatform.Core.Configuration;
+using UknfCommunicationPlatform.Core.Authorization;
 using UknfCommunicationPlatform.Infrastructure.Data;
 using UknfCommunicationPlatform.Infrastructure.Extensions;
 
@@ -7,8 +13,84 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 
+// Add Health Checks
+builder.Services.AddHealthChecks();
+
 // Add Infrastructure (Database)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JwtSettings not found in configuration");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// Configure Authorization with custom policies
+builder.Services.AddAuthorization(options =>
+{
+    // Entity context policies
+    options.AddPolicy("EntityContext_AllowInternal", policy =>
+        policy.Requirements.Add(new EntityOwnershipRequirement(allowInternalUsers: true)));
+
+    options.AddPolicy("EntityContext_Strict", policy =>
+        policy.Requirements.Add(new EntityOwnershipRequirement(allowInternalUsers: false)));
+
+    // Common permission policies
+    options.AddPolicy("Permission_users.read", policy =>
+        policy.Requirements.Add(new PermissionRequirement("users.read")));
+
+    options.AddPolicy("Permission_users.write", policy =>
+        policy.Requirements.Add(new PermissionRequirement("users.write")));
+
+    options.AddPolicy("Permission_users.delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("users.delete")));
+
+    options.AddPolicy("Permission_entities.read", policy =>
+        policy.Requirements.Add(new PermissionRequirement("entities.read")));
+
+    options.AddPolicy("Permission_entities.write", policy =>
+        policy.Requirements.Add(new PermissionRequirement("entities.write")));
+
+    options.AddPolicy("Permission_reports.read", policy =>
+        policy.Requirements.Add(new PermissionRequirement("reports.read")));
+
+    options.AddPolicy("Permission_reports.write", policy =>
+        policy.Requirements.Add(new PermissionRequirement("reports.write")));
+
+    options.AddPolicy("Permission_messages.read", policy =>
+        policy.Requirements.Add(new PermissionRequirement("messages.read")));
+
+    options.AddPolicy("Permission_messages.write", policy =>
+        policy.Requirements.Add(new PermissionRequirement("messages.write")));
+
+    // Role-based policies
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Administrator"));
+
+    options.AddPolicy("InternalUsersOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole("Administrator") ||
+            context.User.IsInRole("InternalUser") ||
+            context.User.IsInRole("Supervisor")));
+});
 
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -23,6 +105,32 @@ builder.Services.AddSwaggerGen(options =>
         {
             Name = "UKNF",
             Email = "contact@uknf.gov.pl"
+        }
+    });
+
+    // Add JWT Authentication to Swagger
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token."
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
         }
     });
 
@@ -64,9 +172,13 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map health check endpoint
+app.MapHealthChecks("/health");
 
 // Auto-apply migrations in development
 if (app.Environment.IsDevelopment())
