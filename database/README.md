@@ -5,6 +5,9 @@ This directory contains the PostgreSQL database schema for the UKNF Communicatio
 ## Files
 
 - **init-schema.sql** - Complete database schema creation script
+- **seed-data.sql** - Initial test data (5 entities, 8 users, reports, messages, cases)
+- **additional-seed-data.sql** - Extended test data (10 more entities, 10 users, etc.)
+- **apply-snake-case-columns.md** - Guide for EF Core snake_case column mapping
 
 ## Database Overview
 
@@ -91,16 +94,31 @@ docker-compose up -d db
 
 # Run the schema script
 docker exec -i uknf-db psql -U postgres -d uknf_platform < database/init-schema.sql
+
+# Run the initial seed data
+docker exec -i uknf-db psql -U postgres -d uknf_platform < database/seed-data.sql
+
+# (Optional) Run additional seed data for more test records
+docker exec -i uknf-db psql -U postgres -d uknf_platform < database/additional-seed-data.sql
 ```
 
 #### Direct PostgreSQL Connection
 ```bash
 psql -h localhost -U postgres -d uknf_platform -f database/init-schema.sql
+psql -h localhost -U postgres -d uknf_platform -f database/seed-data.sql
+psql -h localhost -U postgres -d uknf_platform -f database/additional-seed-data.sql
 ```
 
 #### PowerShell (Windows)
 ```powershell
+# Create schema
 Get-Content database/init-schema.sql | docker exec -i uknf-db psql -U postgres -d uknf_platform
+
+# Load initial test data
+Get-Content database/seed-data.sql | docker exec -i uknf-db psql -U postgres -d uknf_platform
+
+# Load additional test data (optional)
+Get-Content database/additional-seed-data.sql | docker exec -i uknf-db psql -U postgres -d uknf_platform
 ```
 
 ### Verifying Installation
