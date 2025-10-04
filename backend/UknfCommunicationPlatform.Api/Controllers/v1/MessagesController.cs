@@ -91,21 +91,39 @@ public class MessagesController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new message or draft
+    /// Create a new message or draft with optional file attachments
     /// </summary>
-    /// <param name="request">Message creation data</param>
+    /// <param name="request">Message creation data with optional file attachments</param>
     /// <returns>Created message</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<MessageResponse>> CreateMessage([FromBody] CreateMessageRequest request)
+    [RequestSizeLimit(100_000_000)] // 100MB max total request size
+    public async Task<ActionResult<MessageResponse>> CreateMessage([FromForm] CreateMessageRequest request)
     {
         var userId = GetCurrentUserId();
 
         if (request.SendImmediately && !request.RecipientId.HasValue)
         {
             return BadRequest(new { error = "Recipient is required when sending immediately" });
+        }
+
+        // Validate attachments if provided
+        if (request.Attachments != null && request.Attachments.Any())
+        {
+            const long maxFileSize = 50_000_000; // 50MB per file
+            foreach (var file in request.Attachments)
+            {
+                if (file.Length > maxFileSize)
+                {
+                    return BadRequest(new { error = $"File '{file.FileName}' exceeds maximum size of 50MB" });
+                }
+                if (file.Length == 0)
+                {
+                    return BadRequest(new { error = $"File '{file.FileName}' is empty" });
+                }
+            }
         }
 
         var message = await _messageService.CreateMessageAsync(userId, request);
@@ -272,6 +290,30 @@ public class MessagesController : ControllerBase
         var stats = await _messageService.GetMessageStatsAsync(userId);
 
         return Ok(stats);
+    }
+
+    /// <summary>
+    /// Download a message attachment
+    /// </summary>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="attachmentId">Attachment ID</param>
+    /// <returns>File content</returns>
+    [HttpGet("{messageId}/attachments/{attachmentId}/download")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadAttachment(long messageId, long attachmentId)
+    {
+        var userId = GetCurrentUserId();
+        var attachment = await _messageService.GetAttachmentAsync(messageId, attachmentId, userId);
+
+        if (attachment == null)
+        {
+            return NotFound(new { error = "Attachment not found or access denied" });
+        }
+
+        return File(attachment.FileContent, attachment.ContentType, attachment.FileName);
     }
 
     /// <summary>

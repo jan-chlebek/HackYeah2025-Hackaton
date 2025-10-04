@@ -24,8 +24,8 @@ public class FileLibraryUpdateMetadataRequestValidator : AbstractValidator<FileL
 
         // At least one field must be provided
         RuleFor(x => x)
-            .Must(x => !string.IsNullOrEmpty(x.Name) || 
-                       x.Description != null || 
+            .Must(x => !string.IsNullOrEmpty(x.Name) ||
+                       x.Description != null ||
                        !string.IsNullOrEmpty(x.Category))
             .WithMessage("At least one field (Name, Description, or Category) must be provided");
     }
