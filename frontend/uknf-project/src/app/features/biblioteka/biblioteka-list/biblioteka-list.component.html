@@ -1,3 +1,252 @@
-<div class="biblioteka-list-container">
-  <h1>Biblioteka - Lista</h1>
+<div class="biblioteka-container">
+  <!-- Page Title -->
+  <h1 class="page-title">Biblioteka - repozytorium plików</h1>
+  
+  <!-- Search Section -->
+  <section class="search-section">
+    <h2 class="section-title">Wyszukiwanie</h2>
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="applyFilters()"
+        class="search-input" 
+        placeholder="Szukaj..."
+        aria-label="Wyszukaj pliki"
+      />
+    </div>
+  </section>
+  
+  <!-- Table Section -->
+  <section class="table-section">
+    <!-- Column Filters -->
+    <div class="column-filters">
+      <div class="filter-group">
+        <label for="dataFilter">Data aktualizacji</label>
+        <select 
+          id="dataFilter"
+          [(ngModel)]="dataAktualizacjiFilter" 
+          (change)="applyFilters()"
+          class="filter-select"
+        >
+          <option value="">Wszystkie</option>
+          <option value="2024-09-14">2024-09-14</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="nazwaFilter">Nazwa pliku</label>
+        <select 
+          id="nazwaFilter"
+          [(ngModel)]="nazwaPlikiuFilter" 
+          (change)="applyFilters()"
+          class="filter-select"
+        >
+          <option value="">Wszystkie</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="okresFilter">Okres sprawozdawczy</label>
+        <select 
+          id="okresFilter"
+          [(ngModel)]="okresSprawozdawczyFilter" 
+          (change)="applyFilters()"
+          class="filter-select"
+        >
+          <option value="">Wszystkie</option>
+          <option value="Kwartal">Kwartal</option>
+          <option value="Rok">Rok</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Data Table -->
+    <div class="table-wrapper">
+      <table class="data-table" role="table" aria-label="Tabela plików w repozytorium">
+        <thead>
+          <tr>
+            <th scope="col" class="checkbox-col">
+              <input 
+                type="checkbox" 
+                (change)="toggleAllSelection()"
+                aria-label="Zaznacz wszystkie"
+              />
+            </th>
+            <th 
+              scope="col" 
+              class="sortable" 
+              (click)="sortBy('dataAktualizacji')"
+              [attr.aria-sort]="sortColumn === 'dataAktualizacji' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              Data aktualizacji
+              <span class="sort-icon">{{ getSortIcon('dataAktualizacji') }}</span>
+            </th>
+            <th 
+              scope="col" 
+              class="sortable" 
+              (click)="sortBy('nazwaPliku')"
+              [attr.aria-sort]="sortColumn === 'nazwaPliku' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              Nazwa pliku
+              <span class="sort-icon">{{ getSortIcon('nazwaPliku') }}</span>
+            </th>
+            <th 
+              scope="col" 
+              class="sortable" 
+              (click)="sortBy('okresSprawozdawczy')"
+              [attr.aria-sort]="sortColumn === 'okresSprawozdawczy' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              Okres sprawozdawczy
+              <span class="sort-icon">{{ getSortIcon('okresSprawozdawczy') }}</span>
+            </th>
+            <th scope="col" class="action-col">
+              Pobierz
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let file of getPaginatedFiles()" [class.selected]="file.selected">
+            <td class="checkbox-col">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="file.selected"
+                [attr.aria-label]="'Zaznacz ' + file.nazwaPliku"
+              />
+            </td>
+            <td>{{ file.dataAktualizacji }}</td>
+            <td>{{ file.nazwaPliku }}</td>
+            <td>{{ file.okresSprawozdawczy || '-' }}</td>
+            <td class="action-col">
+              <button 
+                class="btn-download"
+                aria-label="Pobierz {{ file.nazwaPliku }}"
+              >
+                Pobierz
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="getPaginatedFiles().length === 0">
+            <td colspan="5" class="no-data">Brak danych do wyświetlenia</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination" role="navigation" aria-label="Paginacja tabeli">
+      <div class="pagination-info">
+        <span>Showing {{ getStartIndex() }} to {{ getEndIndex() }} of {{ totalItems }} entries</span>
+      </div>
+      
+      <div class="pagination-controls">
+        <button 
+          class="page-btn"
+          [disabled]="currentPage === 1"
+          (click)="changePage(1)"
+          aria-label="Pierwsza strona"
+        >
+          «
+        </button>
+        <button 
+          class="page-btn"
+          [disabled]="currentPage === 1"
+          (click)="changePage(currentPage - 1)"
+          aria-label="Poprzednia strona"
+        >
+          ‹
+        </button>
+        <button 
+          *ngFor="let page of getPageNumbers()"
+          class="page-btn"
+          [class.active]="page === currentPage"
+          (click)="changePage(page)"
+          [attr.aria-current]="page === currentPage ? 'page' : null"
+        >
+          {{ page }}
+        </button>
+        <button 
+          class="page-btn"
+          [disabled]="currentPage === getTotalPages()"
+          (click)="changePage(currentPage + 1)"
+          aria-label="Następna strona"
+        >
+          ›
+        </button>
+        <button 
+          class="page-btn"
+          [disabled]="currentPage === getTotalPages()"
+          (click)="changePage(getTotalPages())"
+          aria-label="Ostatnia strona"
+        >
+          »
+        </button>
+      </div>
+      
+      <div class="items-per-page">
+        <select 
+          [(ngModel)]="itemsPerPage" 
+          (change)="onItemsPerPageChange()"
+          aria-label="Liczba wierszy na stronę"
+        >
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Action Buttons -->
+  <section class="action-buttons">
+    <button 
+      class="btn-action btn-add" 
+      (click)="dodajFile()"
+      aria-label="Dodaj nowy plik"
+    >
+      <span class="btn-icon">+</span>
+      Dodaj
+    </button>
+    <button 
+      class="btn-action btn-edit" 
+      (click)="modyfikujFile()"
+      aria-label="Modyfikuj wybrany plik"
+    >
+      <span class="btn-icon">✏</span>
+      Modyfikuj
+    </button>
+    <button 
+      class="btn-action btn-view" 
+      (click)="podgladFile()"
+      aria-label="Podgląd wybranego pliku"
+    >
+      <span class="btn-icon">�</span>
+      Podgląd
+    </button>
+    <button 
+      class="btn-action btn-delete" 
+      (click)="usunFile()"
+      aria-label="Usuń wybrane pliki"
+    >
+      <span class="btn-icon">✖</span>
+      Usuń
+    </button>
+    <button 
+      class="btn-action btn-history" 
+      (click)="historiaFile()"
+      aria-label="Zobacz historię wybranego pliku"
+    >
+      <span class="btn-icon">�</span>
+      Historia
+    </button>
+    <button 
+      class="btn-action btn-export" 
+      (click)="eksportujFiles()"
+      aria-label="Eksportuj wybrane pliki"
+    >
+      <span class="btn-icon">💾</span>
+      Eksportuj
+    </button>
+  </section>
 </div>
