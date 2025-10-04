@@ -26,11 +26,6 @@ public class MessageAttachment
     public string FileName { get; set; } = string.Empty;
 
     /// <summary>
-    /// File path on storage
-    /// </summary>
-    public string FilePath { get; set; } = string.Empty;
-
-    /// <summary>
     /// File size in bytes
     /// </summary>
     public long FileSize { get; set; }
@@ -39,6 +34,11 @@ public class MessageAttachment
     /// MIME type
     /// </summary>
     public string ContentType { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Binary content of the file stored as BLOB
+    /// </summary>
+    public byte[] FileContent { get; set; } = Array.Empty<byte>();
 
     /// <summary>
     /// Upload date

@@ -1,14 +1,14 @@
 # UKNF Platform - UI Screen Prototypes Summary
 
-**Source**: `.requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/`  
-**Date**: 2025-10-05  
+**Source**: `.requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/`
+**Date**: 2025-10-05
 **Purpose**: Text descriptions of all UI mockups for faster reference during development
 
 ---
 
 ## 00 - Pulpit.png (Dashboard - Variant 1)
 
-**Screen Type**: Main Dashboard / Home Screen  
+**Screen Type**: Main Dashboard / Home Screen
 **Layout**: Full-page dashboard with statistics and quick access
 
 ### Header Section
@@ -44,7 +44,7 @@
 
 ## 01 - Pulpit.png (Dashboard - Variant 2)
 
-**Screen Type**: Alternative Dashboard Layout  
+**Screen Type**: Alternative Dashboard Layout
 **Layout**: Similar to 00 but with different widget arrangement
 
 ### Key Differences from 00
@@ -63,7 +63,7 @@
 
 ## 02 - wniosek o dostęp podgląd.png (Access Request Preview)
 
-**Screen Type**: Form/Document Preview  
+**Screen Type**: Form/Document Preview
 **Layout**: Detailed form view with multiple sections
 
 ### Header
@@ -112,7 +112,7 @@
 
 ## 03 - Biblioteka - repozytorium plików.png (File Repository)
 
-**Screen Type**: File Management / Document Library  
+**Screen Type**: File Management / Document Library
 **Layout**: Table-based file listing with filters
 
 ### Header Section
@@ -172,7 +172,7 @@
 
 ## 04 - Biblioteka - repozytorium plików - dodaj.png (Add File to Repository)
 
-**Screen Type**: File Upload Modal/Form  
+**Screen Type**: File Upload Modal/Form
 **Layout**: Modal dialog or dedicated page for file upload
 
 ### Modal Header
@@ -226,7 +226,7 @@
 
 ## 05 - wiadomości.png (Messages List)
 
-**Screen Type**: Message Inbox / List View  
+**Screen Type**: Message Inbox / List View
 **Layout**: Split view - message list + preview pane
 
 ### Header
@@ -306,7 +306,7 @@ Each message shows:
 
 ## 06 - wiadomości filtrowanie.png (Messages with Filters)
 
-**Screen Type**: Messages List with Extended Filter Panel  
+**Screen Type**: Messages List with Extended Filter Panel
 **Layout**: Three-column layout - filters + list + preview
 
 ### Left Panel - Advanced Filters (~20% width)
@@ -368,7 +368,7 @@ Each message shows:
 
 ## 07 - wiadomości szczegoly.png (Message Details)
 
-**Screen Type**: Full Message View / Details Page  
+**Screen Type**: Full Message View / Details Page
 **Layout**: Full-page message display with thread view
 
 ### Header Section
