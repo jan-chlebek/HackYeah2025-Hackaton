@@ -154,7 +154,6 @@ public class ApplicationDbContext : DbContext
                   entity.Property(e => e.Email).IsRequired().HasMaxLength(500);
                   entity.Property(e => e.Phone).HasMaxLength(250);
                   entity.Property(e => e.PasswordHash).HasMaxLength(500);
-                  // Role enum conversion handled globally in snake_case loop
 
                   entity.HasIndex(e => e.Email).IsUnique();
 
@@ -198,19 +197,6 @@ public class ApplicationDbContext : DbContext
                   entity.HasIndex(e => e.ThreadId);
                   entity.HasIndex(e => new { e.SenderId, e.SentAt });
                   entity.HasIndex(e => new { e.RecipientId, e.IsRead });
-
-                  // Polish UI field mappings
-                  entity.Property(e => e.Identyfikator).HasColumnName("identyfikator");
-                  entity.Property(e => e.SygnaturaSprawy).HasColumnName("sygnatura_sprawy");
-                  entity.Property(e => e.Podmiot).HasColumnName("podmiot");
-                  entity.Property(e => e.StatusWiadomosci).HasColumnName("status_wiadomosci");
-                  entity.Property(e => e.Priorytet).HasColumnName("priorytet");
-                  entity.Property(e => e.DataPrzeslaniaPodmiotu).HasColumnName("data_przeslania_podmiotu");
-                  entity.Property(e => e.Uzytkownik).HasColumnName("uzytkownik");
-                  entity.Property(e => e.WiadomoscUzytkownika).HasColumnName("wiadomosc_uzytkownika");
-                  entity.Property(e => e.DataPrzeslaniaUKNF).HasColumnName("data_przeslania_uknf");
-                  entity.Property(e => e.PracownikUKNF).HasColumnName("pracownik_uknf");
-                  entity.Property(e => e.WiadomoscPracownikaUKNF).HasColumnName("wiadomosc_pracownika_uknf");
 
                   entity.HasOne(e => e.Sender)
                     .WithMany(u => u.SentMessages)
@@ -431,14 +417,8 @@ public class ApplicationDbContext : DbContext
                   entity.Property(e => e.Name).IsRequired().HasMaxLength(500);
                   entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
                   entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
-                  entity.Property(e => e.Version).IsRequired().HasMaxLength(50);
                   entity.HasIndex(e => new { e.Category, e.IsCurrentVersion });
                   entity.HasIndex(e => e.UploadedAt);
-
-                  entity.HasOne(e => e.ParentFile)
-                    .WithMany(f => f.Versions)
-                    .HasForeignKey(e => e.ParentFileId)
-                    .OnDelete(DeleteBehavior.Restrict);
 
                   entity.HasOne(e => e.UploadedBy)
                     .WithMany()

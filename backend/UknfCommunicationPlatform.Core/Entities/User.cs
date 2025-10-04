@@ -43,11 +43,6 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// User role (deprecated - use UserRoles navigation property for many-to-many)
-    /// </summary>
-    public UserRole Role { get; set; }
-
-    /// <summary>
     /// Is account active
     /// </summary>
     public bool IsActive { get; set; } = true;

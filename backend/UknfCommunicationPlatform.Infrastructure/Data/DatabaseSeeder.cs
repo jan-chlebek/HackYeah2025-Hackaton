@@ -691,7 +691,6 @@ public class DatabaseSeeder
             Message message;
             if (isFromInternal)
             {
-                var entityName = externalUsers.FirstOrDefault(u => u.Id == externalUser.Id)?.SupervisedEntity?.Name ?? "Podmiot nadzorowany";
                 message = new Message
                 {
                     Subject = messageSubjects[i],
@@ -702,24 +701,11 @@ public class DatabaseSeeder
                     Folder = MessageFolder.Sent,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 4 != 0,
-                    ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null,
-                    // Polish UI fields
-                    Identyfikator = $"2024/System14/{i + 1}",
-                    SygnaturaSprawy = sygnaturaSprawyOptions[i % sygnaturaSprawyOptions.Length],
-                    Podmiot = entityName,
-                    StatusWiadomosci = statusWiadomosciOptions[i % statusWiadomosciOptions.Length],
-                    Priorytet = priorytetOptions[i % priorytetOptions.Length],
-                    DataPrzeslaniaPodmiotu = null,
-                    Uzytkownik = "",
-                    WiadomoscUzytkownika = "",
-                    DataPrzeslaniaUKNF = DateTime.UtcNow.AddDays(-daysAgo),
-                    PracownikUKNF = $"{internalUser.FirstName} {internalUser.LastName}",
-                    WiadomoscPracownikaUKNF = messageBodies[i]
+                    ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null
                 };
             }
             else
             {
-                var entityName = externalUsers.FirstOrDefault(u => u.Id == externalUser.Id)?.SupervisedEntity?.Name ?? "Podmiot nadzorowany";
                 message = new Message
                 {
                     Subject = messageSubjects[i],
@@ -730,19 +716,7 @@ public class DatabaseSeeder
                     Folder = MessageFolder.Inbox,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 3 != 0,
-                    ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null,
-                    // Polish UI fields
-                    Identyfikator = $"2024/System14/{i + 1}",
-                    SygnaturaSprawy = sygnaturaSprawyOptions[i % sygnaturaSprawyOptions.Length],
-                    Podmiot = entityName,
-                    StatusWiadomosci = statusWiadomosciOptions[i % statusWiadomosciOptions.Length],
-                    Priorytet = priorytetOptions[i % priorytetOptions.Length],
-                    DataPrzeslaniaPodmiotu = DateTime.UtcNow.AddDays(-daysAgo),
-                    Uzytkownik = $"Przedstawiciel {entityName}",
-                    WiadomoscUzytkownika = messageBodies[i],
-                    DataPrzeslaniaUKNF = null,
-                    PracownikUKNF = "",
-                    WiadomoscPracownikaUKNF = ""
+                    ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null
                 };
             }
 

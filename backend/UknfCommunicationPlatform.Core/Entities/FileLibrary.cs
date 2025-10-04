@@ -51,29 +51,9 @@ public class FileLibrary
     public string Tags { get; set; } = string.Empty;
 
     /// <summary>
-    /// Version number
-    /// </summary>
-    public string Version { get; set; } = "1.0";
-
-    /// <summary>
     /// Is this the current version
     /// </summary>
     public bool IsCurrentVersion { get; set; } = true;
-
-    /// <summary>
-    /// Parent file ID (for versioning)
-    /// </summary>
-    public long? ParentFileId { get; set; }
-
-    /// <summary>
-    /// Navigation property - Parent file
-    /// </summary>
-    public FileLibrary? ParentFile { get; set; }
-
-    /// <summary>
-    /// Navigation property - File versions
-    /// </summary>
-    public ICollection<FileLibrary> Versions { get; set; } = new List<FileLibrary>();
 
     /// <summary>
     /// Is file public (visible to all)
