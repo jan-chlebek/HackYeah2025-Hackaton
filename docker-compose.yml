@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uknf-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=uknf_db
+      - POSTGRES_USER=uknf_user
+      - POSTGRES_PASSWORD=uknf_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uknf_user -d uknf_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend/uknf-project
@@ -7,4 +25,11 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=uknf_db;Username=uknf_user;Password=uknf_password
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  postgres_data:
