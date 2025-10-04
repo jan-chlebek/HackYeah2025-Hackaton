@@ -38,18 +38,29 @@ export class WiadomosciListComponent implements OnInit {
   sortColumn: SortColumn | null = null;
   sortDirection: SortDirection = null;
   
+  // Filter visibility
+  showFilters: boolean = false;
+  
   // Column filters
   identyfikatorFilter: string = '';
   sygnaturaSprawyFilter: string = '';
   podmiotFilter: string = '';
   statusFilter: string = '';
   priorytetFilter: string = '';
-  dataPrzeslaniaPodmiotuFilter: string = '';
-  uzytkownikFilter: string = '';
-  wiadomoscUzytkownikaFilter: string = '';
-  dataPrzeslaniaUKNFFilter: string = '';
+  dataPrzeslaniaPodmiotuFromFilter: string = '';
+  dataPrzeslaniaPodmiotuToFilter: string = '';
+  dataPrzeslaniaUKNFFromFilter: string = '';
+  dataPrzeslaniaUKNFToFilter: string = '';
   pracownikUKNFFilter: string = '';
-  wiadomoscPracownikaUKNFFilter: string = '';
+  
+  // Checkbox filters
+  mojePodmiotyFilter: boolean = false;
+  wymaganaOdpowiedzUKNFFilter: boolean = false;
+  
+  // Available options
+  priorytetOptions = ['Wszystkie', 'Wysoki', 'Średni', 'Niski'];
+  statusOptions = ['Wszystkie', 'Oczekuje na odpowiedź UKNF', 'Odpowiedziano', 'Zamknięte'];
+  pracownikOptions = ['Wszystkie'];
   
   // Pagination
   currentPage: number = 1;
@@ -187,17 +198,73 @@ export class WiadomosciListComponent implements OnInit {
           String(val).toLowerCase().includes(this.searchTerm.toLowerCase())
         );
       
+      const matchesIdentyfikator = !this.identyfikatorFilter || 
+        msg.identyfikator.toLowerCase().includes(this.identyfikatorFilter.toLowerCase());
+      
+      const matchesSygnatura = !this.sygnaturaSprawyFilter || 
+        msg.sygnaturaSprawy.toLowerCase().includes(this.sygnaturaSprawyFilter.toLowerCase());
+      
+      const matchesPodmiot = !this.podmiotFilter || 
+        msg.podmiot.toLowerCase().includes(this.podmiotFilter.toLowerCase());
+      
+      const matchesStatus = !this.statusFilter || this.statusFilter === 'Wszystkie' || 
+        msg.statusWiadomosci === this.statusFilter;
+      
+      const matchesPriorytet = !this.priorytetFilter || this.priorytetFilter === 'Wszystkie' || 
+        msg.priorytet === this.priorytetFilter;
+      
+      const matchesPracownik = !this.pracownikUKNFFilter || this.pracownikUKNFFilter === 'Wszystkie' || 
+        msg.pracownikUKNF.toLowerCase().includes(this.pracownikUKNFFilter.toLowerCase());
+      
+      // Date filters
+      const matchesDatePodmiotuFrom = !this.dataPrzeslaniaPodmiotuFromFilter || 
+        msg.dataPrzeslaniaPodmiotu >= this.dataPrzeslaniaPodmiotuFromFilter;
+      
+      const matchesDatePodmiotuTo = !this.dataPrzeslaniaPodmiotuToFilter || 
+        msg.dataPrzeslaniaPodmiotu <= this.dataPrzeslaniaPodmiotuToFilter;
+      
+      const matchesDateUKNFFrom = !this.dataPrzeslaniaUKNFFromFilter || 
+        (msg.dataPrzeslaniaUKNF && msg.dataPrzeslaniaUKNF >= this.dataPrzeslaniaUKNFFromFilter);
+      
+      const matchesDateUKNFTo = !this.dataPrzeslaniaUKNFToFilter || 
+        (msg.dataPrzeslaniaUKNF && msg.dataPrzeslaniaUKNF <= this.dataPrzeslaniaUKNFToFilter);
+      
       return matchesSearch &&
-        (!this.identyfikatorFilter || msg.identyfikator.includes(this.identyfikatorFilter)) &&
-        (!this.sygnaturaSprawyFilter || msg.sygnaturaSprawy.includes(this.sygnaturaSprawyFilter)) &&
-        (!this.podmiotFilter || msg.podmiot.toLowerCase().includes(this.podmiotFilter.toLowerCase())) &&
-        (!this.statusFilter || msg.statusWiadomosci === this.statusFilter) &&
-        (!this.priorytetFilter || msg.priorytet === this.priorytetFilter) &&
-        (!this.uzytkownikFilter || msg.uzytkownik.toLowerCase().includes(this.uzytkownikFilter.toLowerCase()));
+        matchesIdentyfikator &&
+        matchesSygnatura &&
+        matchesPodmiot &&
+        matchesStatus &&
+        matchesPriorytet &&
+        matchesPracownik &&
+        matchesDatePodmiotuFrom &&
+        matchesDatePodmiotuTo &&
+        matchesDateUKNFFrom &&
+        matchesDateUKNFTo;
     });
     
     this.applySorting();
     this.totalItems = this.filteredMessages.length;
+    this.currentPage = 1;
+  }
+  
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+  }
+  
+  clearFilters(): void {
+    this.identyfikatorFilter = '';
+    this.sygnaturaSprawyFilter = '';
+    this.podmiotFilter = '';
+    this.statusFilter = '';
+    this.priorytetFilter = '';
+    this.dataPrzeslaniaPodmiotuFromFilter = '';
+    this.dataPrzeslaniaPodmiotuToFilter = '';
+    this.dataPrzeslaniaUKNFFromFilter = '';
+    this.dataPrzeslaniaUKNFToFilter = '';
+    this.pracownikUKNFFilter = '';
+    this.mojePodmiotyFilter = false;
+    this.wymaganaOdpowiedzUKNFFilter = false;
+    this.applyFilters();
   }
   
   applySorting(): void {

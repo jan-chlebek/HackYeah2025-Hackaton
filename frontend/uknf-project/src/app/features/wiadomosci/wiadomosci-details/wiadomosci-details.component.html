@@ -1,3 +1,177 @@
-<div class="wiadomosci-details-container">
-  <h1>Wiadomości - Szczegóły</h1>
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">Edycja wiadomości 2025/SYSTEM/23</h2>
+      <button class="close-btn" (click)="closeModal()" aria-label="Zamknij">&times;</button>
+    </div>
+    
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <form class="message-form">
+        <!-- Priority Section -->
+        <div class="form-section">
+          <label class="section-label">Priorytet</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="priorytet" value="Niski" [(ngModel)]="priorytet" />
+              <span>Niski</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="priorytet" value="Sredni" [(ngModel)]="priorytet" />
+              <span>Średni</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="priorytet" value="Wysoki" [(ngModel)]="priorytet" />
+              <span>Wysoki</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Status, User, Date Row -->
+        <div class="form-row three-col">
+          <div class="form-field">
+            <label for="status" class="field-label">Status wiadomości</label>
+            <select 
+              id="status"
+              [(ngModel)]="status" 
+              name="status"
+              class="form-input form-select"
+            >
+              <option *ngFor="let opt of statusOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </div>
+          
+          <div class="form-field">
+            <label for="uzytkownik" class="field-label">Użytkownik</label>
+            <input 
+              type="text" 
+              id="uzytkownik"
+              [(ngModel)]="uzytkownik" 
+              name="uzytkownik"
+              class="form-input"
+              readonly
+            />
+          </div>
+          
+          <div class="form-field">
+            <label for="dataPrzeslania" class="field-label">Data przesłania podmiotu</label>
+            <input 
+              type="datetime-local" 
+              id="dataPrzeslania"
+              [(ngModel)]="dataPrzeslania" 
+              name="dataPrzeslania"
+              class="form-input"
+            />
+          </div>
+        </div>
+        
+        <!-- User Message -->
+        <div class="form-field">
+          <label for="wiadomoscUzytkownika" class="field-label">Wiadomość użytkownika</label>
+          <textarea 
+            id="wiadomoscUzytkownika"
+            [(ngModel)]="wiadomoscUzytkownika" 
+            name="wiadomoscUzytkownika"
+            class="form-textarea"
+            rows="4"
+            readonly
+          ></textarea>
+        </div>
+        
+        <!-- User Attachments -->
+        <div class="attachments-section">
+          <label class="section-label">Załączniki</label>
+          <div class="attachments-list">
+            <div *ngFor="let attachment of zalacznikiUzytkownika" class="attachment-item">
+              <span class="attachment-name">{{ attachment.name }}</span>
+              <button 
+                type="button"
+                class="btn-attachment" 
+                (click)="pobierzZalacznik(attachment.name)"
+              >
+                Pobierz
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- UKNF Worker Response -->
+        <div class="form-row two-col">
+          <div class="form-field">
+            <label for="pracownikUKNF" class="field-label">Pracownik UKNF</label>
+            <input 
+              type="text" 
+              id="pracownikUKNF"
+              [(ngModel)]="pracownikUKNF" 
+              name="pracownikUKNF"
+              class="form-input"
+              readonly
+            />
+          </div>
+          
+          <div class="form-field">
+            <label for="dataPrzeslaniaUKNF" class="field-label">Data przesłania UKNF</label>
+            <input 
+              type="datetime-local" 
+              id="dataPrzeslaniaUKNF"
+              [(ngModel)]="dataPrzeslaniaUKNF" 
+              name="dataPrzeslaniaUKNF"
+              class="form-input"
+            />
+          </div>
+        </div>
+        
+        <!-- UKNF Worker Message -->
+        <div class="form-field">
+          <label for="wiadomoscPracownikaUKNF" class="field-label">
+            Wiadomość pracownika UKNF <span class="required">*</span>
+          </label>
+          <textarea 
+            id="wiadomoscPracownikaUKNF"
+            [(ngModel)]="wiadomoscPracownikaUKNF" 
+            name="wiadomoscPracownikaUKNF"
+            class="form-textarea"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+        
+        <!-- UKNF Attachments -->
+        <div class="attachments-section">
+          <label class="section-label">Załączniki UKNF</label>
+          <div class="attachments-checkboxes">
+            <label *ngFor="let attachment of zalacznikiUKNF" class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="attachment.selected"
+                [name]="'uknf_' + attachment.name"
+                class="attachment-checkbox"
+              />
+              <span>{{ attachment.name }}</span>
+            </label>
+          </div>
+          
+          <!-- Attachment Action Buttons -->
+          <div class="attachment-actions">
+            <button type="button" class="btn-action" (click)="dodajZalacznik()">
+              <span class="btn-icon">+</span> Dodaj
+            </button>
+            <button type="button" class="btn-action" (click)="edytujZalacznik()">
+              <span class="btn-icon">✎</span> Edytuj
+            </button>
+            <button type="button" class="btn-action" (click)="usunZalacznik()">
+              <span class="btn-icon">🗑</span> Usuń
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="anuluj()">Anuluj</button>
+      <button type="button" class="btn-submit" (click)="zapiszIWyslij()">Zapisz i wyślij</button>
+    </div>
+  </div>
 </div>
