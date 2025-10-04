@@ -1,0 +1,52 @@
+### Create test user
+POST http://localhost:5000/api/v1/users
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "Admin",
+  "email": "admin@test.com",
+  "password": "Admin123!",
+  "phone": "+48123456789"
+}
+
+### Login
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "Admin123!"
+}
+
+### Get current user (requires token from login)
+GET http://localhost:5000/api/v1/auth/me
+Authorization: Bearer {{accessToken}}
+
+### Refresh token
+POST http://localhost:5000/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "{{accessToken}}",
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Change password
+POST http://localhost:5000/api/v1/auth/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "Admin123!",
+  "newPassword": "NewAdmin123!",
+  "confirmPassword": "NewAdmin123!"
+}
+
+### Logout
+POST http://localhost:5000/api/v1/auth/logout
+Authorization: Bearer {{accessToken}}
+
+### Test protected endpoint - Get all users (should require auth)
+GET http://localhost:5000/api/v1/users
+Authorization: Bearer {{accessToken}}

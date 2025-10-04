@@ -39,8 +39,6 @@ Always take into consideration the contents of and all:
 - .requirements/RULES_UKNF_Prompt2Code2.md
 - .requirements/UX&UI Recomendations/knf_color_palette_recommendations.csv
 - .requirements/Prompt2Code2/ENG_attachments/F. test data of supervised entities.html
-- .requirements/Prompt2Code2/ENG_attachments/G. RIP100000_Q1_2025.html
-- .requirements/Prompt2Code2/ENG_attachments/G. RIP100000_Q2_2025.html
 - .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/00 - Pulpit.png
 - .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/01 - Pulpit.png
 - .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/02 - wniosek o dostęp podgląd.png
@@ -54,7 +52,7 @@ Also prefer the solutions that you are more proficient with.
 
 Also always write and update the Swagger documentation for the backend API endpoints!
 
-From now on, after you finish responding and modifying files, always write the user provided prompt (that you respond to) to prompts/ directory saved with filename `<branch_name>-<timestamp>.md` where `<branch_name>` is the name of the current git branch and `<timestamp>` is the current timestamp in `YYYY-MM-DD_HHMMSS` + also paste to the file the full response to the prompt. Do not use `:` in filenames! All filenames should work on both Linux and Windows - ensure that!
+From now on, after you finish responding and modifying files, always write the user provided prompt (that you respond to) to prompts/ directory saved with filename `<branch_name>-<timestamp>.md` where `<branch_name>` is the name of the current git branch and `<timestamp>` is the current timestamp in `YYYY-MM-DD_HHMMSS` (always use command `date +"%Y-%m-%d_%H%M%S"` for that) + also paste to the file the full response to the prompt. Do not use `:` in filenames! All filenames should work on both Linux and Windows - ensure that!
 
 Prefer polling with 0.3s to sleeping for more than 0.3s.
 
