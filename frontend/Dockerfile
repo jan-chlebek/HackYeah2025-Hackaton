@@ -1,16 +1,16 @@
 # Development Dockerfile for Angular with hot reload
 FROM node:20-alpine
 
-WORKDIR /app
+WORKDIR /app/uknf-project
 
-# Copy package files
-COPY package*.json ./
+# Copy package files from uknf-project
+COPY uknf-project/package*.json ./
 
-# Install dependencies
+# Install all dependencies (including dev dependencies for Angular CLI)
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy source code from uknf-project
+COPY uknf-project/ .
 
 # Expose Angular dev server port
 EXPOSE 4200

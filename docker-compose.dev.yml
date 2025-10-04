@@ -57,8 +57,8 @@ services:
       - "4200:4200"
     volumes:
       # Mount source code for hot reload
-      - ./frontend:/app:delegated
-      - /app/node_modules
+      - ./frontend/uknf-project:/app/uknf-project:delegated
+      - /app/uknf-project/node_modules
     environment:
       - NODE_ENV=development
     depends_on:

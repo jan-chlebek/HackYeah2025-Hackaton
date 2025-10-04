@@ -117,6 +117,14 @@ resource frontendApp 'Microsoft.Web/sites@2023-01-01' = {
       acrUseManagedIdentityCreds: false
       appSettings: [
         {
+          name: 'WEBSITES_PORT'
+          value: '4000'
+        }
+        {
+          name: 'PORT'
+          value: '4000'
+        }
+        {
           name: 'API_URL'
           value: 'https://${backendAppName}.azurewebsites.net/api/v1/'
         }

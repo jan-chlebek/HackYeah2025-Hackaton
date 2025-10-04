@@ -90,8 +90,8 @@ docker push $ACR_NAME.azurecr.io/uknf-backend:latest
 echo "✅ Backend image pushed"
 
 # Build and push frontend
-echo "Building frontend image..."
-docker build -t $ACR_NAME.azurecr.io/uknf-frontend:latest ./frontend
+echo "Building frontend image (production)..."
+docker build -f ./frontend/Dockerfile.prod -t $ACR_NAME.azurecr.io/uknf-frontend:latest ./frontend
 echo "Pushing frontend image..."
 docker push $ACR_NAME.azurecr.io/uknf-frontend:latest
 echo "✅ Frontend image pushed"
