@@ -7,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 
+// Add Health Checks
+builder.Services.AddHealthChecks();
+
 // Add Infrastructure (Database)
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -67,6 +70,9 @@ app.UseCors("AllowFrontend");
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map health check endpoint
+app.MapHealthChecks("/health");
 
 // Auto-apply migrations in development
 if (app.Environment.IsDevelopment())
