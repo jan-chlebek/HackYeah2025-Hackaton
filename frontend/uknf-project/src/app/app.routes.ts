@@ -4,7 +4,7 @@ import { authGuard, roleGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/auth/login',
     pathMatch: 'full'
   },
   {

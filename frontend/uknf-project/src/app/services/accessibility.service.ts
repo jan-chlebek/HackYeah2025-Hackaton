@@ -98,7 +98,14 @@ export class AccessibilityService {
       return;
     }
 
+    const root = document.documentElement;
     document.body.classList.toggle('high-contrast', highContrast);
+
+    if (highContrast) {
+      root.setAttribute('data-contrast', 'high');
+    } else {
+      root.setAttribute('data-contrast', 'normal');
+    }
   }
 
   /**
