@@ -254,6 +254,97 @@ Expected: MCP GitHub retrieves commit history and provides context-aware suggest
 
 ---
 
+### 9. Database Schema Creation
+
+**Prompt**: 
+```
+Create directory "database" in which it will be located script creating tables in postgres based on .requirements
+```
+
+**Context**: Need to create PostgreSQL database schema based on UKNF requirements documents
+
+**AI Response Summary**:
+- Analyzed `.requirements/DETAILS_UKNF_Prompt2Code2.md` for data model requirements
+- Identified three main modules: Communication, Authentication & Authorization, Administration
+- Created comprehensive schema with 40+ tables covering all functional requirements
+- Included proper indexes, foreign keys, enums, and triggers
+
+**Implementation**:
+Created three files in `database/` directory:
+1. **init-schema.sql** (650+ lines):
+   - Core entities table (Podmioty Nadzorowane) with full field set from requirements
+   - User management with role-based access control
+   - Access requests workflow
+   - Reporting module with validation status tracking
+   - Messaging system with attachments
+   - File library with permissions
+   - Administrative cases with history
+   - Announcements with read confirmations
+   - Contact groups and addressees
+   - FAQ system with tags and ratings
+   - Audit logging and history tracking
+   - Password policy management
+   - Comprehensive indexes and triggers
+
+2. **seed-data.sql** (300+ lines):
+   - Sample entities (5 financial institutions)
+   - User accounts (3 UKNF employees, 5 external users)
+   - User-entity permissions
+   - Report registries and sample reports
+   - Contact groups and contacts
+   - Library files (templates and documentation)
+   - Announcements with recipients
+   - FAQ questions and answers
+   - Administrative cases
+   - Messages and notifications
+
+3. **README.md**:
+   - Complete documentation of schema structure
+   - Usage instructions for different environments
+   - Data model highlights with ASCII diagrams
+   - Maintenance and backup procedures
+
+**Effectiveness**: ⭐⭐⭐⭐⭐ (Excellent)
+
+**Key Learnings**:
+- Requirements documents contain detailed data structure specifications (e.g., entity fields on p. 11)
+- PostgreSQL ENUMs provide type safety for status fields
+- Comprehensive indexes are crucial for performance (especially on foreign keys and status fields)
+- Triggers for automatic timestamp updates reduce boilerplate
+- Seed data is essential for development and testing
+- History/audit tables enable versioning and compliance requirements
+
+**Database Design Decisions**:
+- Used BIGSERIAL for primary keys (scalability for government system)
+- VARCHAR lengths aligned with requirements (e.g., entity_name: 500, matching spec)
+- Separate tables for history/versioning (entity_history, case_history, etc.)
+- Status fields as ENUMs for data integrity
+- Comprehensive foreign key relationships with CASCADE deletes where appropriate
+- Separate internal/external user handling via is_internal flag
+
+**Security Notes**:
+- Password hashes stored (never plaintext)
+- Password policy table for configurable security settings
+- Password history tracking to prevent reuse
+- Audit log for all critical operations
+- User status tracking (active, blocked, pending)
+- PESEL numbers masked (only last 4 digits visible)
+
+**Requirements Mapping**:
+- Entity fields match specification exactly (p. 11 of DETAILS document)
+- Report statuses align with validation workflow (p. 7)
+- Case categories and statuses from requirements (p. 10)
+- Message contexts and statuses per specification (p. 8)
+- Access request workflow per requirements (pp. 13-14)
+
+**Follow-up Tasks**:
+- Create Entity Framework Core migrations from this schema
+- Generate TypeScript interfaces for frontend
+- Build API DTOs matching database structure
+- Implement repository pattern in backend
+
+---
+
 ## 📝 Template for New Prompt Entries
 
 ```markdown
