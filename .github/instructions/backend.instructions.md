@@ -1,5 +1,5 @@
 ---
-applyTo: "Backend/**/*.cs,Backend/**/*.csproj,Backend/**/Dockerfile,Backend/**/*.sql"
+applyTo: "backend/**/*.cs,backend/**/*.csproj,backend/**/Dockerfile,backend/**/*.sql"
 ---
 
 # Copilot Guide – Backend (ASP.NET Core)
