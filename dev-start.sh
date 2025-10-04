@@ -16,11 +16,11 @@ fi
 
 # Stop any existing containers
 echo "🧹 Cleaning up existing containers..."
-docker-compose -f docker-compose.dev.yml down
+docker compose -f docker-compose.dev.yml down || docker-compose -f docker-compose.dev.yml down
 
-# Build and start PostgreSQL
-echo "🔨 Building and starting PostgreSQL..."
-docker-compose -f docker-compose.dev.yml up -d postgres
+# Build and start services
+echo "🔨 Building and starting services..."
+docker compose -f docker-compose.dev.yml up --build -d postgres || docker-compose -f docker-compose.dev.yml up --build -d postgres
 
 echo "⏳ Waiting for PostgreSQL to be ready..."
 until docker-compose -f docker-compose.dev.yml exec -T postgres pg_isready -U uknf_user -d uknf_db > /dev/null 2>&1; do
@@ -45,7 +45,7 @@ echo "✅ Backend is ready!"
 
 # Build and start frontend with hot reload
 echo "🔨 Building and starting frontend (hot reload enabled)..."
-docker-compose -f docker-compose.dev.yml up -d --build frontend
+docker compose -f docker-compose.dev.yml up -d --build frontend || docker-compose -f docker-compose.dev.yml up -d --build frontend
 
 echo "⏳ Waiting for frontend to compile..."
 echo "   This may take 20-30 seconds on first start..."
