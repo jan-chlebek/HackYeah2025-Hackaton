@@ -10,13 +10,15 @@ import { filter } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule, BreadcrumbModule, RouterModule],
   template: `
-    <div class="breadcrumb-container bg-light-gray px-4 py-2">
+    <div class="breadcrumb-container">
       <p-breadcrumb [model]="breadcrumbs" [home]="home"></p-breadcrumb>
     </div>
   `,
   styles: [`
     .breadcrumb-container {
-      border-bottom: 1px solid #dee2e6;
+      background-color: #f3f4f6;
+      padding: 0.75rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     :host ::ng-deep {
@@ -27,15 +29,21 @@ import { filter } from 'rxjs/operators';
       }
 
       .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link {
-        color: var(--uknf-primary);
+        color: #6b7280;
+        font-size: 0.875rem;
       }
 
       .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link:hover {
-        color: var(--uknf-accent);
+        color: #003366;
       }
 
       .p-breadcrumb .p-breadcrumb-list li.p-breadcrumb-chevron {
-        color: var(--uknf-dark-gray);
+        color: #9ca3af;
+        margin: 0 0.5rem;
+      }
+
+      .p-breadcrumb .p-breadcrumb-home {
+        color: #6b7280;
       }
     }
   `]

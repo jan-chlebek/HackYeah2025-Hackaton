@@ -23,198 +23,203 @@ import { SelectModule } from 'primeng/select';
     SelectModule
   ],
   template: `
-    <header class="app-header bg-primary-dark text-white shadow-md">
-      <div class="flex justify-content-between align-items-center px-4 py-3">
-        <!-- Logo and Title -->
-        <div class="flex align-items-center gap-3">
-          <img src="/assets/images/knf-logo.svg" alt="UKNF Logo" class="h-3rem" />
-          <h1 class="text-xl font-bold m-0">Platforma Komunikacyjna UKNF</h1>
-        </div>
-
-        <!-- User Info and Actions -->
-        <div class="flex align-items-center gap-4">
-          <!-- Podmiot Selector -->
-          <div class="flex flex-column gap-1">
-            <label for="podmiotSelector" class="text-xs opacity-80">Reprezentowany podmiot:</label>
-            <p-select
-              inputId="podmiotSelector"
-              [options]="availablePodmioty"
-              [(ngModel)]="selectedPodmiot"
-              optionLabel="name"
-              placeholder="Wybierz podmiot"
-              [style]="{'min-width': '250px'}"
-              styleClass="bg-white">
-            </p-select>
+    <header class="app-header">
+      <div class="header-top">
+        <div class="flex justify-content-between align-items-center">
+          <!-- Logo and Title -->
+          <div class="flex align-items-center gap-3">
+            <div class="logo-box">
+              <span class="logo-text">UKNF</span>
+            </div>
+            <button pButton type="button" icon="pi pi-bars" class="p-button-text menu-toggle" (click)="toggleMenu()"></button>
+            <h1 class="header-title m-0">System Komunikacji z Podmiotami</h1>
           </div>
 
-          <!-- Notifications -->
-          <button 
-            pButton 
-            type="button" 
-            icon="pi pi-bell" 
-            [label]="notificationCount > 0 ? notificationCount.toString() : ''"
-            class="p-button-rounded p-button-text p-button-plain"
-            pBadge
-            [value]="notificationCount > 0 ? notificationCount.toString() : ''"
-            severity="danger"
-            (click)="showNotifications()">
-          </button>
-
-          <!-- User Menu -->
-          <div class="flex align-items-center gap-2">
-            <p-avatar 
-              icon="pi pi-user" 
-              shape="circle" 
-              [style]="{'background-color': 'var(--uknf-accent)', 'color': 'white'}">
-            </p-avatar>
-            <div class="flex flex-column">
-              <span class="font-semibold text-sm">{{ currentUser.name }}</span>
-              <span class="text-xs opacity-80">{{ currentUser.role }}</span>
+          <!-- Right Section -->
+          <div class="flex align-items-center gap-4">
+            <!-- Session Timer -->
+            <div class="flex align-items-center gap-2 text-sm">
+              <i class="pi pi-clock"></i>
+              <span>Koniec sesji za: <strong>{{ sessionTime }}</strong></span>
             </div>
-            <button 
-              pButton 
-              type="button" 
-              icon="pi pi-sign-out" 
-              class="p-button-rounded p-button-text p-button-plain"
-              (click)="logout()"
-              title="Wyloguj">
-            </button>
+
+            <!-- Font Size Controls -->
+            <div class="flex align-items-center gap-1">
+              <button pButton type="button" label="A" class="p-button-text font-size-btn small" (click)="setFontSize('small')"></button>
+              <button pButton type="button" label="A" class="p-button-text font-size-btn medium" (click)="setFontSize('medium')"></button>
+              <button pButton type="button" label="A" class="p-button-text font-size-btn large" (click)="setFontSize('large')"></button>
+            </div>
+
+            <!-- High Contrast Toggle -->
+            <button pButton type="button" icon="pi pi-eye" class="p-button-text" (click)="toggleHighContrast()" title="Wysoki kontrast"></button>
+
+            <!-- User Info -->
+            <div class="user-info">
+              <span class="user-name">{{ currentUser.name }}</span>
+              <span class="user-role">| {{ currentUser.role }}</span>
+            </div>
+
+            <!-- Logout -->
+            <button pButton type="button" label="Wyloguj" class="p-button-sm logout-btn" (click)="logout()"></button>
           </div>
         </div>
       </div>
 
-      <!-- Main Navigation -->
-      <nav class="navigation-bar bg-primary">
-        <p-menubar [model]="menuItems" styleClass="border-none bg-primary">
-          <ng-template pTemplate="start">
-            <i class="pi pi-home text-white mr-2"></i>
-          </ng-template>
-        </p-menubar>
-      </nav>
+      <div class="header-bottom">
+        <div class="system-info">
+          <span>System: / Podmiot: <strong>{{ selectedPodmiot?.name || 'Instytucja Testowa' }}</strong></span>
+          <button pButton type="button" icon="pi pi-sync" label="Zmień" class="p-button-sm p-button-text change-podmiot-btn" (click)="changePodmiot()"></button>
+        </div>
+      </div>
     </header>
   `,
   styles: [`
     .app-header {
+      background-color: white;
+      border-bottom: 2px solid #003366;
       position: sticky;
       top: 0;
       z-index: 1000;
     }
 
-    .navigation-bar {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    .header-top {
+      padding: 0.75rem 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
     }
 
-    :host ::ng-deep {
-      .p-menubar {
-        background: var(--uknf-primary);
-        border: none;
-        border-radius: 0;
-        padding: 0.5rem 1rem;
-      }
+    .header-bottom {
+      padding: 0.5rem 1.5rem;
+      background-color: #f3f4f6;
+    }
 
-      .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-link {
-        color: white;
-        padding: 0.75rem 1rem;
-      }
+    .logo-box {
+      background-color: #003366;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      font-size: 1.25rem;
+      border-radius: 4px;
+    }
 
-      .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
+    .logo-text {
+      letter-spacing: 2px;
+    }
 
-      .p-menubar .p-menubar-root-list > .p-menuitem.p-menuitem-active > .p-menuitem-link {
-        background: rgba(255, 255, 255, 0.15);
-      }
+    .menu-toggle {
+      color: #6b7280;
+    }
 
-      .p-select {
-        border: 1px solid rgba(255, 255, 255, 0.3);
+    .header-title {
+      font-size: 1.125rem;
+      color: #1f2937;
+      font-weight: 500;
+    }
+
+    .font-size-btn {
+      padding: 0.25rem 0.5rem;
+      color: #6b7280;
+      min-width: 2rem;
+    }
+
+    .font-size-btn.small {
+      font-size: 0.75rem;
+    }
+
+    .font-size-btn.medium {
+      font-size: 1rem;
+    }
+
+    .font-size-btn.large {
+      font-size: 1.25rem;
+    }
+
+    .user-info {
+      font-size: 0.875rem;
+      color: #4b5563;
+    }
+
+    .user-name {
+      font-weight: 600;
+    }
+
+    .user-role {
+      margin-left: 0.25rem;
+    }
+
+    .logout-btn {
+      background-color: #6b7280;
+      border-color: #6b7280;
+    }
+
+    .logout-btn:hover {
+      background-color: #4b5563;
+      border-color: #4b5563;
+    }
+
+    .system-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: #4b5563;
+    }
+
+    .change-podmiot-btn {
+      color: #6b7280;
+      padding: 0.25rem 0.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .header-title {
+        display: none;
       }
     }
   `]
 })
 export class HeaderComponent {
   currentUser = {
-    name: 'Jan Kowalski',
-    role: 'Administrator Podmiotu'
+    name: 'Jan Nowak',
+    role: 'Użytkownik podmiotu'
   };
 
-  selectedPodmiot: any = null;
-  availablePodmioty: any[] = [
-    { id: 1, name: 'PKO Bank Polski S.A.', code: 'PKO001' },
-    { id: 2, name: 'Alior Bank S.A.', code: 'ALI002' },
-    { id: 3, name: 'mBank S.A.', code: 'MBK003' }
-  ];
-
-  notificationCount = 5;
-
-  menuItems: MenuItem[] = [
-    {
-      label: 'Pulpit',
-      icon: 'pi pi-home',
-      routerLink: '/dashboard'
-    },
-    {
-      label: 'Sprawozdania',
-      icon: 'pi pi-file',
-      routerLink: '/reports'
-    },
-    {
-      label: 'Wiadomości',
-      icon: 'pi pi-envelope',
-      routerLink: '/messages',
-      badge: '3'
-    },
-    {
-      label: 'Sprawy',
-      icon: 'pi pi-briefcase',
-      routerLink: '/cases'
-    },
-    {
-      label: 'Biblioteka',
-      icon: 'pi pi-folder',
-      routerLink: '/library'
-    },
-    {
-      label: 'Komunikaty',
-      icon: 'pi pi-megaphone',
-      routerLink: '/announcements'
-    },
-    {
-      label: 'FAQ',
-      icon: 'pi pi-question-circle',
-      routerLink: '/faq'
-    },
-    {
-      label: 'Kartoteka',
-      icon: 'pi pi-database',
-      routerLink: '/entities'
-    },
-    {
-      label: 'Wnioski',
-      icon: 'pi pi-file-check',
-      routerLink: '/auth/access-requests'
-    },
-    {
-      label: 'Administracja',
-      icon: 'pi pi-cog',
-      routerLink: '/admin',
-      visible: false // Will be shown based on user role
-    }
-  ];
+  selectedPodmiot: any = { name: 'Instytucja Testowa', code: 'TEST001' };
+  sessionTime = '12:46';
+  currentFontSize = 'medium';
 
   constructor(private router: Router) {
-    // Initialize selected podmiot
-    if (this.availablePodmioty.length > 0) {
-      this.selectedPodmiot = this.availablePodmioty[0];
-    }
+    this.startSessionTimer();
   }
 
-  showNotifications(): void {
-    // TODO: Implement notifications panel
-    console.log('Show notifications');
+  toggleMenu(): void {
+    // TODO: Implement mobile menu toggle
+    console.log('Toggle menu');
+  }
+
+  setFontSize(size: 'small' | 'medium' | 'large'): void {
+    this.currentFontSize = size;
+    // TODO: Implement font size change logic
+    console.log('Font size changed to:', size);
+  }
+
+  toggleHighContrast(): void {
+    // TODO: Implement high contrast toggle
+    console.log('Toggle high contrast');
+  }
+
+  changePodmiot(): void {
+    // TODO: Implement podmiot change dialog
+    console.log('Change podmiot');
   }
 
   logout(): void {
     // TODO: Implement logout logic
     this.router.navigate(['/auth/login']);
+  }
+
+  private startSessionTimer(): void {
+    // TODO: Implement real session timer
+    setInterval(() => {
+      // Update session time countdown
+    }, 1000);
   }
 }

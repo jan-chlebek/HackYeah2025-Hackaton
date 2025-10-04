@@ -1,28 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { TimelineModule } from 'primeng/timeline';
-import { BadgeModule } from 'primeng/badge';
 
-interface DashboardTile {
-  title: string;
-  icon: string;
-  count: number;
-  description: string;
-  link: string;
-  severity?: 'success' | 'info' | 'warn' | 'danger';
-}
-
-interface TimelineEvent {
+interface Announcement {
   date: string;
-  time: string;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
+  topic: string;
 }
 
 @Component({
@@ -31,317 +15,244 @@ interface TimelineEvent {
   imports: [
     CommonModule,
     RouterModule,
-    CardModule,
-    ButtonModule,
-    TagModule,
-    TimelineModule,
-    BadgeModule
+    TableModule,
+    ButtonModule
   ],
   template: `
     <div class="dashboard-container">
-      <!-- Welcome Panel -->
-      <p-card class="welcome-panel mb-4">
-        <div class="flex justify-content-between align-items-center">
-          <div>
-            <h1 class="text-3xl font-bold text-primary m-0 mb-2">Witaj, {{ currentUser.name }}!</h1>
-            <p class="text-lg text-gray-700 m-0">
-              Rola: <span class="font-semibold">{{ currentUser.role }}</span> | 
-              Podmiot: <span class="font-semibold">{{ currentPodmiot.name }}</span>
-            </p>
-          </div>
-          <div class="text-right">
-            <p class="text-sm text-gray-600 m-0">Ostatnie logowanie:</p>
-            <p class="font-semibold m-0">{{ lastLoginDate }}</p>
-          </div>
+      <!-- Tabs Navigation -->
+      <div class="tabs-wrapper">
+        <div class="tabs-header">
+          <button 
+            *ngFor="let tab of tabs; let i = index"
+            class="tab-button"
+            [class.active]="selectedTab === i"
+            (click)="selectTab(i)">
+            {{ tab.label }}
+          </button>
         </div>
-      </p-card>
 
-      <!-- Dashboard Tiles -->
-      <div class="grid">
-        <div class="col-12 md:col-6 lg:col-4" *ngFor="let tile of dashboardTiles">
-          <p-card class="dashboard-tile hover:shadow-4 transition-duration-200 cursor-pointer" 
-                  [routerLink]="tile.link">
-            <div class="flex align-items-center justify-content-between mb-3">
-              <div class="flex align-items-center gap-2">
-                <i [class]="tile.icon + ' text-4xl text-primary'"></i>
-                <h3 class="text-xl font-semibold m-0">{{ tile.title }}</h3>
-              </div>
-              <p-tag [value]="tile.count.toString()" 
-                     [severity]="tile.severity || 'info'" 
-                     [rounded]="true"
-                     class="text-lg">
-              </p-tag>
+        <div class="tabs-content">
+          <!-- Tab 0: Pulpit użytkownika -->
+          <div *ngIf="selectedTab === 0" class="tab-panel">
+            <div class="tab-content">
+              <p class="text-gray-600">Pulpit użytkownika - główny widok z przeglądem aktywności</p>
             </div>
-            <p class="text-gray-600 m-0">{{ tile.description }}</p>
-          </p-card>
-        </div>
-      </div>
+          </div>
 
-      <!-- Recent Activity and Quick Actions -->
-      <div class="grid mt-4">
-        <!-- Recent Activity Timeline -->
-        <div class="col-12 lg:col-8">
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="px-3 pt-3">
-                <h2 class="text-xl font-bold text-primary m-0">
-                  <i class="pi pi-clock mr-2"></i>
-                  Ostatnie zdarzenia
-                </h2>
-              </div>
-            </ng-template>
+          <!-- Tab 1: Wnioski o dostęp -->
+          <div *ngIf="selectedTab === 1" class="tab-panel">
+            <div class="tab-content">
+              <p class="text-gray-600">Zarządzanie wnioskami o dostęp do systemu</p>
+            </div>
+          </div>
 
-            <p-timeline [value]="recentEvents" align="left">
-              <ng-template pTemplate="content" let-event>
-                <div class="flex flex-column">
-                  <div class="flex align-items-center gap-2 mb-1">
-                    <i [class]="event.icon + ' text-primary'"></i>
-                    <span class="font-semibold">{{ event.title }}</span>
-                  </div>
-                  <small class="text-gray-600">{{ event.description }}</small>
-                  <small class="text-gray-500 mt-1">{{ event.date }} {{ event.time }}</small>
+          <!-- Tab 2: Biblioteka - repozytorium plików -->
+          <div *ngIf="selectedTab === 2" class="tab-panel">
+            <div class="tab-content">
+              <!-- Section Header -->
+              <div class="section-header mb-4">
+                <h2 class="section-title">Komunikaty</h2>
+                <div class="action-buttons">
+                  <button pButton type="button" label="Podgląd" icon="pi pi-search" class="p-button-sm p-button-outlined mr-2"></button>
+                  <button pButton type="button" label="Eksportuj" icon="pi pi-download" class="p-button-sm p-button-outlined"></button>
                 </div>
-              </ng-template>
-              <ng-template pTemplate="marker" let-event>
-                <span class="flex w-2rem h-2rem align-items-center justify-content-center text-white border-circle z-1"
-                      [style.background-color]="event.color">
-                  <i [class]="event.icon"></i>
-                </span>
-              </ng-template>
-            </p-timeline>
+              </div>
 
-            <div class="text-center mt-3">
-              <button pButton 
-                      label="Zobacz wszystkie zdarzenia" 
-                      icon="pi pi-arrow-right"
-                      class="p-button-text"
-                      [routerLink]="['/timeline']">
-              </button>
+              <!-- Search and Filter Section -->
+              <div class="search-section mb-3">
+                <h3 class="subsection-title">Wyszukiwanie</h3>
+                <button pButton type="button" icon="pi pi-angle-down" class="p-button-text p-button-sm filter-toggle"></button>
+              </div>
+
+              <!-- Data Table -->
+              <p-table 
+                [value]="announcements" 
+                [rows]="10"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing 1 to 10 of 200 entries"
+                styleClass="p-datatable-sm">
+                
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Data publikacji</th>
+                    <th>Temat</th>
+                  </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-announcement>
+                  <tr>
+                    <td>{{ announcement.date }}</td>
+                    <td>{{ announcement.topic }}</td>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="2" class="text-center py-4">Brak danych do wyświetlenia</td>
+                  </tr>
+                </ng-template>
+              </p-table>
             </div>
-          </p-card>
-        </div>
-
-        <!-- Quick Actions and Status Panel -->
-        <div class="col-12 lg:col-4">
-          <!-- Quick Actions -->
-          <p-card class="mb-3">
-            <ng-template pTemplate="header">
-              <div class="px-3 pt-3">
-                <h2 class="text-xl font-bold text-primary m-0">
-                  <i class="pi pi-bolt mr-2"></i>
-                  Szybkie akcje
-                </h2>
-              </div>
-            </ng-template>
-
-            <div class="flex flex-column gap-2">
-              <button pButton 
-                      label="Złóż sprawozdanie" 
-                      icon="pi pi-file-plus"
-                      class="p-button-primary w-full justify-content-start"
-                      [routerLink]="['/reports/submit']">
-              </button>
-              <button pButton 
-                      label="Nowa wiadomość" 
-                      icon="pi pi-envelope"
-                      class="p-button-primary w-full justify-content-start"
-                      [routerLink]="['/messages/compose']">
-              </button>
-              <button pButton 
-                      label="Nowa sprawa" 
-                      icon="pi pi-briefcase"
-                      class="p-button-primary w-full justify-content-start"
-                      [routerLink]="['/cases/create']">
-              </button>
-              <button pButton 
-                      label="Przeglądaj bibliotekę" 
-                      icon="pi pi-folder-open"
-                      class="p-button-outlined w-full justify-content-start"
-                      [routerLink]="['/library']">
-              </button>
-            </div>
-          </p-card>
-
-          <!-- Security Indicators -->
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="px-3 pt-3">
-                <h2 class="text-xl font-bold text-primary m-0">
-                  <i class="pi pi-shield mr-2"></i>
-                  Wskaźniki bezpieczeństwa
-                </h2>
-              </div>
-            </ng-template>
-
-            <div class="flex flex-column gap-3">
-              <div class="flex justify-content-between align-items-center">
-                <span class="text-sm text-gray-700">Ostatnie logowanie:</span>
-                <span class="font-semibold text-sm">{{ lastLoginDate }}</span>
-              </div>
-              <div class="flex justify-content-between align-items-center">
-                <span class="text-sm text-gray-700">Zmiana hasła:</span>
-                <span class="font-semibold text-sm">{{ passwordChangeDate }}</span>
-              </div>
-              <div class="flex justify-content-between align-items-center">
-                <span class="text-sm text-gray-700">Status konta:</span>
-                <p-tag value="Aktywne" severity="success"></p-tag>
-              </div>
-              <div class="flex justify-content-between align-items-center">
-                <span class="text-sm text-gray-700">Aktywne sesje:</span>
-                <p-tag value="1" severity="info"></p-tag>
-              </div>
-            </div>
-
-            <div class="mt-3">
-              <button pButton 
-                      label="Zmień hasło" 
-                      icon="pi pi-key"
-                      class="p-button-sm p-button-outlined w-full"
-                      [routerLink]="['/profile/change-password']">
-              </button>
-            </div>
-          </p-card>
+          </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
     .dashboard-container {
-      padding: 0;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
     }
 
-    .welcome-panel {
-      background: linear-gradient(135deg, var(--uknf-light-blue) 0%, var(--uknf-light) 100%);
+    .tab-content {
+      padding: 1.5rem;
     }
 
-    .dashboard-tile {
-      height: 100%;
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e5e7eb;
     }
 
-    .dashboard-tile:hover {
-      transform: translateY(-2px);
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0;
+    }
+
+    .search-section {
+      background-color: #f9fafb;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subsection-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #374151;
+      margin: 0;
+    }
+
+    .filter-toggle {
+      cursor: pointer;
+      color: #6b7280;
+    }
+
+    .tabs-wrapper {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      background-color: #f3f4f6;
+      border-bottom: 2px solid #003366;
+    }
+
+    .tab-button {
+      padding: 1rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: #4b5563;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .tab-button:hover {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: #003366;
+    }
+
+    .tab-button.active {
+      background-color: white;
+      color: #003366;
+      font-weight: 600;
+      border-bottom-color: #003366;
+    }
+
+    .tabs-content {
+      background: white;
+    }
+
+    .tab-panel {
+      animation: fadeIn 0.2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     :host ::ng-deep {
-      .p-card-body {
-        padding: 1.5rem;
+
+      .p-datatable .p-datatable-thead > tr > th {
+        background-color: #f9fafb;
+        color: #374151;
+        font-weight: 600;
+        border-bottom: 2px solid #e5e7eb;
+        padding: 0.75rem;
       }
 
-      .p-timeline-event-content {
-        padding-bottom: 1rem;
+      .p-datatable .p-datatable-tbody > tr > td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
       }
 
-      .p-timeline-event-opposite {
-        display: none;
+      .p-datatable .p-datatable-tbody > tr:hover {
+        background-color: #f9fafb;
+      }
+
+      .p-paginator {
+        background-color: white;
+        border-top: 1px solid #e5e7eb;
+        padding: 0.75rem;
       }
     }
   `]
 })
 export class DashboardComponent {
-  currentUser = {
-    name: 'Jan Kowalski',
-    role: 'Administrator Podmiotu Nadzorowanego'
-  };
-
-  currentPodmiot = {
-    name: 'PKO Bank Polski S.A.',
-    code: 'PKO001'
-  };
-
-  lastLoginDate = '2025-10-04 08:30';
-  passwordChangeDate = '2025-09-15';
-
-  dashboardTiles: DashboardTile[] = [
-    {
-      title: 'Dostępne podmioty',
-      icon: 'pi pi-building',
-      count: 3,
-      description: 'Podmioty, do których masz przypisane uprawnienia',
-      link: '/entities',
-      severity: 'info'
-    },
-    {
-      title: 'Wnioski o dostęp',
-      icon: 'pi pi-file-check',
-      count: 2,
-      description: 'Oczekujące i rozpatrzone wnioski',
-      link: '/auth/access-requests',
-      severity: 'warn'
-    },
-    {
-      title: 'Nowe wiadomości',
-      icon: 'pi pi-envelope',
-      count: 5,
-      description: 'Nieprzeczytane wiadomości wymagające uwagi',
-      link: '/messages',
-      severity: 'danger'
-    },
-    {
-      title: 'Sprawozdania',
-      icon: 'pi pi-file',
-      count: 8,
-      description: 'Do przesłania, w walidacji, zaakceptowane',
-      link: '/reports',
-      severity: 'info'
-    },
-    {
-      title: 'Tablica ogłoszeń',
-      icon: 'pi pi-megaphone',
-      count: 3,
-      description: 'Nowe komunikaty i ogłoszenia',
-      link: '/announcements',
-      severity: 'info'
-    },
-    {
-      title: 'Sprawy',
-      icon: 'pi pi-briefcase',
-      count: 4,
-      description: 'Aktywne sprawy administracyjne',
-      link: '/cases',
-      severity: 'warn'
-    }
+  selectedTab = 2; // Default to "Biblioteka - repozytorium plików" tab
+  
+  tabs = [
+    { label: 'Pulpit użytkownika' },
+    { label: 'Wnioski o dostęp' },
+    { label: 'Biblioteka - repozytorium plików' }
   ];
 
-  recentEvents: TimelineEvent[] = [
-    {
-      date: '2025-10-04',
-      time: '11:00',
-      title: 'Nowy komunikat w tablicy ogłoszeń',
-      description: 'Zmiana terminów składania sprawozdań kwartalnych',
-      icon: 'pi pi-megaphone',
-      color: 'var(--uknf-accent)'
-    },
-    {
-      date: '2025-10-04',
-      time: '09:45',
-      title: 'Złożono sprawozdanie "RIP Q3 2025"',
-      description: 'Sprawozdanie zostało przekazane do walidacji',
-      icon: 'pi pi-file-check',
-      color: 'var(--uknf-primary)'
-    },
-    {
-      date: '2025-10-03',
-      time: '17:30',
-      title: 'Zmieniono uprawnienia użytkownika',
-      description: 'Anna Nowak - dodano dostęp do sprawozdawczości',
-      icon: 'pi pi-user-edit',
-      color: 'var(--uknf-medium-gray)'
-    },
-    {
-      date: '2025-10-03',
-      time: '14:20',
-      title: 'Nowa wiadomość od UKNF',
-      description: 'Prośba o uzupełnienie danych rejestrowych',
-      icon: 'pi pi-envelope',
-      color: 'var(--uknf-accent)'
-    },
-    {
-      date: '2025-10-02',
-      time: '10:15',
-      title: 'Zakończono sprawę #12345',
-      description: 'Zmiana danych rejestrowych - zatwierdzona',
-      icon: 'pi pi-check-circle',
-      color: '#22c55e'
-    }
+  announcements: Announcement[] = [
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' }
   ];
+
+  selectTab(index: number): void {
+    this.selectedTab = index;
+  }
 }

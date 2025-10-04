@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
-import { FooterComponent } from '../footer/footer.component';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -13,20 +13,19 @@ import { FooterComponent } from '../footer/footer.component';
     RouterModule,
     HeaderComponent,
     BreadcrumbComponent,
-    FooterComponent
+    SidebarComponent
   ],
   template: `
-    <div class="main-layout flex flex-column min-h-screen">
+    <div class="main-layout">
       <app-header></app-header>
       <app-breadcrumb></app-breadcrumb>
       
-      <main class="flex-1 p-4 bg-light">
-        <div class="main-content-container max-w-screen-xl mx-auto">
+      <div class="content-wrapper">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
           <router-outlet></router-outlet>
-        </div>
-      </main>
-
-      <app-footer></app-footer>
+        </main>
+      </div>
     </div>
   `,
   styles: [`
@@ -36,14 +35,23 @@ import { FooterComponent } from '../footer/footer.component';
       flex-direction: column;
     }
 
-    main {
+    .content-wrapper {
+      display: flex;
       flex: 1;
-      background-color: var(--uknf-light);
+      background-color: #ffffff;
     }
 
-    .main-content-container {
-      width: 100%;
-      max-width: 1400px;
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      background-color: #ffffff;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1rem;
+      }
     }
   `]
 })
