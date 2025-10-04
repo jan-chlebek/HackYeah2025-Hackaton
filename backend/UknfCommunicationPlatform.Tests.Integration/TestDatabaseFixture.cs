@@ -37,7 +37,7 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
             // Remove the app's DbContext registration
             var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-            
+
             if (descriptor != null)
             {
                 services.Remove(descriptor);

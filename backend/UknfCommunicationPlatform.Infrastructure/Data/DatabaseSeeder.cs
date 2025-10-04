@@ -113,6 +113,7 @@ public class DatabaseSeeder
 
         var users = new List<User>
         {
+            // Administrators
             new User
             {
                 FirstName = "Admin",
@@ -125,21 +126,22 @@ public class DatabaseSeeder
             },
             new User
             {
+                FirstName = "Katarzyna",
+                LastName = "Administratorska",
+                Email = "k.administratorska@uknf.gov.pl",
+                Phone = "+48123456790",
+                PasswordHash = _passwordHasher.HashPassword("Admin123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            // Internal Users
+            new User
+            {
                 FirstName = "Jan",
                 LastName = "Kowalski",
                 Email = "jan.kowalski@uknf.gov.pl",
                 Phone = "+48234567890",
                 PasswordHash = _passwordHasher.HashPassword("User123!"),
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new User
-            {
-                FirstName = "Anna",
-                LastName = "Nowak",
-                Email = "anna.nowak@uknf.gov.pl",
-                Phone = "+48345678901",
-                PasswordHash = _passwordHasher.HashPassword("Supervisor123!"),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             },
@@ -152,6 +154,67 @@ public class DatabaseSeeder
                 PasswordHash = _passwordHasher.HashPassword("User123!"),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                FirstName = "Marek",
+                LastName = "Dąbrowski",
+                Email = "marek.dabrowski@uknf.gov.pl",
+                Phone = "+48567890123",
+                PasswordHash = _passwordHasher.HashPassword("User123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                FirstName = "Tomasz",
+                LastName = "Lewandowski",
+                Email = "tomasz.lewandowski@uknf.gov.pl",
+                Phone = "+48678901234",
+                PasswordHash = _passwordHasher.HashPassword("User123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                FirstName = "Krzysztof",
+                LastName = "Zieliński",
+                Email = "krzysztof.zielinski@uknf.gov.pl",
+                Phone = "+48789012345",
+                PasswordHash = _passwordHasher.HashPassword("User123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            // Supervisors
+            new User
+            {
+                FirstName = "Anna",
+                LastName = "Nowak",
+                Email = "anna.nowak@uknf.gov.pl",
+                Phone = "+48345678901",
+                PasswordHash = _passwordHasher.HashPassword("Supervisor123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                FirstName = "Magdalena",
+                LastName = "Szymańska",
+                Email = "magdalena.szymanska@uknf.gov.pl",
+                Phone = "+48890123456",
+                PasswordHash = _passwordHasher.HashPassword("Supervisor123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                FirstName = "Michał",
+                LastName = "Woźniak",
+                Email = "michal.wozniak@uknf.gov.pl",
+                Phone = "+48901234567",
+                PasswordHash = _passwordHasher.HashPassword("Supervisor123!"),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
             }
         };
 
@@ -162,9 +225,15 @@ public class DatabaseSeeder
         var userRoles = new List<EntityUserRole>
         {
             new EntityUserRole { UserId = users[0].Id, RoleId = adminRole.Id, AssignedAt = DateTime.UtcNow },
-            new EntityUserRole { UserId = users[1].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow },
-            new EntityUserRole { UserId = users[2].Id, RoleId = supervisorRole.Id, AssignedAt = DateTime.UtcNow },
-            new EntityUserRole { UserId = users[3].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow }
+            new EntityUserRole { UserId = users[1].Id, RoleId = adminRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[2].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[3].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[4].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[5].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[6].Id, RoleId = internalRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[7].Id, RoleId = supervisorRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[8].Id, RoleId = supervisorRole.Id, AssignedAt = DateTime.UtcNow },
+            new EntityUserRole { UserId = users[9].Id, RoleId = supervisorRole.Id, AssignedAt = DateTime.UtcNow }
         };
 
         await _context.UserRoles.AddRangeAsync(userRoles);
@@ -179,6 +248,7 @@ public class DatabaseSeeder
 
         var entities = new List<SupervisedEntity>
         {
+            // Banks
             new SupervisedEntity
             {
                 Name = "PKO Bank Polski S.A.",
@@ -212,44 +282,6 @@ public class DatabaseSeeder
                 PostalCode = "00-844",
                 Country = "Polska",
                 Email = "kontakt@pekao.pl",
-                Status = "Active",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            new SupervisedEntity
-            {
-                Name = "PZU S.A.",
-                NIP = "5250002750",
-                REGON = "000006479",
-                KRS = "0000009831",
-                EntityType = "Insurance",
-                UKNFCode = "INS001",
-                Street = "Aleje Jerozolimskie",
-                BuildingNumber = "44",
-                City = "Warszawa",
-                PostalCode = "00-024",
-                Country = "Polska",
-                Email = "kontakt@pzu.pl",
-                Status = "Active",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            new SupervisedEntity
-            {
-                Name = "Allianz Polska S.A.",
-                NIP = "5260231971",
-                REGON = "012267870",
-                KRS = "0000028261",
-                EntityType = "Insurance",
-                UKNFCode = "INS002",
-                Street = "Inflancka",
-                BuildingNumber = "4B",
-                City = "Warszawa",
-                PostalCode = "00-189",
-                Country = "Polska",
-                Email = "kontakt@allianz.pl",
                 Status = "Active",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
@@ -311,6 +343,217 @@ public class DatabaseSeeder
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "Bank Millennium S.A.",
+                NIP = "5260369496",
+                REGON = "930229369",
+                KRS = "0000010186",
+                EntityType = "Bank",
+                UKNFCode = "BANK006",
+                Street = "Stanisława Żaryna",
+                BuildingNumber = "2A",
+                City = "Warszawa",
+                PostalCode = "02-593",
+                Country = "Polska",
+                Email = "kontakt@bankmillennium.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "BNP Paribas Bank Polska S.A.",
+                NIP = "5260255516",
+                REGON = "142537384",
+                KRS = "0000011571",
+                EntityType = "Bank",
+                UKNFCode = "BANK007",
+                Street = "Suwak",
+                BuildingNumber = "3",
+                City = "Warszawa",
+                PostalCode = "02-676",
+                Country = "Polska",
+                Email = "kontakt@bnpparibas.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "Bank Handlowy w Warszawie S.A.",
+                NIP = "5260203821",
+                REGON = "000028168",
+                KRS = "0000000001",
+                EntityType = "Bank",
+                UKNFCode = "BANK008",
+                Street = "Senatorska",
+                BuildingNumber = "16",
+                City = "Warszawa",
+                PostalCode = "00-923",
+                Country = "Polska",
+                Email = "kontakt@citihandlowy.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            // Insurance Companies
+            new SupervisedEntity
+            {
+                Name = "PZU S.A.",
+                NIP = "5250002750",
+                REGON = "000006479",
+                KRS = "0000009831",
+                EntityType = "Insurance",
+                UKNFCode = "INS001",
+                Street = "Aleje Jerozolimskie",
+                BuildingNumber = "44",
+                City = "Warszawa",
+                PostalCode = "00-024",
+                Country = "Polska",
+                Email = "kontakt@pzu.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "Allianz Polska S.A.",
+                NIP = "5260231971",
+                REGON = "012267870",
+                KRS = "0000028261",
+                EntityType = "Insurance",
+                UKNFCode = "INS002",
+                Street = "Inflancka",
+                BuildingNumber = "4B",
+                City = "Warszawa",
+                PostalCode = "00-189",
+                Country = "Polska",
+                Email = "kontakt@allianz.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "WARTA S.A.",
+                NIP = "5270007625",
+                REGON = "000001525",
+                KRS = "0000014766",
+                EntityType = "Insurance",
+                UKNFCode = "INS003",
+                Street = "Chmielna",
+                BuildingNumber = "85/87",
+                City = "Warszawa",
+                PostalCode = "00-805",
+                Country = "Polska",
+                Email = "kontakt@warta.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "ERGO Hestia S.A.",
+                NIP = "5830026457",
+                REGON = "190067320",
+                KRS = "0000024529",
+                EntityType = "Insurance",
+                UKNFCode = "INS004",
+                Street = "Hestii",
+                BuildingNumber = "1",
+                City = "Sopot",
+                PostalCode = "81-731",
+                Country = "Polska",
+                Email = "kontakt@ergohestia.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "Generali T.U. S.A.",
+                NIP = "5260007625",
+                REGON = "015770190",
+                KRS = "0000030993",
+                EntityType = "Insurance",
+                UKNFCode = "INS005",
+                Street = "Postępu",
+                BuildingNumber = "15B",
+                City = "Warszawa",
+                PostalCode = "02-676",
+                Country = "Polska",
+                Email = "kontakt@generali.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            // Investment Funds
+            new SupervisedEntity
+            {
+                Name = "PKO TFI S.A.",
+                NIP = "5262683988",
+                REGON = "010316020",
+                KRS = "0000019308",
+                EntityType = "InvestmentFund",
+                UKNFCode = "FUND001",
+                Street = "Puławska",
+                BuildingNumber = "15",
+                City = "Warszawa",
+                PostalCode = "02-515",
+                Country = "Polska",
+                Email = "kontakt@pkotfi.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "PZU TFI S.A.",
+                NIP = "5260266060",
+                REGON = "012546352",
+                KRS = "0000019090",
+                EntityType = "InvestmentFund",
+                UKNFCode = "FUND002",
+                Street = "Aleje Jerozolimskie",
+                BuildingNumber = "44",
+                City = "Warszawa",
+                PostalCode = "00-024",
+                Country = "Polska",
+                Email = "kontakt@pzutfi.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            new SupervisedEntity
+            {
+                Name = "Investor TFI S.A.",
+                NIP = "5262649651",
+                REGON = "010267813",
+                KRS = "0000019308",
+                EntityType = "InvestmentFund",
+                UKNFCode = "FUND003",
+                Street = "Puławska",
+                BuildingNumber = "2",
+                City = "Warszawa",
+                PostalCode = "02-566",
+                Country = "Polska",
+                Email = "kontakt@investor.pl",
+                Status = "Active",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
             }
         };
 
@@ -365,104 +608,101 @@ public class DatabaseSeeder
 
         var internalUser1 = internalUsers.First(u => u.Email == "jan.kowalski@uknf.gov.pl");
         var internalUser2 = internalUsers.First(u => u.Email == "anna.nowak@uknf.gov.pl");
-        var externalUser1 = externalUsers.First();
-        var externalUser2 = externalUsers.Skip(1).First();
+        var internalUser3 = internalUsers.First(u => u.Email == "tomasz.wisniewski@uknf.gov.pl");
+        var internalUser4 = internalUsers.First(u => u.Email == "marta.kowalczyk@uknf.gov.pl");
 
-        var messages = new List<Message>
+        var messages = new List<Message>();
+
+        // Create 20 messages with varied conversations
+        for (int i = 0; i < 20; i++)
         {
-            new Message
+            var externalUser = externalUsers[i % externalUsers.Count];
+            var internalUser = internalUsers[i % internalUsers.Count];
+            var daysAgo = i / 2 + 1;
+            bool isFromInternal = i % 3 != 2; // Most messages from internal users
+
+            var messageSubjects = new[]
             {
-                Subject = "Prośba o przesłanie raportu kwartalnego",
-                Body = "Uprzejmie prosimy o przesłanie raportu finansowego za IV kwartał 2024 roku zgodnie z wymogami regulacyjnymi.",
-                SenderId = internalUser1.Id,
-                RecipientId = externalUser1.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
-                SentAt = DateTime.UtcNow.AddDays(-5),
-                IsRead = true,
-                ReadAt = DateTime.UtcNow.AddDays(-4)
-            },
-            new Message
+                "Prośba o przesłanie raportu kwartalnego",
+                "Raport kwartalny - dostarczone",
+                "Harmonogram kontroli",
+                "Wyjaśnienie dotyczące raportu ryzyka",
+                "Re: Wyjaśnienie dotyczące raportu ryzyka",
+                "Zaproszenie na szkolenie",
+                "Pytanie dotyczące wymogów kapitałowych",
+                "Potwierdzenie otrzymania dokumentacji",
+                "Prośba o uzupełnienie danych",
+                "Re: Prośba o uzupełnienie danych",
+                "Nowe wytyczne UKNF",
+                "Konsultacje dotyczące strategii biznesowej",
+                "Weryfikacja compliance",
+                "Terminarz raportowania 2025",
+                "Kwestie dotyczące płynności finansowej",
+                "Aktualizacja polityki bezpieczeństwa",
+                "Spotkanie w sprawie audytu",
+                "Dokumentacja procesu KYC",
+                "Zmiana danych kontaktowych",
+                "Potwierdzenie rejestracji nowego produktu"
+            };
+
+            var messageBodies = new[]
             {
-                Subject = "Raport kwartalny - dostarczone",
-                Body = "W załączeniu przesyłamy żądany raport finansowy za IV kwartał 2024.",
-                SenderId = externalUser1.Id,
-                RecipientId = internalUser1.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
-                SentAt = DateTime.UtcNow.AddDays(-3),
-                IsRead = false
-            },
-            new Message
+                "Uprzejmie prosimy o przesłanie raportu finansowego za IV kwartał 2024 roku zgodnie z wymogami regulacyjnymi.",
+                "W załączeniu przesyłamy żądany raport finansowy za IV kwartał 2024.",
+                "Informujemy o zaplanowanej kontroli w dniach 20-22 stycznia 2025.",
+                "Prosimy o wyjaśnienie rozbieżności w raporcie ryzyka za Q3 2024, w szczególności w sekcji dotyczącej ryzyka operacyjnego.",
+                "Przekazujemy szczegółowe wyjaśnienie rozbieżności. Załączamy poprawiony raport.",
+                "Zapraszamy na szkolenie dotyczące nowych wymogów raportowania, które odbędzie się 15 lutego 2025.",
+                "Czy możemy uzyskać wyjaśnienie dotyczące nowych wymogów kapitałowych wprowadzonych w grudniu 2024?",
+                "Potwierdzamy otrzymanie kompletnej dokumentacji dotyczącej procesu due diligence.",
+                "W związku z prowadzoną analizą prosimy o uzupełnienie danych za okres ostatnich 6 miesięcy.",
+                "Przekazujemy uzupełnione dane zgodnie z Państwa prośbą.",
+                "Informujemy o nowych wytycznych dotyczących raportowania ryzyka operacyjnego, obowiązujących od 1 marca 2025.",
+                "Prosimy o możliwość umówienia konsultacji dotyczących planowanej restrukturyzacji.",
+                "W ramach procesu weryfikacji compliance prosimy o dostarczenie dokumentacji polityki AML/CFT.",
+                "Przesyłamy szczegółowy terminarz raportowania dla podmiotów nadzorowanych na rok 2025.",
+                "Prosimy o przedstawienie planu zapewnienia płynności w kontekście aktualnej sytuacji rynkowej.",
+                "Informujemy o konieczności aktualizacji polityki bezpieczeństwa IT zgodnie z nowymi wymogami RODO.",
+                "Uprzejmie prosimy o potwierdzenie udziału w spotkaniu dotyczącym przygotowań do audytu.",
+                "Prosimy o uzupełnienie dokumentacji procesu KYC dla nowych klientów korporacyjnych.",
+                "Informujemy o zmianie danych kontaktowych naszego przedstawiciela ds. regulacji.",
+                "Potwierdzamy rejestrację nowego produktu inwestycyjnego zgodnie z otrzymaną dokumentacją."
+            };
+
+            Message message;
+            if (isFromInternal)
             {
-                Subject = "Harmonogram kontroli",
-                Body = "Informujemy o zaplanowanej kontroli w dniach 20-22 stycznia 2025.",
-                SenderId = internalUser1.Id,
-                RecipientId = externalUser1.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
-                SentAt = DateTime.UtcNow.AddDays(-1),
-                IsRead = false
-            },
-            new Message
-            {
-                Subject = "Wyjaśnienie dotyczące raportu ryzyka",
-                Body = "Prosimy o wyjaśnienie rozbieżności w raporcie ryzyka za Q3 2024, w szczególności w sekcji dotyczącej ryzyka operacyjnego.",
-                SenderId = internalUser2.Id,
-                RecipientId = externalUser2.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
-                SentAt = DateTime.UtcNow.AddDays(-7),
-                IsRead = true,
-                ReadAt = DateTime.UtcNow.AddDays(-6)
-            },
-            new Message
-            {
-                Subject = "Re: Wyjaśnienie dotyczące raportu ryzyka",
-                Body = "Przekazujemy szczegółowe wyjaśnienie rozbieżności. Załączamy poprawiony raport.",
-                SenderId = externalUser2.Id,
-                RecipientId = internalUser2.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
-                SentAt = DateTime.UtcNow.AddDays(-6),
-                IsRead = true,
-                ReadAt = DateTime.UtcNow.AddDays(-5)
-            },
-            new Message
-            {
-                Subject = "Zaproszenie na szkolenie",
-                Body = "Zapraszamy na szkolenie dotyczące nowych wymogów raportowania, które odbędzie się 15 lutego 2025.",
-                SenderId = internalUser1.Id,
-                RecipientId = externalUser1.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
-                SentAt = DateTime.UtcNow.AddDays(-2),
-                IsRead = false
-            },
-            new Message
-            {
-                Subject = "Pytanie dotyczące wymogów kapitałowych",
-                Body = "Czy możemy uzyskać wyjaśnienie dotyczące nowych wymogów kapitałowych wprowadzonych w grudniu 2024?",
-                SenderId = externalUser2.Id,
-                RecipientId = internalUser2.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
-                SentAt = DateTime.UtcNow.AddHours(-12),
-                IsRead = false
-            },
-            new Message
-            {
-                Subject = "Potwierdzenie otrzymania dokumentacji",
-                Body = "Potwierdzamy otrzymanie kompletnej dokumentacji dotyczącej procesu due diligence.",
-                SenderId = internalUser1.Id,
-                RecipientId = externalUser1.Id,
-                Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
-                SentAt = DateTime.UtcNow.AddDays(-10),
-                IsRead = true,
-                ReadAt = DateTime.UtcNow.AddDays(-9)
+                message = new Message
+                {
+                    Subject = messageSubjects[i],
+                    Body = messageBodies[i],
+                    SenderId = internalUser.Id,
+                    RecipientId = externalUser.Id,
+                    Status = MessageStatus.Sent,
+                    Folder = MessageFolder.Sent,
+                    SentAt = DateTime.UtcNow.AddDays(-daysAgo),
+                    IsRead = i % 4 != 0,
+                    ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null
+                };
             }
-        };
+            else
+            {
+                message = new Message
+                {
+                    Subject = messageSubjects[i],
+                    Body = messageBodies[i],
+                    SenderId = externalUser.Id,
+                    RecipientId = internalUser.Id,
+                    Status = MessageStatus.Sent,
+                    Folder = MessageFolder.Inbox,
+                    SentAt = DateTime.UtcNow.AddDays(-daysAgo),
+                    IsRead = i % 3 != 0,
+                    ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null
+                };
+            }
+
+            messages.Add(message);
+        }
 
         await _context.Messages.AddRangeAsync(messages);
         await _context.SaveChangesAsync();
@@ -505,14 +745,14 @@ public class DatabaseSeeder
                     ReportingPeriod = period,
                     ReportType = reportType,
                     Status = status,
-                    ErrorDescription = status == ReportStatus.ValidationErrors 
-                        ? "Missing required financial data in section 3.2" 
-                        : status == ReportStatus.QuestionedByUKNF 
-                            ? "Please update the balance sheet figures" 
+                    ErrorDescription = status == ReportStatus.ValidationErrors
+                        ? "Missing required financial data in section 3.2"
+                        : status == ReportStatus.QuestionedByUKNF
+                            ? "Please update the balance sheet figures"
                             : null,
                     SubmittedAt = DateTime.UtcNow.AddDays(-daysAgo),
-                    ValidatedAt = status == ReportStatus.ValidationSuccessful 
-                        ? DateTime.UtcNow.AddDays(-daysAgo + 2) 
+                    ValidatedAt = status == ReportStatus.ValidationSuccessful
+                        ? DateTime.UtcNow.AddDays(-daysAgo + 2)
                         : null,
                     IsCorrection = j > 3,
                     OriginalReportId = j > 3 ? (long?)(reportCounter - 3) : null,

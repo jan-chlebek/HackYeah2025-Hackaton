@@ -185,14 +185,14 @@ public class EntitiesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<object>> ImportEntities()
+    public Task<ActionResult<object>> ImportEntities()
     {
         // TODO: Implement CSV import
         // This will be implemented in Sprint 3
-        return Ok(new
+        return Task.FromResult<ActionResult<object>>(Ok(new
         {
             message = "CSV import not yet implemented",
             note = "This will be available in Sprint 3"
-        });
+        }));
     }
 }

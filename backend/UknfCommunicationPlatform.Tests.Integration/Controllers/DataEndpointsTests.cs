@@ -39,7 +39,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var result = await response.Content.ReadFromJsonAsync<PaginatedResponse<UserDto>>();
         result.Should().NotBeNull();
         result!.Data.Should().NotBeEmpty();
@@ -61,7 +61,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var result = await response.Content.ReadFromJsonAsync<PaginatedResponse<UserDto>>();
         result.Should().NotBeNull();
         result!.Data.Count.Should().BeLessThanOrEqualTo(5);
@@ -73,7 +73,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     {
         // Arrange
         var client = _factory.CreateClient();
-        
+
         // First get a user to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/users");
         var listResult = await listResponse.Content.ReadFromJsonAsync<PaginatedResponse<UserDto>>();
@@ -84,7 +84,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var user = await response.Content.ReadFromJsonAsync<UserDto>();
         user.Should().NotBeNull();
         user!.Id.Should().Be(userId);
@@ -102,7 +102,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var result = await response.Content.ReadFromJsonAsync<PaginatedResponse<EntityDto>>();
         result.Should().NotBeNull();
         result!.Data.Should().NotBeEmpty();
@@ -122,13 +122,13 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var result = await response.Content.ReadFromJsonAsync<PaginatedResponse<EntityDto>>();
         result.Should().NotBeNull();
         result!.Data.Should().NotBeEmpty();
         // All results should contain "Bank" in name or type
-        result.Data.Should().Contain(e => 
-            e.Name.Contains("Bank", StringComparison.OrdinalIgnoreCase) || 
+        result.Data.Should().Contain(e =>
+            e.Name.Contains("Bank", StringComparison.OrdinalIgnoreCase) ||
             e.EntityType.Contains("Bank", StringComparison.OrdinalIgnoreCase));
     }
 
@@ -137,7 +137,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     {
         // Arrange
         var client = _factory.CreateClient();
-        
+
         // First get an entity to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/entities");
         var listResult = await listResponse.Content.ReadFromJsonAsync<PaginatedResponse<EntityDto>>();
@@ -148,7 +148,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var entity = await response.Content.ReadFromJsonAsync<EntityDto>();
         entity.Should().NotBeNull();
         entity!.Id.Should().Be(entityId);
@@ -166,7 +166,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var result = await response.Content.ReadFromJsonAsync<PaginatedResponse<MessageDto>>();
         result.Should().NotBeNull();
         result!.Data.Should().NotBeEmpty();
@@ -185,7 +185,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var result = await response.Content.ReadFromJsonAsync<PaginatedResponse<MessageDto>>();
         result.Should().NotBeNull();
         // All returned messages should be unread
@@ -200,17 +200,17 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     {
         // Arrange
         var client = _factory.CreateClient();
-        
+
         // First get a message to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/messages");
         var listResult = await listResponse.Content.ReadFromJsonAsync<PaginatedResponse<MessageDto>>();
-        
+
         if (!listResult!.Data.Any())
         {
             // Skip test if no messages available
             return;
         }
-        
+
         var messageId = listResult.Data.First().Id;
 
         // Act
@@ -218,7 +218,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var message = await response.Content.ReadFromJsonAsync<MessageDetailDto>();
         message.Should().NotBeNull();
         message!.Id.Should().Be(messageId);
@@ -236,7 +236,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var reports = await response.Content.ReadFromJsonAsync<List<ReportDto>>();
         reports.Should().NotBeNull();
         reports!.Should().NotBeEmpty();
@@ -252,8 +252,8 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
         // Act - Get first report to find an entity ID
         var allResponse = await client.GetAsync("/api/v1/reports");
         var allReports = await allResponse.Content.ReadFromJsonAsync<List<ReportDto>>();
-        
-        if (!allReports!.Any())
+
+        if (allReports is null || !allReports.Any())
         {
             // Skip if no reports
             return;
@@ -261,12 +261,12 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Use reportingPeriod filter
         var period = allReports.First().ReportingPeriod;
-        var response = await client.GetAsync($"/api/v1/reports?reportingPeriod={period}");
+        var filteredResponse = await client.GetAsync($"/api/v1/reports?reportingPeriod={period}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
-        var reports = await response.Content.ReadFromJsonAsync<List<ReportDto>>();
+        filteredResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var reports = await filteredResponse.Content.ReadFromJsonAsync<List<ReportDto>>();
         reports.Should().NotBeNull();
         reports!.Should().OnlyContain(r => r.ReportingPeriod == period);
     }
@@ -276,17 +276,17 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     {
         // Arrange
         var client = _factory.CreateClient();
-        
+
         // First get a report to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/reports");
         var reports = await listResponse.Content.ReadFromJsonAsync<List<ReportDto>>();
-        
-        if (!reports!.Any())
+
+        if (reports is null || !reports.Any())
         {
             // Skip test if no reports available
             return;
         }
-        
+
         var reportId = reports.First().Id;
 
         // Act
@@ -294,7 +294,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         var report = await response.Content.ReadFromJsonAsync<ReportDto>();
         report.Should().NotBeNull();
         report!.Id.Should().Be(reportId);
