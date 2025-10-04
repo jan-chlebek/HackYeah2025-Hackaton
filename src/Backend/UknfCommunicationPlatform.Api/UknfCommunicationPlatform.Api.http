@@ -1,6 +1,0 @@
-@UknfCommunicationPlatform.Api_HostAddress = http://localhost:5073
-
-GET {{UknfCommunicationPlatform.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
