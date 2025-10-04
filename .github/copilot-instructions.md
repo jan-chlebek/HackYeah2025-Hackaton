@@ -33,3 +33,11 @@
 - ✅ Security, accessibility, and performance considerations from the requirements are addressed or explicitly deferred.
 - ✅ `.documentation/prompts.md` updated with the latest prompting steps and lessons learned.
 
+Always take into consideration the contents of:
+- .requirements/UX&UI Recomendations/KNF (Komisja Nadzoru Finansowego) UI_UX Design.md
+- .requirements/UX&UI Recomendations/_perplexityprompt.md
+- .requirements/DETAILS_UKNF_Prompt2Code2.md
+- .requirements/RULES_UKNF_Prompt2Code2.md
+
+Also prefer the solutions that you are more proficient with.
+
