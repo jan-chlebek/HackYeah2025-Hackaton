@@ -1,0 +1,10 @@
+services:
+  backend:
+    build:
+      context: ./backend/uknf-project
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped

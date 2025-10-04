@@ -12,7 +12,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// UseHttpsRedirection disabled for containerized deployment
+// app.UseHttpsRedirection();
 
 var summaries = new[]
 {
