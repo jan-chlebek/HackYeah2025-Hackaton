@@ -1,5 +1,5 @@
 ---
-applyTo: "Frontend/**/*.ts,Frontend/**/*.tsx,Frontend/**/*.html,Frontend/**/*.css,Frontend/**/*.scss,Frontend/**/*.json"
+applyTo: "frontend/**/*.ts,frontend/**/*.tsx,frontend/**/*.html,frontend/**/*.css,frontend/**/*.scss,frontend/**/*.json"
 ---
 
 # Copilot Guide – Frontend (Angular)
