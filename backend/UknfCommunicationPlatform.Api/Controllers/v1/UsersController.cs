@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UknfCommunicationPlatform.Api.Authorization;
 using UknfCommunicationPlatform.Core.DTOs.Users;
 using UknfCommunicationPlatform.Infrastructure.Services;
 
@@ -10,6 +12,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 [ApiController]
 [Route("api/v1/users")]
 [Produces("application/json")]
+[Authorize] // Require authentication for all endpoints
 public class UsersController : ControllerBase
 {
     private readonly UserManagementService _userService;
@@ -31,7 +34,9 @@ public class UsersController : ControllerBase
     /// <param name="supervisedEntityId">Filter by supervised entity</param>
     /// <returns>List of users with pagination metadata</returns>
     [HttpGet]
+    [RequirePermission("users.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<object>> GetUsers(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -64,7 +69,9 @@ public class UsersController : ControllerBase
     /// <param name="id">User ID</param>
     /// <returns>User details</returns>
     [HttpGet("{id}")]
+    [RequirePermission("users.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserResponse>> GetUser(long id)
     {
@@ -83,8 +90,10 @@ public class UsersController : ControllerBase
     /// <param name="request">User creation data</param>
     /// <returns>Created user details</returns>
     [HttpPost]
+    [RequirePermission("users.write")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request)
     {
         try
@@ -105,8 +114,10 @@ public class UsersController : ControllerBase
     /// <param name="request">Updated user data</param>
     /// <returns>Updated user details</returns>
     [HttpPut("{id}")]
+    [RequirePermission("users.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserResponse>> UpdateUser(long id, [FromBody] UpdateUserRequest request)
     {
@@ -131,7 +142,9 @@ public class UsersController : ControllerBase
     /// <param name="id">User ID</param>
     /// <returns>No content if successful</returns>
     [HttpDelete("{id}")]
+    [RequirePermission("users.delete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUser(long id)
     {
@@ -151,8 +164,10 @@ public class UsersController : ControllerBase
     /// <param name="request">Password data</param>
     /// <returns>No content if successful</returns>
     [HttpPost("{id}/set-password")]
+    [RequirePermission("users.write")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetPassword(long id, [FromBody] SetPasswordRequest request)
     {
@@ -177,7 +192,9 @@ public class UsersController : ControllerBase
     /// <param name="id">User ID</param>
     /// <returns>Temporary password</returns>
     [HttpPost("{id}/reset-password")]
+    [RequirePermission("users.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<object>> ResetPassword(long id)
     {
@@ -211,7 +228,9 @@ public class UsersController : ControllerBase
     /// <param name="id">User ID</param>
     /// <returns>No content if successful</returns>
     [HttpPost("{id}/activate")]
+    [RequirePermission("users.write")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ActivateUser(long id)
     {
@@ -230,7 +249,9 @@ public class UsersController : ControllerBase
     /// <param name="id">User ID</param>
     /// <returns>No content if successful</returns>
     [HttpPost("{id}/deactivate")]
+    [RequirePermission("users.write")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeactivateUser(long id)
     {
@@ -249,7 +270,9 @@ public class UsersController : ControllerBase
     /// <param name="id">User ID</param>
     /// <returns>No content if successful</returns>
     [HttpPost("{id}/unlock")]
+    [RequirePermission("users.write")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UnlockUser(long id)
     {

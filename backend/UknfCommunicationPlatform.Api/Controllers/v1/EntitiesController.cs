@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UknfCommunicationPlatform.Api.Authorization;
 using UknfCommunicationPlatform.Core.DTOs.Entities;
 using UknfCommunicationPlatform.Core.DTOs.Users;
 using UknfCommunicationPlatform.Infrastructure.Services;
@@ -9,6 +11,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 /// Supervised entity management operations (for system administrators)
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("api/v1/entities")]
 [Produces("application/json")]
 public class EntitiesController : ControllerBase
@@ -32,7 +35,9 @@ public class EntitiesController : ControllerBase
     /// <param name="isActive">Filter by active status</param>
     /// <returns>List of entities with pagination metadata</returns>
     [HttpGet]
+    [RequirePermission("entities.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<object>> GetEntities(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -65,7 +70,9 @@ public class EntitiesController : ControllerBase
     /// <param name="id">Entity ID</param>
     /// <returns>Entity details</returns>
     [HttpGet("{id}")]
+    [RequirePermission("entities.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<EntityResponse>> GetEntity(long id)
     {
@@ -84,8 +91,10 @@ public class EntitiesController : ControllerBase
     /// <param name="request">Entity creation data</param>
     /// <returns>Created entity details</returns>
     [HttpPost]
+    [RequirePermission("entities.write")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<EntityResponse>> CreateEntity([FromBody] CreateEntityRequest request)
     {
         try
@@ -106,8 +115,10 @@ public class EntitiesController : ControllerBase
     /// <param name="request">Updated entity data</param>
     /// <returns>Updated entity details</returns>
     [HttpPut("{id}")]
+    [RequirePermission("entities.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<EntityResponse>> UpdateEntity(long id, [FromBody] UpdateEntityRequest request)
     {
@@ -132,7 +143,9 @@ public class EntitiesController : ControllerBase
     /// <param name="id">Entity ID</param>
     /// <returns>No content if successful</returns>
     [HttpDelete("{id}")]
+    [RequirePermission("entities.delete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteEntity(long id)
     {
@@ -151,7 +164,9 @@ public class EntitiesController : ControllerBase
     /// <param name="id">Entity ID</param>
     /// <returns>List of users</returns>
     [HttpGet("{id}/users")]
+    [RequirePermission("entities.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<List<UserListItemResponse>>> GetEntityUsers(long id)
     {
         var users = await _entityService.GetEntityUsersAsync(id);
@@ -163,8 +178,10 @@ public class EntitiesController : ControllerBase
     /// </summary>
     /// <returns>Import result</returns>
     [HttpPost("import")]
+    [RequirePermission("entities.write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<object>> ImportEntities()
     {
         // TODO: Implement CSV import

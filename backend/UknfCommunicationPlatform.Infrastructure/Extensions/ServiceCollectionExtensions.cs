@@ -1,6 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UknfCommunicationPlatform.Core.Authorization;
+using UknfCommunicationPlatform.Core.Configuration;
+using UknfCommunicationPlatform.Core.Interfaces;
 using UknfCommunicationPlatform.Infrastructure.Data;
 using UknfCommunicationPlatform.Infrastructure.Services;
 
@@ -28,7 +33,23 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
 
-        // Register services
+        // Register JWT settings
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+        // Register authentication and authorization services
+        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IAuthService, AuthService>();
+
+        // Register HTTP context accessor for current user service
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        // Register authorization handlers
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
+        services.AddScoped<IAuthorizationHandler, EntityOwnershipAuthorizationHandler>();
+
+        // Register other services
         services.AddScoped<IPasswordHashingService, PasswordHashingService>();
         services.AddScoped<UserManagementService>();
         services.AddScoped<EntityManagementService>();
