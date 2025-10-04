@@ -1,22 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-interface Message {
-  id: number;
-  identyfikator: string;
-  sygnaturaSprawy: string;
-  podmiot: string;
-  statusWiadomosci: string;
-  priorytet: string;
-  dataPrzeslaniaPodmiotu: string;
-  uzytkownik: string;
-  wiadomoscUzytkownika: string;
-  dataPrzeslaniaUKNF: string;
-  pracownikUKNF: string;
-  wiadomoscPracownikaUKNF: string;
-}
+import { MessageService, Message, MessageResponse } from '../../../services/message.service';
 
 type SortColumn = 'identyfikator' | 'sygnaturaSprawy' | 'podmiot' | 'statusWiadomosci' | 'priorytet' | 
   'dataPrzeslaniaPodmiotu' | 'uzytkownik' | 'wiadomoscUzytkownika' | 'dataPrzeslaniaUKNF' | 
@@ -31,6 +17,9 @@ type SortDirection = 'asc' | 'desc' | null;
   styleUrl: './wiadomosci-list.component.css'
 })
 export class WiadomosciListComponent implements OnInit {
+  private messageService = inject(MessageService);
+  private router = inject(Router);
+  
   // Search filter
   searchTerm: string = '';
   
@@ -59,136 +48,44 @@ export class WiadomosciListComponent implements OnInit {
   
   // Available options
   priorytetOptions = ['Wszystkie', 'Wysoki', 'Średni', 'Niski'];
-  statusOptions = ['Wszystkie', 'Oczekuje na odpowiedź UKNF', 'Odpowiedziano', 'Zamknięte'];
+  statusOptions = ['Wszystkie', 'Oczekuje na odpowiedź UKNF', 'Oczekuje na odpowiedź podmiotu', 'Odpowiedziano', 'Zamknięte'];
   pracownikOptions = ['Wszystkie'];
   
   // Pagination
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalItems: number = 0;
+  totalPages: number = 1;
   
   // Data
-  messages: Message[] = [
-    {
-      id: 1,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    },
-    {
-      id: 2,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    },
-    {
-      id: 3,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    },
-    {
-      id: 4,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    },
-    {
-      id: 5,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    },
-    {
-      id: 6,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    },
-    {
-      id: 7,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    },
-    {
-      id: 8,
-      identyfikator: '2024/System14/5',
-      sygnaturaSprawy: '001/2025',
-      podmiot: 'Testowy podmiot',
-      statusWiadomosci: 'Oczekuje na odpowiedź UKNF',
-      priorytet: 'Średni',
-      dataPrzeslaniaPodmiotu: '2025-06-14 12:43:12',
-      uzytkownik: 'Jan Kowalski',
-      wiadomoscUzytkownika: 'Testowa wiadomość...',
-      dataPrzeslaniaUKNF: '',
-      pracownikUKNF: '',
-      wiadomoscPracownikaUKNF: ''
-    }
-  ];
-  
+  messages: Message[] = [];
   filteredMessages: Message[] = [];
-  
-  constructor(private router: Router) {}
+  isLoading: boolean = false;
+  errorMessage: string = '';
   
   ngOnInit(): void {
-    this.applyFilters();
+    this.loadMessages();
+  }
+  
+  loadMessages(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.messageService.getMessages(this.currentPage, this.itemsPerPage).subscribe({
+      next: (response: MessageResponse) => {
+        this.messages = response.data;
+        this.totalItems = response.pagination.totalCount;
+        this.totalPages = response.pagination.totalPages;
+        this.currentPage = response.pagination.page;
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading messages:', error);
+        this.errorMessage = 'Failed to load messages. Please try again.';
+        this.isLoading = false;
+      }
+    });
   }
   
   applyFilters(): void {
@@ -199,13 +96,13 @@ export class WiadomosciListComponent implements OnInit {
         );
       
       const matchesIdentyfikator = !this.identyfikatorFilter || 
-        msg.identyfikator.toLowerCase().includes(this.identyfikatorFilter.toLowerCase());
+        (msg.identyfikator && msg.identyfikator.toLowerCase().includes(this.identyfikatorFilter.toLowerCase()));
       
       const matchesSygnatura = !this.sygnaturaSprawyFilter || 
-        msg.sygnaturaSprawy.toLowerCase().includes(this.sygnaturaSprawyFilter.toLowerCase());
+        (msg.sygnaturaSprawy && msg.sygnaturaSprawy.toLowerCase().includes(this.sygnaturaSprawyFilter.toLowerCase()));
       
       const matchesPodmiot = !this.podmiotFilter || 
-        msg.podmiot.toLowerCase().includes(this.podmiotFilter.toLowerCase());
+        (msg.podmiot && msg.podmiot.toLowerCase().includes(this.podmiotFilter.toLowerCase()));
       
       const matchesStatus = !this.statusFilter || this.statusFilter === 'Wszystkie' || 
         msg.statusWiadomosci === this.statusFilter;
@@ -214,20 +111,20 @@ export class WiadomosciListComponent implements OnInit {
         msg.priorytet === this.priorytetFilter;
       
       const matchesPracownik = !this.pracownikUKNFFilter || this.pracownikUKNFFilter === 'Wszystkie' || 
-        msg.pracownikUKNF.toLowerCase().includes(this.pracownikUKNFFilter.toLowerCase());
+        (msg.pracownikUKNF && msg.pracownikUKNF.toLowerCase().includes(this.pracownikUKNFFilter.toLowerCase()));
       
       // Date filters
       const matchesDatePodmiotuFrom = !this.dataPrzeslaniaPodmiotuFromFilter || 
-        msg.dataPrzeslaniaPodmiotu >= this.dataPrzeslaniaPodmiotuFromFilter;
+        (msg.dataPrzeslaniaPodmiotu && new Date(msg.dataPrzeslaniaPodmiotu) >= new Date(this.dataPrzeslaniaPodmiotuFromFilter));
       
       const matchesDatePodmiotuTo = !this.dataPrzeslaniaPodmiotuToFilter || 
-        msg.dataPrzeslaniaPodmiotu <= this.dataPrzeslaniaPodmiotuToFilter;
+        (msg.dataPrzeslaniaPodmiotu && new Date(msg.dataPrzeslaniaPodmiotu) <= new Date(this.dataPrzeslaniaPodmiotuToFilter));
       
       const matchesDateUKNFFrom = !this.dataPrzeslaniaUKNFFromFilter || 
-        (msg.dataPrzeslaniaUKNF && msg.dataPrzeslaniaUKNF >= this.dataPrzeslaniaUKNFFromFilter);
+        (msg.dataPrzeslaniaUKNF && new Date(msg.dataPrzeslaniaUKNF) >= new Date(this.dataPrzeslaniaUKNFFromFilter));
       
       const matchesDateUKNFTo = !this.dataPrzeslaniaUKNFToFilter || 
-        (msg.dataPrzeslaniaUKNF && msg.dataPrzeslaniaUKNF <= this.dataPrzeslaniaUKNFToFilter);
+        (msg.dataPrzeslaniaUKNF && new Date(msg.dataPrzeslaniaUKNF) <= new Date(this.dataPrzeslaniaUKNFToFilter));
       
       return matchesSearch &&
         matchesIdentyfikator &&
@@ -243,8 +140,6 @@ export class WiadomosciListComponent implements OnInit {
     });
     
     this.applySorting();
-    this.totalItems = this.filteredMessages.length;
-    this.currentPage = 1;
   }
   
   toggleFilters(): void {
@@ -270,8 +165,57 @@ export class WiadomosciListComponent implements OnInit {
   applySorting(): void {
     if (this.sortColumn && this.sortDirection) {
       this.filteredMessages.sort((a, b) => {
-        const aValue = a[this.sortColumn!];
-        const bValue = b[this.sortColumn!];
+        let aValue: any;
+        let bValue: any;
+        
+        switch(this.sortColumn) {
+          case 'identyfikator':
+            aValue = a.identyfikator || '';
+            bValue = b.identyfikator || '';
+            break;
+          case 'sygnaturaSprawy':
+            aValue = a.sygnaturaSprawy || '';
+            bValue = b.sygnaturaSprawy || '';
+            break;
+          case 'podmiot':
+            aValue = a.podmiot || '';
+            bValue = b.podmiot || '';
+            break;
+          case 'statusWiadomosci':
+            aValue = a.statusWiadomosci || '';
+            bValue = b.statusWiadomosci || '';
+            break;
+          case 'priorytet':
+            aValue = a.priorytet || '';
+            bValue = b.priorytet || '';
+            break;
+          case 'dataPrzeslaniaPodmiotu':
+            aValue = a.dataPrzeslaniaPodmiotu ? new Date(a.dataPrzeslaniaPodmiotu).getTime() : 0;
+            bValue = b.dataPrzeslaniaPodmiotu ? new Date(b.dataPrzeslaniaPodmiotu).getTime() : 0;
+            break;
+          case 'uzytkownik':
+            aValue = a.uzytkownik || '';
+            bValue = b.uzytkownik || '';
+            break;
+          case 'wiadomoscUzytkownika':
+            aValue = a.wiadomoscUzytkownika || '';
+            bValue = b.wiadomoscUzytkownika || '';
+            break;
+          case 'dataPrzeslaniaUKNF':
+            aValue = a.dataPrzeslaniaUKNF ? new Date(a.dataPrzeslaniaUKNF).getTime() : 0;
+            bValue = b.dataPrzeslaniaUKNF ? new Date(b.dataPrzeslaniaUKNF).getTime() : 0;
+            break;
+          case 'pracownikUKNF':
+            aValue = a.pracownikUKNF || '';
+            bValue = b.pracownikUKNF || '';
+            break;
+          case 'wiadomoscPracownikaUKNF':
+            aValue = a.wiadomoscPracownikaUKNF || '';
+            bValue = b.wiadomoscPracownikaUKNF || '';
+            break;
+          default:
+            return 0;
+        }
         
         if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
         if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
@@ -305,23 +249,23 @@ export class WiadomosciListComponent implements OnInit {
   }
   
   getPaginatedMessages(): Message[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredMessages.slice(startIndex, startIndex + this.itemsPerPage);
+    return this.filteredMessages;
   }
   
   getTotalPages(): number {
-    return Math.ceil(this.totalItems / this.itemsPerPage);
+    return this.totalPages;
   }
   
   changePage(page: number): void {
     if (page >= 1 && page <= this.getTotalPages()) {
       this.currentPage = page;
+      this.loadMessages();
     }
   }
   
   onItemsPerPageChange(): void {
     this.currentPage = 1;
-    this.applyFilters();
+    this.loadMessages();
   }
   
   getPageNumbers(): number[] {
@@ -355,5 +299,17 @@ export class WiadomosciListComponent implements OnInit {
   
   viewMessageDetails(message: Message): void {
     this.router.navigate(['/wiadomosci', message.id]);
+  }
+  
+  formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleString('pl-PL', { 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 }

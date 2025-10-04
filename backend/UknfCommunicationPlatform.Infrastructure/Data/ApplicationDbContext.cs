@@ -189,6 +189,19 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.SenderId, e.SentAt });
             entity.HasIndex(e => new { e.RecipientId, e.IsRead });
 
+            // Polish UI field mappings
+            entity.Property(e => e.Identyfikator).HasColumnName("identyfikator");
+            entity.Property(e => e.SygnaturaSprawy).HasColumnName("sygnatura_sprawy");
+            entity.Property(e => e.Podmiot).HasColumnName("podmiot");
+            entity.Property(e => e.StatusWiadomosci).HasColumnName("status_wiadomosci");
+            entity.Property(e => e.Priorytet).HasColumnName("priorytet");
+            entity.Property(e => e.DataPrzeslaniaPodmiotu).HasColumnName("data_przeslania_podmiotu");
+            entity.Property(e => e.Uzytkownik).HasColumnName("uzytkownik");
+            entity.Property(e => e.WiadomoscUzytkownika).HasColumnName("wiadomosc_uzytkownika");
+            entity.Property(e => e.DataPrzeslaniaUKNF).HasColumnName("data_przeslania_uknf");
+            entity.Property(e => e.PracownikUKNF).HasColumnName("pracownik_uknf");
+            entity.Property(e => e.WiadomoscPracownikaUKNF).HasColumnName("wiadomosc_pracownika_uknf");
+
             entity.HasOne(e => e.Sender)
                   .WithMany(u => u.SentMessages)
                   .HasForeignKey(e => e.SenderId)

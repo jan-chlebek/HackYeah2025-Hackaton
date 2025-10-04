@@ -124,8 +124,18 @@
   
   <!-- Table Section -->
   <section class="table-section">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <p>Ładowanie wiadomości...</p>
+    </div>
+    
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="error-state">
+      <p>{{ errorMessage }}</p>
+    </div>
+    
     <!-- Data Table -->
-    <div class="table-wrapper">
+    <div class="table-wrapper" *ngIf="!isLoading && !errorMessage">
       <table class="data-table messages-table" role="table" aria-label="Tabela wiadomości">
         <thead>
           <tr>
@@ -232,20 +242,20 @@
         </thead>
         <tbody>
           <tr *ngFor="let message of getPaginatedMessages()">
-            <td>{{ message.identyfikator }}</td>
-            <td>{{ message.sygnaturaSprawy }}</td>
-            <td>{{ message.podmiot }}</td>
-            <td>{{ message.statusWiadomosci }}</td>
-            <td>{{ message.priorytet }}</td>
-            <td>{{ message.dataPrzeslaniaPodmiotu }}</td>
-            <td>{{ message.uzytkownik }}</td>
-            <td class="message-preview">{{ message.wiadomoscUzytkownika }}</td>
-            <td>{{ message.dataPrzeslaniaUKNF || '-' }}</td>
+            <td>{{ message.identyfikator || '-' }}</td>
+            <td>{{ message.sygnaturaSprawy || '-' }}</td>
+            <td>{{ message.podmiot || '-' }}</td>
+            <td>{{ message.statusWiadomosci || '-' }}</td>
+            <td>{{ message.priorytet || '-' }}</td>
+            <td>{{ formatDate(message.dataPrzeslaniaPodmiotu) }}</td>
+            <td>{{ message.uzytkownik || '-' }}</td>
+            <td class="message-preview">{{ message.wiadomoscUzytkownika || '-' }}</td>
+            <td>{{ formatDate(message.dataPrzeslaniaUKNF) }}</td>
             <td>{{ message.pracownikUKNF || '-' }}</td>
             <td class="message-preview">{{ message.wiadomoscPracownikaUKNF || '-' }}</td>
           </tr>
           <tr *ngIf="getPaginatedMessages().length === 0">
-            <td colspan="11" class="no-data">Brak danych do wyświetlenia</td>
+            <td colspan="11" class="no-data">Brak wiadomości do wyświetlenia</td>
           </tr>
         </tbody>
       </table>
@@ -314,17 +324,5 @@
         </select>
       </div>
     </div>
-  </section>
-  
-  <!-- Action Button -->
-  <section class="action-section">
-    <button 
-      class="btn-details" 
-      (click)="viewMessageDetails(getPaginatedMessages()[0])"
-      [disabled]="getPaginatedMessages().length === 0"
-      aria-label="Zobacz szczegóły wiadomości"
-    >
-      Szczegóły wiadomości
-    </button>
   </section>
 </div>

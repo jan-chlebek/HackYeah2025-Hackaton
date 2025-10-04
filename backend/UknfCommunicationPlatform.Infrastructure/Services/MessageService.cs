@@ -414,7 +414,20 @@ public class MessageService
             AttachmentCount = message.Attachments?.Count ?? 0,
             ReplyCount = message.Replies?.Count ?? 0,
             IsCancelled = message.IsCancelled,
-            CancelledAt = message.CancelledAt
+            CancelledAt = message.CancelledAt,
+            
+            // Polish UI fields
+            Identyfikator = message.Identyfikator,
+            SygnaturaSprawy = message.SygnaturaSprawy,
+            Podmiot = message.Podmiot,
+            StatusWiadomosci = message.StatusWiadomosci,
+            Priorytet = message.Priorytet,
+            DataPrzeslaniaPodmiotu = message.DataPrzeslaniaPodmiotu,
+            Uzytkownik = message.Uzytkownik,
+            WiadomoscUzytkownika = message.WiadomoscUzytkownika,
+            DataPrzeslaniaUKNF = message.DataPrzeslaniaUKNF,
+            PracownikUKNF = message.PracownikUKNF,
+            WiadomoscPracownikaUKNF = message.WiadomoscPracownikaUKNF
         };
     }
 }
