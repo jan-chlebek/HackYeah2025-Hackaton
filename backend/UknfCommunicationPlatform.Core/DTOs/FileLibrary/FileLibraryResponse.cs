@@ -1,9 +1,9 @@
-namespace UknfCommunicationPlatform.Core.Entities;
+namespace UknfCommunicationPlatform.Core.DTOs.FileLibrary;
 
 /// <summary>
-/// Represents a file in the library/repository
+/// Response DTO for file library item
 /// </summary>
-public class FileLibrary
+public class FileLibraryResponse
 {
     /// <summary>
     /// Unique identifier
@@ -31,29 +31,19 @@ public class FileLibrary
     public long FileSize { get; set; }
 
     /// <summary>
+    /// Human-readable file size (e.g., "2.5 MB")
+    /// </summary>
+    public string FileSizeFormatted { get; set; } = string.Empty;
+
+    /// <summary>
     /// MIME type
     /// </summary>
     public string ContentType { get; set; } = string.Empty;
 
     /// <summary>
-    /// File category (e.g., "Templates", "Guidelines", "Legal Documents")
+    /// File category
     /// </summary>
     public string Category { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Binary content of the file stored as BLOB
-    /// </summary>
-    public byte[] FileContent { get; set; } = Array.Empty<byte>();
-
-    /// <summary>
-    /// Uploaded by user ID
-    /// </summary>
-    public long UploadedByUserId { get; set; }
-
-    /// <summary>
-    /// Navigation property - Uploader
-    /// </summary>
-    public User UploadedBy { get; set; } = null!;
 
     /// <summary>
     /// Upload date
@@ -61,7 +51,22 @@ public class FileLibrary
     public DateTime UploadedAt { get; set; }
 
     /// <summary>
-    /// Navigation property - Access permissions
+    /// Uploader user ID
     /// </summary>
-    public ICollection<FileLibraryPermission> Permissions { get; set; } = new List<FileLibraryPermission>();
+    public long UploadedByUserId { get; set; }
+
+    /// <summary>
+    /// Uploader name
+    /// </summary>
+    public string UploadedByName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Uploader email
+    /// </summary>
+    public string UploadedByEmail { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Number of permissions assigned to this file
+    /// </summary>
+    public int PermissionCount { get; set; }
 }

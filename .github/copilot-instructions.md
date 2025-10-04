@@ -64,3 +64,5 @@ When you debug failing tests:
 Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee file` and then grep this file and remove it after it is not needed! Again, don't use tail after `| tee file`, use tail after that on the file itself.
 
 Never add columns and fields that are not in the requirements and that are not necessary for the implementation of the requirements. If you really need to add something, explain it to me and ask about it.
+
+When you run `psql` remember to disable paging!!!

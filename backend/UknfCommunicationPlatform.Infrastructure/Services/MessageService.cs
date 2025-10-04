@@ -415,7 +415,7 @@ public class MessageService
             ReplyCount = message.Replies?.Count ?? 0,
             IsCancelled = message.IsCancelled,
             CancelledAt = message.CancelledAt,
-            
+
             // Polish UI fields - computed from entity data
             Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
             SygnaturaSprawy = message.RelatedCase?.CaseNumber,

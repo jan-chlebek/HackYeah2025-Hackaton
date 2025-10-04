@@ -236,6 +236,7 @@ public class ApplicationDbContext : DbContext
                   entity.HasKey(e => e.Id);
                   entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
                   entity.Property(e => e.ContentType).IsRequired().HasMaxLength(100);
+                  entity.Property(e => e.FileContent).IsRequired(); // BLOB storage
 
                   entity.HasOne(e => e.Message)
                     .WithMany(m => m.Attachments)
@@ -417,7 +418,8 @@ public class ApplicationDbContext : DbContext
                   entity.Property(e => e.Name).IsRequired().HasMaxLength(500);
                   entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
                   entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
-                  entity.HasIndex(e => new { e.Category, e.IsCurrentVersion });
+                  entity.Property(e => e.FileContent).IsRequired(); // BLOB storage
+                  entity.HasIndex(e => e.Category);
                   entity.HasIndex(e => e.UploadedAt);
 
                   entity.HasOne(e => e.UploadedBy)

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UknfCommunicationPlatform.Infrastructure.Data;
@@ -11,9 +12,11 @@ using UknfCommunicationPlatform.Infrastructure.Data;
 namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251004230528_AddBlobStorageToFiles")]
+    partial class AddBlobStorageToFiles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -873,6 +876,10 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<int>("DownloadCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("download_count");
+
                     b.Property<byte[]>("FileContent")
                         .IsRequired()
                         .HasColumnType("bytea")
@@ -884,15 +891,33 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("file_name");
 
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("file_path");
+
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint")
                         .HasColumnName("file_size");
+
+                    b.Property<bool>("IsCurrentVersion")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_current_version");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_public");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tags");
 
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("timestamp with time zone")
@@ -905,14 +930,14 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.HasKey("Id")
                         .HasName("p_k_file_libraries");
 
-                    b.HasIndex("Category")
-                        .HasDatabaseName("i_x_file_libraries_category");
-
                     b.HasIndex("UploadedAt")
                         .HasDatabaseName("i_x_file_libraries_uploaded_at");
 
                     b.HasIndex("UploadedByUserId")
                         .HasDatabaseName("i_x_file_libraries_uploaded_by_user_id");
+
+                    b.HasIndex("Category", "IsCurrentVersion")
+                        .HasDatabaseName("i_x_file_libraries_category_is_current_version");
 
                     b.ToTable("file_libraries", (string)null);
                 });
@@ -1095,6 +1120,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("content_hash");
+
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1111,6 +1141,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("file_name");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("file_path");
 
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint")
@@ -1130,6 +1165,9 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("p_k_message_attachments");
+
+                    b.HasIndex("ContentHash")
+                        .HasDatabaseName("i_x_message_attachments_content_hash");
 
                     b.HasIndex("MessageId")
                         .HasDatabaseName("i_x_message_attachments_message_id");
