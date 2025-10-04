@@ -50,6 +50,12 @@ export class App implements OnInit, OnDestroy {
       active: false 
     },
     { 
+      iconClass: 'icon-message', 
+      label: 'Wiadomości', 
+      route: '/wiadomosci',
+      active: false 
+    },
+    { 
       iconClass: 'icon-clipboard', 
       label: 'Sprawy', 
       route: '/sprawy',
