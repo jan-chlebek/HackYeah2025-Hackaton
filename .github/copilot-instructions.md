@@ -33,3 +33,14 @@
 - ✅ Security, accessibility, and performance considerations from the requirements are addressed or explicitly deferred.
 - ✅ `.documentation/prompts.md` updated with the latest prompting steps and lessons learned.
 
+Always take into consideration the contents of and all:
+- .requirements/UX&UI Recomendations/KNF (Komisja Nadzoru Finansowego) UI_UX Design.md
+- .requirements/DETAILS_UKNF_Prompt2Code2.md
+- .requirements/RULES_UKNF_Prompt2Code2.md
+- .requirements/UX&UI Recomendations/knf_color_palette_recommendations.csv
+
+Also prefer the solutions that you are more proficient with.
+
+Also always write Swagger documentation for the backend API endpoints!
+
+From now on, after you finish responding and modifying files, always write the user provided prompt (that you respond to) to prompts/ directory saved with filename `<branch_name>-<timestamp>.md` where `<branch_name>` is the name of the current git branch and `<timestamp>` is the current timestamp in `YYYY-MM-DD_HH:MM:SS` + also paste to the file the full response to the prompt.
