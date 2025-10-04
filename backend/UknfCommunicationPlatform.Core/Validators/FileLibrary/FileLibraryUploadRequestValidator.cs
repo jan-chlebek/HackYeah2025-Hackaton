@@ -9,7 +9,7 @@ namespace UknfCommunicationPlatform.Core.Validators.FileLibrary;
 public class FileLibraryUploadRequestValidator : AbstractValidator<FileLibraryUploadRequest>
 {
     private const long MaxFileSizeBytes = 104_857_600; // 100 MB
-    private static readonly string[] AllowedContentTypes = 
+    private static readonly string[] AllowedContentTypes =
     {
         "application/pdf",
         "application/msword",

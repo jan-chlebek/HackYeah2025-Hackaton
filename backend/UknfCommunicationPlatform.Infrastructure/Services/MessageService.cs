@@ -150,10 +150,11 @@ public class MessageService
     }
 
     /// <summary>
-    /// Create a new message
+    /// Create a new message with optional attachments
     /// </summary>
     public async Task<MessageResponse> CreateMessageAsync(long senderId, CreateMessageRequest request)
     {
+        // Create the message entity
         var message = new Message
         {
             Subject = request.Subject,
@@ -173,7 +174,33 @@ public class MessageService
         };
 
         _context.Messages.Add(message);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Save to get the message ID
+
+        // Process attachments if any - attachments are created atomically with the message
+        if (request.Attachments != null && request.Attachments.Any())
+        {
+            foreach (var file in request.Attachments)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+
+                var attachment = new MessageAttachment
+                {
+                    MessageId = message.Id, // Foreign key - attachment belongs to this message
+                    FileName = file.FileName,
+                    FileSize = file.Length,
+                    ContentType = file.ContentType,
+                    FileContent = memoryStream.ToArray(),
+                    UploadedAt = DateTime.UtcNow,
+                    UploadedByUserId = senderId
+                };
+
+                _context.MessageAttachments.Add(attachment);
+            }
+
+            await _context.SaveChangesAsync(); // Save attachments in the same transaction context
+            _logger.LogInformation("Created {Count} attachments for message {MessageId}", request.Attachments.Count, message.Id);
+        }
 
         // Reload with navigation properties
         await _context.Entry(message).Reference(m => m.Sender).LoadAsync();
@@ -185,8 +212,10 @@ public class MessageService
         {
             await _context.Entry(message).Reference(m => m.RelatedEntity).LoadAsync();
         }
+        await _context.Entry(message).Collection(m => m.Attachments).LoadAsync();
 
-        _logger.LogInformation("Message {MessageId} created by user {UserId}", message.Id, senderId);
+        _logger.LogInformation("Message {MessageId} created by user {UserId} with {AttachmentCount} attachments", 
+            message.Id, senderId, message.Attachments.Count);
 
         return MapToResponse(message);
     }
@@ -437,6 +466,41 @@ public class MessageService
             PracownikUKNF = message.Sender.SupervisedEntityId == null ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
             WiadomoscPracownikaUKNF = message.Sender.SupervisedEntityId == null ? message.Body : null
         };
+    }
+
+    /// <summary>
+    /// Get attachment by ID for download
+    /// Verifies that the user has access to the message that owns the attachment
+    /// </summary>
+    public async Task<MessageAttachment?> GetAttachmentAsync(long messageId, long attachmentId, long userId)
+    {
+        // First verify that the user has access to the message
+        var message = await _context.Messages
+            .FirstOrDefaultAsync(m =>
+                m.Id == messageId &&
+                (m.SenderId == userId || m.RecipientId == userId) &&
+                !m.IsCancelled);
+
+        if (message == null)
+        {
+            _logger.LogWarning("User {UserId} attempted to access attachment {AttachmentId} for message {MessageId} - access denied", 
+                userId, attachmentId, messageId);
+            return null;
+        }
+
+        // Get the attachment - ensure it belongs to the specified message
+        var attachment = await _context.MessageAttachments
+            .FirstOrDefaultAsync(a =>
+                a.Id == attachmentId &&
+                a.MessageId == messageId);
+
+        if (attachment != null)
+        {
+            _logger.LogInformation("User {UserId} downloading attachment {AttachmentId} ({FileName}) from message {MessageId}", 
+                userId, attachmentId, attachment.FileName, messageId);
+        }
+
+        return attachment;
     }
 }
 

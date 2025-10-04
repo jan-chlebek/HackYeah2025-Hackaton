@@ -17,7 +17,7 @@ public class FileLibraryController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly ILogger<FileLibraryController> _logger;
     private const long MaxFileSizeBytes = 104_857_600; // 100 MB
-    private static readonly string[] AllowedContentTypes = 
+    private static readonly string[] AllowedContentTypes =
     {
         "application/pdf",
         "application/msword",
@@ -65,8 +65,8 @@ public class FileLibraryController : ControllerBase
         if (!string.IsNullOrEmpty(search))
         {
             var searchLower = search.ToLower();
-            query = query.Where(f => 
-                f.Name.ToLower().Contains(searchLower) || 
+            query = query.Where(f =>
+                f.Name.ToLower().Contains(searchLower) ||
                 f.FileName.ToLower().Contains(searchLower) ||
                 (f.Description != null && f.Description.ToLower().Contains(searchLower)));
         }
@@ -463,7 +463,7 @@ public class FileLibraryController : ControllerBase
 
         // Delete associated permissions first (cascade should handle this, but being explicit)
         _context.FileLibraryPermissions.RemoveRange(file.Permissions);
-        
+
         // Delete the file
         _context.FileLibraries.Remove(file);
         await _context.SaveChangesAsync();
