@@ -1,0 +1,8 @@
+Color_Name,Hex,RGB,Usage,WCAG_Compliant
+Primary Blue,#003366,"0, 51, 102","Headers, Navigation, Buttons",Yes (with white text)
+Accent Blue,#0073E6,"0, 115, 230","Links, Highlights",Yes (with white text)
+Light Blue,#E6F3FF,"230, 243, 255","Backgrounds, Sections",Yes (with dark text)
+White,#FFFFFF,"255, 255, 255",Main Background,Yes
+Light Gray,#F5F5F5,"245, 245, 245",Section Backgrounds,Yes (with dark text)
+Medium Gray,#666666,"102, 102, 102",Secondary Text,Yes (on white background)
+Dark Gray,#333333,"51, 51, 51",Primary Text,Yes (on light backgrounds)
