@@ -249,4 +249,175 @@
       Eksportuj
     </button>
   </section>
+
+  <!-- Add File Modal -->
+  <div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+      <div class="modal-header">
+        <h2 id="modalTitle" class="modal-title">Repozytorium plików - dodaj plik</h2>
+        <button class="modal-close" (click)="closeAddModal()" aria-label="Zamknij">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Archiwalny Checkbox -->
+        <div class="form-group checkbox-inline">
+          <label>
+            <input 
+              type="checkbox" 
+              [(ngModel)]="addFileForm.archiwalny"
+              aria-label="Archiwalny"
+            />
+            Archiwalny
+          </label>
+        </div>
+        
+        <!-- Form Fields Row 1 -->
+        <div class="form-row-modal">
+          <div class="form-group-modal">
+            <label for="nazwaPliku">Nazwa pliku *</label>
+            <input 
+              type="text" 
+              id="nazwaPliku"
+              [(ngModel)]="addFileForm.nazwaPliku"
+              class="form-control-modal"
+              required
+            />
+          </div>
+          
+          <div class="form-group-modal">
+            <label for="okresSprawozdawczy">Okres sprawozdawczy</label>
+            <input 
+              type="text" 
+              id="okresSprawozdawczy"
+              [(ngModel)]="addFileForm.okresSprawozdawczy"
+              class="form-control-modal"
+            />
+          </div>
+          
+          <div class="form-group-modal">
+            <label for="dataAktualizacji">Data aktualizacji</label>
+            <input 
+              type="date" 
+              id="dataAktualizacji"
+              [(ngModel)]="addFileForm.dataAktualizacji"
+              class="form-control-modal"
+            />
+          </div>
+        </div>
+        
+        <!-- Załącznik Section -->
+        <div class="form-group-modal">
+          <label for="zalacznik">Załącznik *</label>
+          <div class="attachment-section">
+            <input 
+              type="text" 
+              [(ngModel)]="addFileForm.zalacznikName"
+              class="form-control-modal attachment-input"
+              readonly
+              placeholder="Testowy_zalacznik.pdf"
+            />
+            <input 
+              type="file" 
+              id="fileUpload"
+              (change)="onFileSelect($event)"
+              style="display: none;"
+            />
+            
+            <div class="attachment-buttons">
+              <button class="btn-attachment" (click)="przegladajZalacznik()">
+                Przeglądaj
+              </button>
+              <button class="btn-attachment" (click)="usunZalacznikModal()">
+                <span class="btn-icon">🗑</span>
+                Usuń
+              </button>
+              <button class="btn-attachment" (click)="historiaZalacznik()">
+                <span class="btn-icon">📄</span>
+                Historia
+              </button>
+              <button class="btn-attachment" (click)="pobierzZalacznikModal()">
+                <span class="btn-icon">⬇</span>
+                Pobierz
+              </button>
+              <button class="btn-attachment" (click)="podgladZalacznik()">
+                <span class="btn-icon">🔍</span>
+                Podgląd
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Adresaci powiadomień Section -->
+        <div class="adresaci-section">
+          <h3 class="section-subtitle">Adresaci powiadomień</h3>
+          
+          <div class="form-group-modal">
+            <label for="nazwaPodmiotu">Nazwa podmiotu</label>
+            <select 
+              id="nazwaPodmiotu"
+              [(ngModel)]="addFileForm.adresaciPowiadomien"
+              class="form-control-modal"
+            >
+              <option value="">Wybierz...</option>
+              <option value="podmiot1">Podmiot 1</option>
+              <option value="podmiot2">Podmiot 2</option>
+            </select>
+          </div>
+          
+          <div class="adresaci-groups">
+            <div class="form-group-modal">
+              <label for="adresatGrupa1">Adresaci grupa pierwsza</label>
+              <input 
+                type="text" 
+                id="adresatGrupa1"
+                [(ngModel)]="addFileForm.adresatGrupa1"
+                class="form-control-modal"
+                readonly
+              />
+            </div>
+            
+            <div class="form-group-modal">
+              <label for="adresatGrupa2">Adresaci grupa druga</label>
+              <input 
+                type="text" 
+                id="adresatGrupa2"
+                [(ngModel)]="addFileForm.adresatGrupa2"
+                class="form-control-modal"
+                readonly
+              />
+            </div>
+            
+            <div class="form-group-modal">
+              <label for="adresatGrupa3">Adresaci grupa trzecia</label>
+              <input 
+                type="text" 
+                id="adresatGrupa3"
+                [(ngModel)]="addFileForm.adresatGrupa3"
+                class="form-control-modal"
+                readonly
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <!-- First Row of Buttons -->
+        <div class="modal-buttons-row">
+          <button class="btn-modal" (click)="wybierzAction()">Wybierz</button>
+          <button class="btn-modal" (click)="utworzIDodaj()">Utwórz i dodaj</button>
+          <button class="btn-modal" (click)="podgladAction()">Podgląd</button>
+          <button class="btn-modal" (click)="edycjaAction()">Edycja</button>
+          <button class="btn-modal" (click)="usunAction()">Usuń</button>
+        </div>
+        
+        <!-- Second Row of Buttons -->
+        <div class="modal-buttons-row modal-buttons-right">
+          <button class="btn-modal btn-secondary" (click)="anulujAction()">Anuluj</button>
+          <button class="btn-modal btn-primary" (click)="zapiszIWyslij()">Zapisz i wyślij</button>
+          <button class="btn-modal btn-primary" (click)="zapiszIZamknij()">Zapisz i zamknij</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

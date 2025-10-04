@@ -180,10 +180,117 @@ export class BibliotekaListComponent implements OnInit {
     return this.files.filter(f => f.selected);
   }
   
+  // Modal state
+  showAddModal: boolean = false;
+  
+  // Add file form
+  addFileForm = {
+    archiwalny: false,
+    nazwaPliku: '',
+    okresSprawozdawczy: '',
+    dataAktualizacji: '',
+    zalacznik: null as File | null,
+    zalacznikName: '',
+    adresaciPowiadomien: '',
+    adresatGrupa1: '',
+    adresatGrupa2: '',
+    adresatGrupa3: ''
+  };
+  
   // Action handlers
   dodajFile(): void {
-    console.log('Dodaj nowy plik');
-    // Navigate to add file form
+    this.showAddModal = true;
+    this.resetAddFileForm();
+  }
+  
+  closeAddModal(): void {
+    this.showAddModal = false;
+    this.resetAddFileForm();
+  }
+  
+  resetAddFileForm(): void {
+    this.addFileForm = {
+      archiwalny: false,
+      nazwaPliku: '',
+      okresSprawozdawczy: '',
+      dataAktualizacji: '',
+      zalacznik: null,
+      zalacznikName: '',
+      adresaciPowiadomien: '',
+      adresatGrupa1: '',
+      adresatGrupa2: '',
+      adresatGrupa3: ''
+    };
+  }
+  
+  onFileSelect(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.addFileForm.zalacznik = file;
+      this.addFileForm.zalacznikName = file.name;
+    }
+  }
+  
+  przegladajZalacznik(): void {
+    const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
+    fileInput?.click();
+  }
+  
+  usunZalacznikModal(): void {
+    this.addFileForm.zalacznik = null;
+    this.addFileForm.zalacznikName = '';
+  }
+  
+  historiaZalacznik(): void {
+    console.log('Historia załącznika');
+  }
+  
+  pobierzZalacznikModal(): void {
+    if (this.addFileForm.zalacznik) {
+      console.log('Pobierz załącznik:', this.addFileForm.zalacznikName);
+    }
+  }
+  
+  podgladZalacznik(): void {
+    if (this.addFileForm.zalacznik) {
+      console.log('Podgląd załącznika:', this.addFileForm.zalacznikName);
+    }
+  }
+  
+  wybierzAction(): void {
+    console.log('Wybierz');
+  }
+  
+  utworzIDodaj(): void {
+    console.log('Utwórz i dodaj');
+  }
+  
+  podgladAction(): void {
+    console.log('Podgląd');
+  }
+  
+  edycjaAction(): void {
+    console.log('Edycja');
+  }
+  
+  usunAction(): void {
+    console.log('Usuń');
+  }
+  
+  anulujAction(): void {
+    this.closeAddModal();
+  }
+  
+  zapiszIWyslij(): void {
+    console.log('Zapisz i wyślij', this.addFileForm);
+    // Add validation and save logic here
+    this.closeAddModal();
+  }
+  
+  zapiszIZamknij(): void {
+    console.log('Zapisz i zamknij', this.addFileForm);
+    // Add validation and save logic here
+    this.closeAddModal();
   }
   
   modyfikujFile(): void {
