@@ -122,7 +122,7 @@ public class MessageServiceTests : IDisposable
         // Assert
         messages.Should().NotBeEmpty();
         totalCount.Should().BeGreaterThan(0);
-        messages.Should().OnlyContain(m => 
+        messages.Should().OnlyContain(m =>
             m.Sender.Id == _testSender.Id || (m.Recipient != null && m.Recipient.Id == _testSender.Id));
     }
 
@@ -158,7 +158,7 @@ public class MessageServiceTests : IDisposable
 
         // Assert
         messages.Should().NotBeEmpty();
-        messages.Should().OnlyContain(m => 
+        messages.Should().OnlyContain(m =>
             m.Subject.Contains("Important", StringComparison.OrdinalIgnoreCase) ||
             m.Body.Contains("Important", StringComparison.OrdinalIgnoreCase));
     }

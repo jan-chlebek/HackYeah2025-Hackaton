@@ -9,6 +9,7 @@ namespace UknfCommunicationPlatform.Tests.Integration;
 /// <summary>
 /// Basic database integration tests to validate EF Core setup with PostgreSQL
 /// </summary>
+[Collection(nameof(DatabaseCollection))]
 public class DatabaseIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsyncLifetime
 {
     private readonly TestDatabaseFixture _factory;
@@ -21,6 +22,7 @@ public class DatabaseIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsy
     public async Task InitializeAsync()
     {
         await _factory.ResetDatabaseAsync();
+        await _factory.SeedTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

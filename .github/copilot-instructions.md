@@ -63,3 +63,9 @@ Along the way, always implement basic and update the unit and integration tests 
 At the end each change ensure here are proper basic tests as written above + run all backend tests and fix any issues.
 
 Update the script to run all backend tests at all times.
+
+When you debug failing tests:
+- after making something to fix the failing tests run only these tests that fail. Don't run other tests - it is a waste of time. You should NOT run the other tests, don't use grep over running all tests for that!
+- only all failing tests passes rerun all tests to check for other regressions.
+
+Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee file` and then grep this file and remove it after it is not needed!

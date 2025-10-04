@@ -71,12 +71,13 @@ public class MessageService
 
         var totalCount = await query.CountAsync();
 
-        var messages = await query
+        var messageEntities = await query
             .OrderByDescending(m => m.SentAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(m => MapToResponse(m))
             .ToListAsync();
+
+        var messages = messageEntities.Select(m => MapToResponse(m)).ToList();
 
         return (messages, totalCount);
     }
@@ -413,7 +414,20 @@ public class MessageService
             AttachmentCount = message.Attachments?.Count ?? 0,
             ReplyCount = message.Replies?.Count ?? 0,
             IsCancelled = message.IsCancelled,
-            CancelledAt = message.CancelledAt
+            CancelledAt = message.CancelledAt,
+            
+            // Polish UI fields
+            Identyfikator = message.Identyfikator,
+            SygnaturaSprawy = message.SygnaturaSprawy,
+            Podmiot = message.Podmiot,
+            StatusWiadomosci = message.StatusWiadomosci,
+            Priorytet = message.Priorytet,
+            DataPrzeslaniaPodmiotu = message.DataPrzeslaniaPodmiotu,
+            Uzytkownik = message.Uzytkownik,
+            WiadomoscUzytkownika = message.WiadomoscUzytkownika,
+            DataPrzeslaniaUKNF = message.DataPrzeslaniaUKNF,
+            PracownikUKNF = message.PracownikUKNF,
+            WiadomoscPracownikaUKNF = message.WiadomoscPracownikaUKNF
         };
     }
 }

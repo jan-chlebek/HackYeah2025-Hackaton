@@ -28,6 +28,9 @@ export class App implements OnInit, OnDestroy {
     return this.themeService.isDarkMode();
   }
   
+  // Accessibility section toggle (mobile)
+  accessibilitySectionOpen = false;
+  
   // User info
   userName = 'Jan Nowak';
   userRole = 'Użytkownik podmiotu';
@@ -47,6 +50,12 @@ export class App implements OnInit, OnDestroy {
       iconClass: 'icon-document', 
       label: 'Wnioski o dostęp', 
       route: '/wnioski',
+      active: false 
+    },
+    { 
+      iconClass: 'icon-message', 
+      label: 'Wiadomości', 
+      route: '/wiadomosci',
       active: false 
     },
     { 
@@ -122,6 +131,10 @@ export class App implements OnInit, OnDestroy {
 
   toggleDarkMode() {
     this.themeService.toggleTheme();
+  }
+
+  toggleAccessibilitySection() {
+    this.accessibilitySectionOpen = !this.accessibilitySectionOpen;
   }
 
   logout() {

@@ -6,13 +6,7 @@
     </button>
     <div class="logo-container">
       <div class="logo">
-        <div class="logo-box">UKNF</div>
-        <div class="logo-text">
-          <div class="logo-line">URZĄD</div>
-          <div class="logo-line">KOMISJI</div>
-          <div class="logo-line">NADZORU</div>
-          <div class="logo-line">FINANSOWEGO</div>
-        </div>
+        <img src="assets/images/uknf-logo.png" alt="UKNF - Urząd Komisji Nadzoru Finansowego" class="logo-image">
       </div>
     </div>
     <h1 class="app-title">System Komunikacji z Podmiotami</h1>
@@ -96,6 +90,69 @@
         <span class="nav-label" *ngIf="menuOpen">{{ item.label }}</span>
       </a>
     </nav>
+    
+    <!-- Accessibility Controls (Mobile) -->
+    <div class="sidebar-accessibility" *ngIf="menuOpen">
+      <button 
+        class="accessibility-toggle" 
+        (click)="toggleAccessibilitySection()"
+        aria-label="Toggle accessibility settings">
+        <span class="toggle-icon" [class.expanded]="accessibilitySectionOpen">▼</span>
+        <span class="toggle-label">Ustawienia dostępności</span>
+      </button>
+      
+      <div class="accessibility-content" [class.open]="accessibilitySectionOpen">
+        <div class="accessibility-section">
+          <label class="accessibility-label">Rozmiar czcionki:</label>
+          <div class="font-controls">
+            <button 
+              class="font-btn"
+              [class.active]="currentFontSize === 'small'"
+              (click)="setFontSize('small')"
+              aria-label="Small font">
+              A
+            </button>
+            <button 
+              class="font-btn font-medium"
+              [class.active]="currentFontSize === 'medium'"
+              (click)="setFontSize('medium')"
+              aria-label="Medium font">
+              A
+            </button>
+            <button 
+              class="font-btn font-large"
+              [class.active]="currentFontSize === 'large'"
+              (click)="setFontSize('large')"
+              aria-label="Large font">
+              A
+            </button>
+          </div>
+        </div>
+        
+        <div class="accessibility-section">
+          <label class="accessibility-label">Wygląd:</label>
+          <div class="appearance-controls">
+            <button 
+              class="contrast-toggle"
+              [class.active]="highContrastMode"
+              (click)="toggleContrast()"
+              aria-label="Toggle high contrast">
+              <span class="contrast-icon icon-contrast"></span>
+              <span class="control-label">Wysoki kontrast</span>
+            </button>
+            
+            <button 
+              class="dark-mode-toggle"
+              [class.active]="darkMode"
+              (click)="toggleDarkMode()"
+              aria-label="Toggle dark mode">
+              <span class="dark-mode-icon" [ngClass]="darkMode ? 'icon-sun' : 'icon-moon'"></span>
+              <span class="control-label">Tryb ciemny</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     
     <div class="sidebar-footer" *ngIf="menuOpen">
       <button class="collapse-btn" (click)="toggleMenu()">
