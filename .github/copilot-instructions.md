@@ -33,20 +33,13 @@
 - ✅ Security, accessibility, and performance considerations from the requirements are addressed or explicitly deferred.
 - ✅ `.documentation/prompts.md` updated with the latest prompting steps and lessons learned.
 
-Always take into consideration the contents of and all:
-- .requirements/UX&UI Recomendations/KNF (Komisja Nadzoru Finansowego) UI_UX Design.md
-- .requirements/DETAILS_UKNF_Prompt2Code2.md
-- .requirements/RULES_UKNF_Prompt2Code2.md
-- .requirements/UX&UI Recomendations/knf_color_palette_recommendations.csv
-- .requirements/Prompt2Code2/ENG_attachments/F. test data of supervised entities.html
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/00 - Pulpit.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/01 - Pulpit.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/02 - wniosek o dostęp podgląd.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/03 - Biblioteka - repozytorium plików.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/04 - Biblioteka - repozytorium plików - dodaj.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/05 - wiadomości.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/06 - wiadomości filtrowanie.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/07 - wiadomości szczegoly.png
+Primary sources of requirements you need to take into account:
+- primary: `.requirements/UI_SCREENS_SUMMARY.md` and `.requirements/UX&UI Recomendations/KNF (Komisja Nadzoru Finansowego) UI_UX Design.md`
+- secondary: `.requirements/DETAILS_UKNF_Prompt2Code2.md`
+- others:
+  - `.requirements/RULES_UKNF_Prompt2Code2.md`
+  - `.requirements/UX&UI Recomendations/knf_color_palette_recommendations.csv`
+  - `.requirements/Prompt2Code2/ENG_attachments/F. test data of supervised entities.html`
 
 Also prefer the solutions that you are more proficient with.
 
@@ -69,3 +62,5 @@ When you debug failing tests:
 - only all failing tests passes rerun all tests to check for other regressions.
 
 Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee file` and then grep this file and remove it after it is not needed! Again, don't use tail after `| tee file`, use tail after that on the file itself.
+
+Never add columns and fields that are not in the requirements and that are not necessary for the implementation of the requirements. If you really need to add something, explain it to me and ask about it.

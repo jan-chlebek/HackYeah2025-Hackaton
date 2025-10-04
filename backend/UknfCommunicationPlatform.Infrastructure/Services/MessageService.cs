@@ -416,18 +416,26 @@ public class MessageService
             IsCancelled = message.IsCancelled,
             CancelledAt = message.CancelledAt,
             
-            // Polish UI fields
-            Identyfikator = message.Identyfikator,
-            SygnaturaSprawy = message.SygnaturaSprawy,
-            Podmiot = message.Podmiot,
-            StatusWiadomosci = message.StatusWiadomosci,
-            Priorytet = message.Priorytet,
-            DataPrzeslaniaPodmiotu = message.DataPrzeslaniaPodmiotu,
-            Uzytkownik = message.Uzytkownik,
-            WiadomoscUzytkownika = message.WiadomoscUzytkownika,
-            DataPrzeslaniaUKNF = message.DataPrzeslaniaUKNF,
-            PracownikUKNF = message.PracownikUKNF,
-            WiadomoscPracownikaUKNF = message.WiadomoscPracownikaUKNF
+            // Polish UI fields - computed from entity data
+            Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
+            SygnaturaSprawy = message.RelatedCase?.CaseNumber,
+            Podmiot = message.RelatedEntity?.Name,
+            StatusWiadomosci = message.Status switch
+            {
+                MessageStatus.Sent => "Wysłana",
+                MessageStatus.Draft => "Wersja robocza",
+                MessageStatus.Cancelled => "Anulowana",
+                MessageStatus.Closed => "Zamknięta",
+                MessageStatus.Read => "Przeczytana",
+                _ => message.Status.ToString()
+            },
+            Priorytet = null, // Priority not tracked in current model
+            DataPrzeslaniaPodmiotu = message.SenderId != message.RelatedEntity?.Id ? null : message.SentAt,
+            Uzytkownik = $"{message.Sender.FirstName} {message.Sender.LastName}",
+            WiadomoscUzytkownika = message.Body,
+            DataPrzeslaniaUKNF = message.Sender.SupervisedEntityId == null ? message.SentAt : null,
+            PracownikUKNF = message.Sender.SupervisedEntityId == null ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
+            WiadomoscPracownikaUKNF = message.Sender.SupervisedEntityId == null ? message.Body : null
         };
     }
 }
