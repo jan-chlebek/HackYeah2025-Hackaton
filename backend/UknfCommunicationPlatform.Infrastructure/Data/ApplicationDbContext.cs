@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UknfCommunicationPlatform.Core.Entities;
+using UserRoleEnum = UknfCommunicationPlatform.Core.Enums.UserRole;
 
 namespace UknfCommunicationPlatform.Infrastructure.Data;
 
@@ -51,14 +52,79 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure entities FIRST (before snake_case conversion)
+        ConfigureEntities(modelBuilder);
+
+        // Then apply snake_case naming convention to all entities automatically
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            // Convert table names to snake_case (but specific ToTable() calls will override)
+            if (entity.GetTableName() != null)
+            {
+                entity.SetTableName(ToSnakeCase(entity.GetTableName()!));
+            }
+
+            // Convert all column names to snake_case
+            foreach (var property in entity.GetProperties())
+            {
+                // Only apply snake_case if column name hasn't been explicitly set
+                var currentColumnName = property.GetColumnName();
+                if (currentColumnName == property.Name || currentColumnName == ToSnakeCase(property.Name))
+                {
+                    property.SetColumnName(ToSnakeCase(property.Name));
+                }
+                
+                // Convert enum properties to strings automatically
+                if (property.ClrType.IsEnum)
+                {
+                    property.SetProviderClrType(typeof(string));
+                }
+            }
+
+            // Convert primary key names to snake_case
+            foreach (var key in entity.GetKeys())
+            {
+                key.SetName(ToSnakeCase(key.GetName() ?? string.Empty));
+            }
+
+            // Convert foreign key constraint names to snake_case
+            foreach (var foreignKey in entity.GetForeignKeys())
+            {
+                foreignKey.SetConstraintName(ToSnakeCase(foreignKey.GetConstraintName() ?? string.Empty));
+            }
+
+            // Convert index names to snake_case
+            foreach (var index in entity.GetIndexes())
+            {
+                index.SetDatabaseName(ToSnakeCase(index.GetDatabaseName() ?? string.Empty));
+            }
+        }
+    }
+
+    private void ConfigureEntities(ModelBuilder modelBuilder)
+    {
         // SupervisedEntity configuration
         modelBuilder.Entity<SupervisedEntity>(entity =>
         {
-            entity.ToTable("supervised_entities");
+            entity.ToTable("entities");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.UKNFCode).IsRequired().HasMaxLength(250);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(500);
+            
+            // Explicit mappings where C# property name differs from desired PostgreSQL column name
+            entity.Property(e => e.UKNFCode).HasColumnName("uknf_code").IsRequired().HasMaxLength(250);
+            entity.Property(e => e.Name).HasColumnName("entity_name").IsRequired().HasMaxLength(500);
+            entity.Property(e => e.RegistryNumber).HasColumnName("uknf_registry_number").HasMaxLength(100);
+            entity.Property(e => e.Status).HasColumnName("entity_status").HasMaxLength(250);
+            entity.Property(e => e.Category).HasColumnName("entity_category").HasMaxLength(500);
+            entity.Property(e => e.Sector).HasColumnName("entity_sector").HasMaxLength(500);
+            entity.Property(e => e.Subsector).HasColumnName("entity_subsector").HasMaxLength(500);
+            
+            // Other constraints (snake_case handled automatically)
+            entity.Property(e => e.EntityType).IsRequired().HasMaxLength(250);
+            entity.Property(e => e.LEI).HasMaxLength(20);
+            entity.Property(e => e.NIP).HasMaxLength(10);
+            entity.Property(e => e.KRS).HasMaxLength(10);
             entity.Property(e => e.Email).IsRequired().HasMaxLength(500);
+            
             entity.HasIndex(e => e.UKNFCode).IsUnique();
         });
 
@@ -67,9 +133,19 @@ public class ApplicationDbContext : DbContext
         {
             entity.ToTable("users");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Email).IsRequired().HasMaxLength(500);
+            
+            // Explicit mappings where C# property name differs from desired PostgreSQL column name
+            entity.Property(e => e.PESEL).HasColumnName("pesel_masked").HasMaxLength(250);
+            entity.Property(e => e.LastPasswordChangeAt).HasColumnName("password_changed_at");
+            
+            // Other constraints (snake_case handled automatically)
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(250);
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(250);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Phone).HasMaxLength(250);
+            entity.Property(e => e.PasswordHash).HasMaxLength(500);
+            // Role enum conversion handled globally in snake_case loop
+            
             entity.HasIndex(e => e.Email).IsUnique();
 
             entity.HasOne(e => e.SupervisedEntity)
@@ -591,5 +667,35 @@ public class ApplicationDbContext : DbContext
                   .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
+    } // End of ConfigureEntities
+
+    /// <summary>
+    /// Converts a PascalCase or camelCase string to snake_case
+    /// Example: FirstName -> first_name, UserId -> user_id
+    /// </summary>
+    private static string ToSnakeCase(string? input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input ?? string.Empty;
+
+        var result = new System.Text.StringBuilder();
+        result.Append(char.ToLowerInvariant(input[0]));
+
+        for (int i = 1; i < input.Length; i++)
+        {
+            char currentChar = input[i];
+            
+            if (char.IsUpper(currentChar))
+            {
+                result.Append('_');
+                result.Append(char.ToLowerInvariant(currentChar));
+            }
+            else
+            {
+                result.Append(currentChar);
+            }
+        }
+
+        return result.ToString();
     }
 }
