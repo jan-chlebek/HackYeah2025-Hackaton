@@ -75,7 +75,7 @@ public class SupervisedEntityIntegrationTests : IClassFixture<TestDatabaseFixtur
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var duplicateCode = $"DUP{Guid.NewGuid().ToString().Substring(0, 6).ToUpper()}";
-        
+
         var entity1 = new SupervisedEntity
         {
             Name = "First Bank",

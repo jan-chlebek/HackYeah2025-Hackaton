@@ -53,10 +53,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPasswordHashingService, PasswordHashingService>();
         services.AddScoped<UserManagementService>();
         services.AddScoped<EntityManagementService>();
+        services.AddScoped<MessageService>();
 
         // TODO: Register additional repositories and services here
         // services.AddScoped<IReportRepository, ReportRepository>();
-        // services.AddScoped<IMessageService, MessageService>();
 
         return services;
     }
