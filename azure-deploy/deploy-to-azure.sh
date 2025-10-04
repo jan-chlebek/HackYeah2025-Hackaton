@@ -1,22 +1,7 @@
 #!/bin/bash
 
 # UKNF Platform - Full Azure Deployment Script
-# This script deploys the entire solution to Azure# Step 6: Configure PostgreSQL firewall rules
-echo "🔐 Step 6: Configuring PostgreSQL firewall rules..."
-PG_SERVER_NAME="${BACKEND_APP_NAME}-pg"
-
-# Allow Azure services
-az postgres flexible-server firewall-rule create \
-    --resource-group $RESOURCE_GROUP \
-    --name $PG_SERVER_NAME \
-    --rule-name AllowAllAzureIps \
-    --start-ip-address 0.0.0.0 \
-    --end-ip-address 0.0.0.0 || echo "Firewall rule may already exist"
-
-echo "✅ PostgreSQL firewall configured"
-echo ""
-
-# Step 7: Database migrations...tainers
+# This script deploys the entire solution to Azure using Docker containers
 
 set -e
 
@@ -124,7 +109,7 @@ echo "✅ Web Apps restarted"
 echo ""
 
 # Step 6: Configure PostgreSQL firewall rules
-echo "🔐 Step 7: Configuring PostgreSQL firewall rules..."
+echo "🔐 Step 6: Configuring PostgreSQL firewall rules..."
 PG_SERVER_NAME="${BACKEND_APP_NAME}-pg"
 
 # Allow Azure services
@@ -138,8 +123,7 @@ az postgres flexible-server firewall-rule create \
 echo "✅ PostgreSQL firewall configured"
 echo ""
 
-# Step 8: Run database migrations (optional)
-# Step 7: Database migrations...
+# Step 7: Database migrations
 echo "📊 Step 7: Database migrations..."
 echo "⚠️  Note: You may need to run migrations manually from the backend app or via SSH"
 echo "   Command: az webapp ssh --name $BACKEND_APP_NAME --resource-group $RESOURCE_GROUP"
