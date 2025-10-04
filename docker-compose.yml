@@ -10,6 +10,8 @@ services:
       - POSTGRES_PASSWORD=uknf_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - uknf-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U uknf_user -d uknf_db"]
@@ -19,7 +21,7 @@ services:
 
   backend:
     build:
-      context: ./backend/uknf-project
+      context: ./src/Backend
       dockerfile: Dockerfile
     ports:
       - "5000:8080"
@@ -29,7 +31,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - uknf-network
     restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./src/Frontend/uknf-portal
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - uknf-network
 
 volumes:
   postgres_data:
+
+networks:
+  uknf-network:
+    driver: bridge
