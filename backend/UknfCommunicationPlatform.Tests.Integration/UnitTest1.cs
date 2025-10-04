@@ -32,9 +32,10 @@ public class DatabaseIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsy
         using var scope = _factory.CreateDbContextScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+        var uniqueEmail = $"test{Guid.NewGuid().ToString().Substring(0, 8)}@example.com";
         var user = new User
         {
-            Email = "test@example.com",
+            Email = uniqueEmail,
             FirstName = "Test",
             LastName = "User",
             PasswordHash = "hash",
@@ -46,11 +47,11 @@ public class DatabaseIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsy
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        var retrieved = await context.Users.FirstOrDefaultAsync(u => u.Email == "test@example.com");
+        var retrieved = await context.Users.FirstOrDefaultAsync(u => u.Email == uniqueEmail);
 
         // Assert
         retrieved.Should().NotBeNull();
-        retrieved!.Email.Should().Be("test@example.com");
+        retrieved!.Email.Should().Be(uniqueEmail);
         retrieved.FirstName.Should().Be("Test");
     }
 
@@ -61,9 +62,12 @@ public class DatabaseIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsy
         using var scope = _factory.CreateDbContextScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+        var uniqueCode = $"TST{Guid.NewGuid().ToString().Substring(0, 6).ToUpper()}";
         var entity = new SupervisedEntity
         {
             Name = "Test Bank",
+            UKNFCode = uniqueCode,
+            EntityType = "Bank",
             NIP = "1234567890",
             Email = "contact@testbank.com",
             IsActive = true,
@@ -75,11 +79,12 @@ public class DatabaseIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsy
         await context.SaveChangesAsync();
 
         var retrieved = await context.SupervisedEntities
-            .FirstOrDefaultAsync(e => e.NIP == "1234567890");
+            .FirstOrDefaultAsync(e => e.UKNFCode == uniqueCode);
 
         // Assert
         retrieved.Should().NotBeNull();
         retrieved!.Name.Should().Be("Test Bank");
+        retrieved.UKNFCode.Should().Be(uniqueCode);
     }
 }
 

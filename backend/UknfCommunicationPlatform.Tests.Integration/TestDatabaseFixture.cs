@@ -76,33 +76,30 @@ public class TestDatabaseFixture : IAsyncLifetime
         try
         {
             // Delete all data from tables in reverse order of dependencies
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"RefreshTokens\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Reports\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Messages\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Documents\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"ContactEntries\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"FAQItems\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"FolderCases\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Users\" CASCADE");
-            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"SupervisedEntities\" CASCADE");
-
-            // Reset sequences
-            await dbContext.Database.ExecuteSqlRawAsync(@"
-                DO $$
-                DECLARE
-                    seq_name TEXT;
-                BEGIN
-                    FOR seq_name IN
-                        SELECT sequence_name
-                        FROM information_schema.sequences
-                        WHERE sequence_schema = 'public'
-                    LOOP
-                        EXECUTE 'ALTER SEQUENCE ' || seq_name || ' RESTART WITH 1';
-                    END LOOP;
-                END $$;
-            ");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"RefreshTokens\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"FileLibraryPermissions\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"CaseDocuments\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"CaseHistories\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Cases\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AnnouncementAttachments\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AnnouncementReads\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AnnouncementHistories\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Announcements\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Reports\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"MessageAttachments\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Messages\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Contacts\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"FaqQuestions\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"AuditLogs\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"PasswordHistories\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"UserRoles\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Users\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"RolePermissions\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Permissions\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Roles\" RESTART IDENTITY CASCADE");
+            await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"SupervisedEntities\" RESTART IDENTITY CASCADE");
         }
-        catch
+        catch (Exception)
         {
             // Ignore errors during cleanup - tables might not exist yet
         }
