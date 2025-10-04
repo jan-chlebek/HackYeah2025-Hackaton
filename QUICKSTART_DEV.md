@@ -46,7 +46,7 @@ That's it! The backend will now auto-reload on every code change.
 2. **Edit code:**
    ```bash
    # Open your editor
-   code src/Backend/UknfCommunicationPlatform.Api/Controllers/v1/ReportsController.cs
+   code backend/UknfCommunicationPlatform.Api/Controllers/v1/ReportsController.cs
    
    # Make changes, save file
    # Watch terminal - API restarts automatically!
@@ -78,7 +78,7 @@ That's it! The backend will now auto-reload on every code change.
 **Volume Mounts:**
 ```yaml
 volumes:
-  - ./src/Backend:/app:delegated  # Your code → Container
+  - ./backend:/app:delegated  # Your code → Container
   - /app/**/obj                   # Exclude build artifacts
   - /app/**/bin
 ```

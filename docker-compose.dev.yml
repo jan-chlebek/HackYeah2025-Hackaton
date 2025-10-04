@@ -21,7 +21,7 @@ services:
 
   backend:
     build:
-      context: ./src/Backend
+      context: ./backend
       dockerfile: Dockerfile.dev
     container_name: uknf-backend-dev
     ports:
@@ -33,7 +33,7 @@ services:
       - DOTNET_USE_POLLING_FILE_WATCHER=true
     volumes:
       # Mount source code for hot reload
-      - ./src/Backend:/app:delegated
+      - ./backend:/app:delegated
       # Exclude obj and bin directories to avoid conflicts
       - /app/UknfCommunicationPlatform.Api/obj
       - /app/UknfCommunicationPlatform.Api/bin
@@ -50,14 +50,14 @@ services:
 
   frontend:
     build:
-      context: ./src/Frontend/uknf-portal
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: uknf-frontend-dev
     ports:
       - "4200:4200"
     volumes:
       # Mount source code for hot reload
-      - ./src/Frontend/uknf-portal:/app:delegated
+      - ./frontend:/app:delegated
       - /app/node_modules
     environment:
       - NODE_ENV=development

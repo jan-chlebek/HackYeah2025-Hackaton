@@ -22,7 +22,7 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 
 ### Backend (ASP.NET Core)
 - Uses `dotnet watch run` for automatic compilation on file changes
-- Source code is mounted as a volume (`./src/Backend:/app`)
+- Source code is mounted as a volume (`./backend:/app`)
 - Changes to `.cs` files trigger automatic rebuild and restart
 - Swagger UI updates automatically
 - EF Core migrations can be run inside the container
@@ -42,7 +42,7 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 ```
 ┌─────────────────────────────────────────────┐
 │  Host Machine (Your Code Editor)           │
-│  - Edit files in src/Backend/              │
+│  - Edit files in backend/              │
 │  - Changes detected by file watcher        │
 └──────────────────┬──────────────────────────┘
                    │ Volume Mount
@@ -71,7 +71,7 @@ This will:
 ### 2. Make Code Changes
 
 **Backend (C#):**
-- Edit any `.cs` file in `src/Backend/`
+- Edit any `.cs` file in `backend/`
 - Save the file
 - Watch the terminal - you'll see:
   ```
@@ -127,7 +127,7 @@ exit
 
 Or from host (if you have dotnet-ef installed):
 ```bash
-cd src/Backend/UknfCommunicationPlatform.Api
+cd backend/UknfCommunicationPlatform.Api
 dotnet ef migrations add MigrationName --project ../UknfCommunicationPlatform.Infrastructure
 ```
 
@@ -225,7 +225,7 @@ The development setup uses:
 ## Related Files
 
 - `docker-compose.dev.yml` - Development compose file
-- `src/Backend/Dockerfile.dev` - Development backend image
+- `backend/Dockerfile.dev` - Development backend image
 - `dev-start.sh` - Start script
 - `dev-stop.sh` - Stop script
 
