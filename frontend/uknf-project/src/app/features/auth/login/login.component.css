@@ -1,19 +1,265 @@
 /* Login Page Layout */
 .login-page {
   min-height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: clamp(1.5rem, 3vh, 2.75rem) clamp(1.25rem, 4vw, 3.5rem);
+  background: linear-gradient(135deg, #eef5ff 0%, #f9fbff 100%);
+  box-sizing: border-box;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ===== Accessibility Floating Action Button ===== */
+.accessibility-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  display: none; /* Hidden by default on desktop */
+}
+
+/* Show only on mobile/tablet (screens smaller than 1024px) */
+@media (max-width: 1024px) {
+  .accessibility-fab {
+    display: block;
+  }
+}
+
+.accessibility-toggle-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #003366;
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.accessibility-toggle-btn:hover {
+  background: #0073E6;
+  box-shadow: 0 6px 16px rgba(0, 115, 230, 0.4);
+  transform: scale(1.05);
+}
+
+.accessibility-toggle-btn.active {
+  background: #0073E6;
+}
+
+.accessibility-icon {
+  width: 28px;
+  height: 28px;
+}
+
+/* Accessibility Panel */
+.accessibility-panel {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  width: 320px;
+  max-width: 90vw;
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #003366;
+  color: #FFFFFF;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.panel-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.panel-content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.accessibility-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+}
+
+/* Font Size Controls */
+.font-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.font-btn {
+  flex: 1;
+  padding: 0.625rem;
+  font-weight: 600;
+  border: 2px solid #E6F3FF;
+  background: #FFFFFF;
+  color: #003366;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.font-btn.small {
+  font-size: 0.875rem;
+}
+
+.font-btn.medium {
+  font-size: 1rem;
+}
+
+.font-btn.large {
+  font-size: 1.125rem;
+}
+
+.font-btn:hover {
+  border-color: #0073E6;
+  background: #F5F5F5;
+}
+
+.font-btn.active {
+  background: #003366;
+  color: #FFFFFF;
+  border-color: #003366;
+}
+
+/* Theme Controls */
+.theme-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #E6F3FF;
+  background: #FFFFFF;
+  color: #333333;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.theme-btn:hover {
+  border-color: #0073E6;
+  background: #F5F5F5;
+}
+
+.theme-btn.active {
+  background: #003366;
+  color: #FFFFFF;
+  border-color: #003366;
+}
+
+.theme-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.theme-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .accessibility-fab {
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+  
+  .accessibility-toggle-btn {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .accessibility-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .accessibility-panel {
+    width: calc(100vw - 3rem);
+    max-width: none;
+    right: -1rem;
+  }
 }
 
 .login-container {
-  width: 100%;
-  max-width: 440px;
+  width: min(100%, 440px);
   background: #FFFFFF;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  padding: 2.5rem;
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 40, 90, 0.24);
+  padding: clamp(2rem, 4vw, 3rem);
+  border: 1px solid rgba(0, 51, 102, 0.08);
+  max-height: min(84vh, 720px);
+  overflow-y: auto;
 }
 
 /* Header Section */
@@ -344,6 +590,8 @@
 
   .login-container {
     padding: 2rem 1.5rem;
+    max-height: none;
+    overflow: visible;
   }
 
   .logo-text {
@@ -380,4 +628,237 @@
     border: 2px solid #FFFFFF;
   }
 }
+
+/* ===== Dark Mode Support ===== */
+:host-context(body.dark-theme) .login-page {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+
+:host-context(body.dark-theme) .login-container {
+  background: #1E1E1E;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Dark Mode - Header */
+:host-context(body.dark-theme) .logo-icon {
+  color: #4A90E2;
+}
+
+:host-context(body.dark-theme) .logo-text {
+  color: #4A90E2;
+}
+
+:host-context(body.dark-theme) .login-title {
+  color: #E5E5E5;
+}
+
+:host-context(body.dark-theme) .login-subtitle {
+  color: #B0B0B0;
+}
+
+/* Dark Mode - Form */
+:host-context(body.dark-theme) .form-label {
+  color: #E5E5E5;
+}
+
+:host-context(body.dark-theme) .input-icon {
+  color: #B0B0B0;
+}
+
+:host-context(body.dark-theme) .form-input {
+  background: #121212;
+  border-color: #2A2A2A;
+  color: #E5E5E5;
+}
+
+:host-context(body.dark-theme) .form-input::placeholder {
+  color: #666666;
+}
+
+:host-context(body.dark-theme) .form-input:focus {
+  border-color: #5DA9FF;
+  background: #1A1A1A;
+}
+
+:host-context(body.dark-theme) .form-input.error {
+  border-color: #f85149;
+}
+
+:host-context(body.dark-theme) .password-toggle {
+  color: #B0B0B0;
+}
+
+:host-context(body.dark-theme) .password-toggle:hover {
+  color: #5DA9FF;
+}
+
+:host-context(body.dark-theme) .error-message {
+  color: #f85149;
+}
+
+/* Dark Mode - Error Alert */
+:host-context(body.dark-theme) .error-alert {
+  background: rgba(248, 81, 73, 0.1);
+  border-color: rgba(248, 81, 73, 0.3);
+  color: #ff7b72;
+}
+
+/* Dark Mode - Form Options */
+:host-context(body.dark-theme) .checkbox-label {
+  color: #E5E5E5;
+}
+
+:host-context(body.dark-theme) .checkbox-input {
+  accent-color: #5DA9FF;
+  background-color: #121212;
+  border-color: #2A2A2A;
+}
+
+:host-context(body.dark-theme) .forgot-password {
+  color: #666666;
+}
+
+/* Dark Mode - Submit Button */
+:host-context(body.dark-theme) .submit-button {
+  background: #4A90E2;
+  color: #FFFFFF;
+}
+
+:host-context(body.dark-theme) .submit-button:hover:not(:disabled) {
+  background: #5DA9FF;
+  box-shadow: 0 4px 12px rgba(93, 169, 255, 0.4);
+}
+
+/* Dark Mode - Registration Section */
+:host-context(body.dark-theme) .register-section {
+  border-top-color: #2A2A2A;
+}
+
+:host-context(body.dark-theme) .register-text {
+  color: #B0B0B0;
+}
+
+:host-context(body.dark-theme) .register-link {
+  color: #666666;
+}
+
+/* Dark Mode - Footer */
+:host-context(body.dark-theme) .login-footer {
+  border-top-color: #2A2A2A;
+}
+
+:host-context(body.dark-theme) .footer-text {
+  color: #B0B0B0;
+}
+
+:host-context(body.dark-theme) .footer-links {
+  color: #B0B0B0;
+}
+
+:host-context(body.dark-theme) .footer-link {
+  color: #B0B0B0;
+}
+
+:host-context(body.dark-theme) .footer-link:hover {
+  color: #5DA9FF;
+}
+
+:host-context(body.dark-theme) .separator {
+  color: #666666;
+}
+
+/* Dark Mode - Accessibility Panel */
+:host-context(body.dark-theme) .accessibility-toggle-btn {
+  background: #4A90E2;
+}
+
+:host-context(body.dark-theme) .accessibility-toggle-btn:hover {
+  background: #5DA9FF;
+}
+
+:host-context(body.dark-theme) .accessibility-panel {
+  background: #1E1E1E;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+}
+
+:host-context(body.dark-theme) .panel-header {
+  background: #4A90E2;
+}
+
+:host-context(body.dark-theme) .section-label {
+  color: #E5E5E5;
+}
+
+:host-context(body.dark-theme) .font-btn {
+  background: #121212;
+  border-color: #2A2A2A;
+  color: #E5E5E5;
+}
+
+:host-context(body.dark-theme) .font-btn:hover {
+  border-color: #5DA9FF;
+  background: #1A1A1A;
+}
+
+:host-context(body.dark-theme) .font-btn.active {
+  background: #4A90E2;
+  border-color: #4A90E2;
+}
+
+:host-context(body.dark-theme) .theme-btn {
+  background: #121212;
+  border-color: #2A2A2A;
+  color: #E5E5E5;
+}
+
+:host-context(body.dark-theme) .theme-btn:hover {
+  border-color: #5DA9FF;
+  background: #1A1A1A;
+}
+
+:host-context(body.dark-theme) .theme-btn.active {
+  background: #4A90E2;
+  border-color: #4A90E2;
+  color: #FFFFFF;
+}
+
+/* Dark Mode - System Preference Support */
+@media (prefers-color-scheme: dark) {
+  :host-context(:root:not([data-theme="light"])) .login-page {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  }
+
+  :host-context(:root:not([data-theme="light"])) .login-container {
+    background: #1E1E1E;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  :host-context(:root:not([data-theme="light"])) .login-title,
+  :host-context(:root:not([data-theme="light"])) .form-label,
+  :host-context(:root:not([data-theme="light"])) .checkbox-label {
+    color: #E5E5E5;
+  }
+
+  :host-context(:root:not([data-theme="light"])) .form-input {
+    background: #121212;
+    border-color: #2A2A2A;
+    color: #E5E5E5;
+  }
+
+  :host-context(:root:not([data-theme="light"])) .form-input:focus {
+    border-color: #5DA9FF;
+    background: #1A1A1A;
+  }
+
+  :host-context(:root:not([data-theme="light"])) .submit-button {
+    background: #4A90E2;
+  }
+
+  :host-context(:root:not([data-theme="light"])) .submit-button:hover:not(:disabled) {
+    background: #5DA9FF;
+  }
+}
+
 

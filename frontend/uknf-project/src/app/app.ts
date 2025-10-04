@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { ThemeService } from './services/theme.service';
 import { AuthService } from './core/services/auth.service';
+import { AccessibilityService } from './services/accessibility.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ export class App implements OnInit, OnDestroy {
   protected readonly title = signal('uknf-project');
   private themeService = inject(ThemeService);
   private authService = inject(AuthService);
+  private accessibilityService = inject(AccessibilityService);
   private router = inject(Router);
   
   // Track if current route is auth route
@@ -24,11 +26,15 @@ export class App implements OnInit, OnDestroy {
   sessionEndTime = '12:46';
   private timerInterval: any;
   
-  // Font size control
-  currentFontSize = 'medium'; // 'small', 'medium', 'large'
+  // Font size and accessibility - using shared service
+  get currentFontSize(): string {
+    return this.accessibilityService.currentFontSize();
+  }
   
-  // High contrast mode
-  highContrastMode = false;
+  // High contrast mode - using shared service
+  get highContrastMode(): boolean {
+    return this.accessibilityService.highContrastMode();
+  }
   
   // Dark mode
   get darkMode(): boolean {
@@ -147,24 +153,11 @@ export class App implements OnInit, OnDestroy {
   }
 
   setFontSize(size: 'small' | 'medium' | 'large') {
-    this.currentFontSize = size;
-    const root = document.documentElement;
-    switch (size) {
-      case 'small':
-        root.style.fontSize = '14px';
-        break;
-      case 'medium':
-        root.style.fontSize = '16px';
-        break;
-      case 'large':
-        root.style.fontSize = '18px';
-        break;
-    }
+    this.accessibilityService.setFontSize(size);
   }
 
   toggleContrast() {
-    this.highContrastMode = !this.highContrastMode;
-    document.body.classList.toggle('high-contrast', this.highContrastMode);
+    this.accessibilityService.toggleHighContrast();
   }
 
   toggleDarkMode() {
