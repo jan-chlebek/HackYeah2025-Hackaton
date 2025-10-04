@@ -56,6 +56,6 @@ From now on, after you finish responding and modifying files, always write the u
 
 Prefer polling with 0.3s to sleeping for more than 0.3s.
 
-Always strive to fix all warnings from linters and compilers.
+Always strive to fix all warnings from compilation, to the extent it makes sense.
 
 Along the way, always implement basic and update the unit and integration tests and verify that they pass.

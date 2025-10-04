@@ -1,7 +1,9 @@
+using UknfCommunicationPlatform.Core.Enums;
+
 namespace UknfCommunicationPlatform.Core.Entities;
 
 /// <summary>
-/// Represents a message between users
+/// Represents a message between users in the communication system
 /// </summary>
 public class Message
 {
@@ -16,7 +18,7 @@ public class Message
     public string Subject { get; set; } = string.Empty;
 
     /// <summary>
-    /// Message body
+    /// Message body/content
     /// </summary>
     public string Body { get; set; } = string.Empty;
 
@@ -31,14 +33,44 @@ public class Message
     public User Sender { get; set; } = null!;
 
     /// <summary>
-    /// Recipient user ID
+    /// Recipient user ID (nullable for group messages)
     /// </summary>
-    public long RecipientId { get; set; }
+    public long? RecipientId { get; set; }
 
     /// <summary>
     /// Navigation property - Recipient
     /// </summary>
-    public User Recipient { get; set; } = null!;
+    public User? Recipient { get; set; }
+
+    /// <summary>
+    /// Current status of the message
+    /// </summary>
+    public MessageStatus Status { get; set; }
+
+    /// <summary>
+    /// Message folder classification
+    /// </summary>
+    public MessageFolder Folder { get; set; }
+
+    /// <summary>
+    /// Thread ID for conversation grouping
+    /// </summary>
+    public long? ThreadId { get; set; }
+
+    /// <summary>
+    /// Parent message ID (if this is a reply)
+    /// </summary>
+    public long? ParentMessageId { get; set; }
+
+    /// <summary>
+    /// Navigation property - Parent message
+    /// </summary>
+    public Message? ParentMessage { get; set; }
+
+    /// <summary>
+    /// Navigation property - Child messages (replies)
+    /// </summary>
+    public ICollection<Message> Replies { get; set; } = new List<Message>();
 
     /// <summary>
     /// Has the message been read
@@ -56,12 +88,47 @@ public class Message
     public DateTime? ReadAt { get; set; }
 
     /// <summary>
-    /// Related entity ID (optional)
+    /// Related supervised entity ID (optional)
     /// </summary>
     public long? RelatedEntityId { get; set; }
+
+    /// <summary>
+    /// Navigation property - Related supervised entity
+    /// </summary>
+    public SupervisedEntity? RelatedEntity { get; set; }
 
     /// <summary>
     /// Related report ID (optional)
     /// </summary>
     public long? RelatedReportId { get; set; }
+
+    /// <summary>
+    /// Navigation property - Related report
+    /// </summary>
+    public Report? RelatedReport { get; set; }
+
+    /// <summary>
+    /// Related case ID (optional)
+    /// </summary>
+    public long? RelatedCaseId { get; set; }
+
+    /// <summary>
+    /// Navigation property - Related case
+    /// </summary>
+    public Case? RelatedCase { get; set; }
+
+    /// <summary>
+    /// Navigation property - Message attachments
+    /// </summary>
+    public ICollection<MessageAttachment> Attachments { get; set; } = new List<MessageAttachment>();
+
+    /// <summary>
+    /// Is this message cancelled
+    /// </summary>
+    public bool IsCancelled { get; set; }
+
+    /// <summary>
+    /// Cancellation date
+    /// </summary>
+    public DateTime? CancelledAt { get; set; }
 }
