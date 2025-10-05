@@ -29,6 +29,7 @@ export class AnnouncementDetailsComponent implements OnInit {
   announcement: Announcement | null = null;
   loading = false;
   error = false;
+  errorMessage = '';
 
   // Breadcrumb
   breadcrumbItems: MenuItem[] = [
@@ -51,9 +52,12 @@ export class AnnouncementDetailsComponent implements OnInit {
     this.loading = true;
     this.error = false;
 
+    console.log('[AnnouncementDetails] Loading announcement ID:', id);
+    console.log('[AnnouncementDetails] API URL will be: http://localhost:5000/api/v1/announcements/' + id);
+
     this.announcementService.getAnnouncementById(id).subscribe({
       next: (announcement) => {
-        console.log('Announcement loaded:', announcement);
+        console.log('[AnnouncementDetails] Announcement loaded successfully:', announcement);
         this.announcement = announcement;
         this.loading = false;
 
@@ -63,7 +67,27 @@ export class AnnouncementDetailsComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading announcement:', error);
+        console.error('[AnnouncementDetails] Error loading announcement:', error);
+        console.error('[AnnouncementDetails] Error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          url: error.url
+        });
+        
+        // Set user-friendly error message
+        if (error.status === 404) {
+          this.errorMessage = 'Komunikat o podanym ID nie został znaleziony.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Nie masz uprawnień do wyświetlenia tego komunikatu. Zaloguj się ponownie.';
+        } else if (error.status === 403) {
+          this.errorMessage = 'Dostęp do tego komunikatu jest zabroniony.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'Brak połączenia z serwerem. Sprawdź, czy backend działa.';
+        } else {
+          this.errorMessage = `Błąd serwera (${error.status}): ${error.statusText || 'Nieznany błąd'}`;
+        }
+        
         this.error = true;
         this.loading = false;
       }

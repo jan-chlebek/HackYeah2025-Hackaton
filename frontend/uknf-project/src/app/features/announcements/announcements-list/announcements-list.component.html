@@ -90,20 +90,38 @@
     [totalRecords]="totalRecords"
     [lazy]="true"
     (onLazyLoad)="onPageChange($event)"
+    (onSort)="onSort($event)"
     [loading]="loading"
     [rowsPerPageOptions]="pageSizeOptions"
     [showCurrentPageReport]="true"
     currentPageReportTemplate="Wyświetlanie {first} do {last} z {totalRecords} komunikatów"
     styleClass="p-datatable-striped announcements-table"
-    responsiveLayout="scroll">
+    responsiveLayout="scroll"
+    [sortField]="sortField"
+    [sortOrder]="sortOrder">
     
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="title">Tytuł</th>
-        <th>Podgląd treści</th>
-        <th pSortableColumn="createdByName">Utworzony przez</th>
-        <th pSortableColumn="createdAt">Data utworzenia</th>
-        <th>Status</th>
+        <th pSortableColumn="title">
+          Tytuł
+          <p-sortIcon field="title"></p-sortIcon>
+        </th>
+        <th pSortableColumn="contentPreview">
+          Podgląd treści
+          <p-sortIcon field="contentPreview"></p-sortIcon>
+        </th>
+        <th pSortableColumn="createdByName">
+          Utworzony przez
+          <p-sortIcon field="createdByName"></p-sortIcon>
+        </th>
+        <th pSortableColumn="createdAt">
+          Data utworzenia
+          <p-sortIcon field="createdAt"></p-sortIcon>
+        </th>
+        <th pSortableColumn="isReadByCurrentUser">
+          Status
+          <p-sortIcon field="isReadByCurrentUser"></p-sortIcon>
+        </th>
       </tr>
     </ng-template>
     

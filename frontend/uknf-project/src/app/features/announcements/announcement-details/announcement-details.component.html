@@ -10,12 +10,22 @@
     <i class="pi pi-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
     <h2>Nie udało się załadować komunikatu</h2>
     <p>Komunikat nie istnieje lub wystąpił błąd podczas ładowania.</p>
+    <p *ngIf="errorMessage" class="error-details">{{ errorMessage }}</p>
     <button 
       pButton 
       type="button" 
       label="Wróć do listy" 
       icon="pi pi-arrow-left"
       (click)="goBack()">
+    </button>
+    <button 
+      pButton 
+      type="button" 
+      label="Spróbuj ponownie" 
+      icon="pi pi-refresh"
+      class="p-button-outlined"
+      style="margin-left: 1rem;"
+      (click)="ngOnInit()">
     </button>
   </div>
 

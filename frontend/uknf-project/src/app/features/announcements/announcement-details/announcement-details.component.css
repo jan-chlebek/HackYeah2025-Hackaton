@@ -30,6 +30,15 @@
   margin: 0;
 }
 
+.error-details {
+  font-weight: 600;
+  color: #dc3545 !important;
+  padding: 0.75rem 1.5rem;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin-top: 1rem !important;
+}
+
 /* Announcement Content */
 .announcement-content {
   max-width: 1200px;

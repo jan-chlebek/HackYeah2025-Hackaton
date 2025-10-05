@@ -56,6 +56,10 @@ export class AnnouncementsListComponent implements OnInit {
   filters: AnnouncementFilters = {};
   searchTerm = '';
 
+  // Sorting
+  sortField: string = 'createdAt';
+  sortOrder: number = -1; // -1 for descending, 1 for ascending
+
   // Check if user is internal (UKNF staff) - NOT external user
   get isInternalUser(): boolean {
     const user = this.authService.getCurrentUser();
@@ -93,9 +97,17 @@ export class AnnouncementsListComponent implements OnInit {
   loadAnnouncements(): void {
     this.loading = true;
     const page = Math.floor(this.first / this.pageSize) + 1;
-    console.log('Loading announcements with params:', { page, pageSize: this.pageSize, first: this.first, filters: this.filters });
     
-    this.announcementService.getAnnouncements(page, this.pageSize, this.filters).subscribe({
+    // Add sorting to filters
+    const filtersWithSort = {
+      ...this.filters,
+      sortBy: this.sortField,
+      sortDirection: this.sortOrder === 1 ? 'asc' as const : 'desc' as const
+    };
+    
+    console.log('Loading announcements with params:', { page, pageSize: this.pageSize, first: this.first, filters: filtersWithSort });
+    
+    this.announcementService.getAnnouncements(page, this.pageSize, filtersWithSort).subscribe({
       next: (response) => {
         console.log('Announcements loaded successfully:', response);
         this.announcements = response.items || [];
@@ -123,6 +135,14 @@ export class AnnouncementsListComponent implements OnInit {
     console.log('Page change event:', event);
     this.first = event.first;
     this.pageSize = event.rows;
+    this.loadAnnouncements();
+  }
+
+  onSort(event: any): void {
+    console.log('Sort event:', event);
+    this.sortField = event.field;
+    this.sortOrder = event.order;
+    this.first = 0; // Reset to first page when sorting
     this.loadAnnouncements();
   }
 

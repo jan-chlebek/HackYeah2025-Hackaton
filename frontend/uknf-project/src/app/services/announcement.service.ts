@@ -54,6 +54,8 @@ export interface AnnouncementFilters {
   searchTerm?: string;
   dateFrom?: string;
   dateTo?: string;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
 }
 
 /**
@@ -102,6 +104,14 @@ export class AnnouncementService {
 
     if (filters?.dateTo) {
       params = params.set('dateTo', filters.dateTo);
+    }
+
+    if (filters?.sortBy) {
+      params = params.set('sortBy', filters.sortBy);
+    }
+
+    if (filters?.sortDirection) {
+      params = params.set('sortDirection', filters.sortDirection);
     }
 
     return this.http.get<PaginatedAnnouncementResponse>(this.apiUrl, { params });

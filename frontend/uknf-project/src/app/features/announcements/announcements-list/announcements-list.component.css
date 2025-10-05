@@ -115,6 +115,30 @@
   table-layout: fixed !important;
 }
 
+/* Sortable Column Styles */
+::ng-deep .announcements-table .p-datatable-thead > tr > th.p-sortable-column {
+  cursor: pointer;
+  user-select: none;
+}
+
+::ng-deep .announcements-table .p-datatable-thead > tr > th.p-sortable-column:hover {
+  background-color: #f0f8ff;
+}
+
+::ng-deep .announcements-table .p-sortable-column-icon {
+  margin-left: 0.5rem;
+  color: #999;
+}
+
+::ng-deep .announcements-table .p-sortable-column.p-highlight .p-sortable-column-icon {
+  color: #003366;
+}
+
+::ng-deep .announcements-table .p-datatable-thead > tr > th .p-sortable-column-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 ::ng-deep .announcements-table .p-datatable-thead > tr > th,
 ::ng-deep .announcements-table .p-datatable-tbody > tr > td {
   padding: 0.75rem !important;
@@ -252,6 +276,19 @@
 
 :host-context(html.high-contrast) .empty-icon {
   color: #FFFF00;
+}
+
+:host-context(html.high-contrast) ::ng-deep .announcements-table .p-sortable-column-icon {
+  color: #FFFF00 !important;
+}
+
+:host-context(html.high-contrast) ::ng-deep .announcements-table .p-sortable-column:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+:host-context(html.high-contrast) ::ng-deep .announcements-table .p-sortable-column:hover .p-sortable-column-icon {
+  color: #000000 !important;
 }
 
 /* Responsive Design */
