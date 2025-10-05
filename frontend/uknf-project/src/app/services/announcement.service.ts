@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 /**
  * Announcement list item (with content preview)
@@ -74,7 +75,7 @@ export interface PaginatedAnnouncementResponse {
 })
 export class AnnouncementService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/v1/announcements';
+  private apiUrl = `${environment.apiUrl}/announcements`;
 
   /**
    * Get paginated announcements list with optional filters

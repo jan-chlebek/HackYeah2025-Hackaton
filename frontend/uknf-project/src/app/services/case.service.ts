@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 /**
  * Case status enum matching backend
@@ -207,7 +208,7 @@ export interface CaseHistoryEntry {
 })
 export class CaseService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/v1/cases';
+  private apiUrl = `${environment.apiUrl}/cases`;
 
   /**
    * Get paginated cases list with optional filters

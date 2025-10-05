@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
 
 // File/Document interfaces
@@ -62,7 +63,7 @@ export interface LibraryFilters {
 })
 export class LibraryService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/v1/library/files';
+  private apiUrl = `${environment.apiUrl}/library/files`;
 
   getFiles(
     page: number = 1,
@@ -141,3 +142,4 @@ export class LibraryService {
     });
   }
 }
+

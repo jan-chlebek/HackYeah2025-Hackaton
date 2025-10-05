@@ -147,7 +147,39 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        // Get allowed origins from configuration or use defaults
+        var allowedOrigins = new List<string>
+        {
+            "http://localhost:4200",
+            "https://localhost:4200",
+            // Azure frontend
+            "https://hackyeah2025chlebkiknffrontend.azurewebsites.net",
+            // Custom domains
+            "https://hackyeah2025.janchlebek.com",
+            "https://www.hackyeah2025.janchlebek.com"
+        };
+        
+        // Add Azure frontend URL if configured (for flexibility)
+        var azureFrontendUrl = builder.Configuration["AzureFrontendUrl"];
+        if (!string.IsNullOrEmpty(azureFrontendUrl) && !allowedOrigins.Contains(azureFrontendUrl))
+        {
+            allowedOrigins.Add(azureFrontendUrl);
+        }
+        
+        // Add custom domains from configuration if any
+        var customDomain1 = builder.Configuration["CustomDomain1"];
+        if (!string.IsNullOrEmpty(customDomain1) && !allowedOrigins.Contains(customDomain1))
+        {
+            allowedOrigins.Add(customDomain1);
+        }
+        
+        var customDomain2 = builder.Configuration["CustomDomain2"];
+        if (!string.IsNullOrEmpty(customDomain2) && !allowedOrigins.Contains(customDomain2))
+        {
+            allowedOrigins.Add(customDomain2);
+        }
+        
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -157,15 +189,13 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+// Enable Swagger in all environments for demo/hackathon purposes
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "UKNF Communication Platform API v1");
-        c.RoutePrefix = "swagger";
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UKNF Communication Platform API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseHttpsRedirection();
 

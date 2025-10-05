@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Report {
   id: number;
@@ -74,7 +75,7 @@ export interface ApiResponse<T> {
 })
 export class ReportService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:5000/api/v1/reports';
+  private baseUrl = `${environment.apiUrl}/reports`;
 
   /**
    * Get list of reports with optional filtering, sorting, and pagination
@@ -213,3 +214,4 @@ export class ReportService {
     return statusConfig[status] || { class: 'status-unknown', label: status };
   }
 }
+

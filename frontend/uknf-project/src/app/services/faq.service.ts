@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FaqQuestion, FaqListResponse } from '../models/faq.model';
+import { environment } from '../../environments/environment';
 
 /**
  * Service for managing FAQ questions and answers
@@ -10,7 +11,7 @@ import { FaqQuestion, FaqListResponse } from '../models/faq.model';
   providedIn: 'root'
 })
 export class FaqService {
-  private readonly apiUrl = 'http://localhost:5000/api/v1/faq';
+  private readonly apiUrl = `${environment.apiUrl}/faq`;
 
   constructor(private http: HttpClient) {}
 

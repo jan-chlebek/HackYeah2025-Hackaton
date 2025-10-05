@@ -14,7 +14,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
   name: acrName
   location: location
   sku: {
-    name: 'Basic'
+    name: 'Premium'
   }
   properties: {
     adminUserEnabled: true
@@ -47,14 +47,14 @@ resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   }
 }
 
-// Shared App Service Plan - Premium v3 P2V3
+// Shared App Service Plan - Premium v3 P3V3
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: '${backendAppName}-plan'
   location: location
   sku: {
-    name: 'P2V3'
+    name: 'P3V3'
     tier: 'PremiumV3'
-    size: 'P2V3'
+    size: 'P3V3'
     capacity: 1
   }
   kind: 'linux'
@@ -72,14 +72,43 @@ resource backendApp 'Microsoft.Web/sites@2023-01-01' = {
     siteConfig: {
       linuxFxVersion: 'DOCKER|${acrName}.azurecr.io/uknf-backend:latest'
       acrUseManagedIdentityCreds: false
+      healthCheckPath: '/health'
       appSettings: [
         {
           name: 'ASPNETCORE_ENVIRONMENT'
           value: 'Production'
         }
         {
+          name: 'ASPNETCORE_URLS'
+          value: 'http://+:8080'
+        }
+        {
+          name: 'ASPNETCORE_FORWARDEDHEADERS_ENABLED'
+          value: 'true'
+        }
+        {
           name: 'ConnectionStrings__DefaultConnection'
-          value: 'Server=${postgres.name}.postgres.database.azure.com;Database=${dbName};User Id=${dbAdminUsername}@${postgres.name};Password=${dbAdminPassword};Ssl Mode=Require;Trust Server Certificate=true'
+          value: 'Server=${postgres.name}.postgres.database.azure.com;Database=${dbName};User Id=${dbAdminUsername};Password=${dbAdminPassword};Ssl Mode=Require;Trust Server Certificate=true'
+        }
+        {
+          name: 'JwtSettings__Secret'
+          value: 'your-super-secret-jwt-key-minimum-32-characters-long-for-production'
+        }
+        {
+          name: 'JwtSettings__Issuer'
+          value: 'https://${backendAppName}.azurewebsites.net'
+        }
+        {
+          name: 'JwtSettings__Audience'
+          value: 'https://${frontendAppName}.azurewebsites.net'
+        }
+        {
+          name: 'JwtSettings__ExpiryMinutes'
+          value: '60'
+        }
+        {
+          name: 'AzureFrontendUrl'
+          value: 'https://${frontendAppName}.azurewebsites.net'
         }
         {
           name: 'DOCKER_REGISTRY_SERVER_URL'
@@ -96,6 +125,10 @@ resource backendApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
           value: 'false'
+        }
+        {
+          name: 'WEBSITES_PORT'
+          value: '8080'
         }
       ]
     }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 /**
  * Contact detailed information
@@ -119,7 +120,7 @@ export interface ContactFilters {
 })
 export class ContactService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/v1/contacts';
+  private apiUrl = `${environment.apiUrl}/contacts`;
 
   /**
    * Get list of contacts with pagination and filtering
@@ -202,3 +203,4 @@ export class ContactService {
     return this.http.get<Contact | null>(`${this.apiUrl}/primary/${entityId}`);
   }
 }
+

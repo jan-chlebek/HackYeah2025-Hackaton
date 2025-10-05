@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 /**
  * Supervised entity detailed information
@@ -154,7 +155,7 @@ export interface EntityFilters {
 })
 export class SupervisedEntityService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/v1/entities';
+  private apiUrl = `${environment.apiUrl}/entities`;
 
   /**
    * Get list of supervised entities with pagination and filtering
@@ -258,3 +259,4 @@ export class SupervisedEntityService {
     );
   }
 }
+
