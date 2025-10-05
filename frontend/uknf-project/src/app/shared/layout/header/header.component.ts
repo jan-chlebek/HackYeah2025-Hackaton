@@ -29,9 +29,7 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
         <div class="flex justify-content-between align-items-center">
           <!-- Logo and Title -->
           <div class="flex align-items-center gap-3">
-            <div class="logo-box">
-              <span class="logo-text">UKNF</span>
-            </div>
+            <img src="/uknf.png" alt="UKNF - Urząd Komisji Nadzoru Finansowego" class="uknf-logo">
             <h1 class="header-title m-0">System Komunikacji z Podmiotami</h1>
           </div>
 
@@ -122,6 +120,12 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
     .header-bottom {
       padding: 0.5rem 1.5rem;
       background-color: #f3f4f6;
+    }
+
+    .uknf-logo {
+      height: 2.5rem;
+      width: auto;
+      object-fit: contain;
     }
 
     .logo-box {
