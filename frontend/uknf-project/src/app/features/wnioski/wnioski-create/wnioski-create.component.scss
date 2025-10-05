@@ -1,0 +1,115 @@
+.wnioski-create-container {
+  padding: 0;
+  background-color: var(--surface-ground);
+  min-height: 100vh;
+
+  .header {
+    padding: 1.5rem;
+    background-color: var(--surface-card);
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+  }
+
+  ::ng-deep .form-card {
+    margin: 0 1.5rem 1.5rem;
+    background-color: var(--surface-card);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    .p-card-body {
+      padding: 2rem;
+    }
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 0.9rem;
+
+        .required {
+          color: var(--red-500);
+        }
+      }
+
+      input,
+      textarea,
+      ::ng-deep .p-select,
+      ::ng-deep .p-multiselect {
+        width: 100%;
+      }
+
+      .error-message {
+        color: var(--red-500);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
+
+      ::ng-deep .ng-invalid.ng-dirty {
+        border-color: var(--red-500);
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--surface-border);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .wnioski-create-container {
+    .header {
+      padding: 1rem;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    ::ng-deep .form-card {
+      margin: 0 0.5rem 0.5rem;
+
+      .p-card-body {
+        padding: 1rem;
+      }
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+
+      ::ng-deep .p-button {
+        width: 100%;
+      }
+    }
+  }
+}

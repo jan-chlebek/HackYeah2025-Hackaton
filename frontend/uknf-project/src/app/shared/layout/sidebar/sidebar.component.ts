@@ -125,6 +125,73 @@ interface MenuItem {
       color: #003366;
     }
 
+    /* High Contrast Mode Styles */
+    :host-context(html.high-contrast) .sidebar {
+      background-color: #000000 !important;
+      border-right: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .sidebar-header {
+      background-color: #000000 !important;
+      border-bottom: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .sidebar-title {
+      color: #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .menu-link {
+      background-color: #000000 !important;
+      color: #FFFF00 !important;
+      border-left: 0 !important;
+    }
+
+    :host-context(html.high-contrast) .menu-link:hover {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+    }
+
+    :host-context(html.high-contrast) .menu-link:hover .menu-icon,
+    :host-context(html.high-contrast) .menu-link:hover .menu-label {
+      color: #000000 !important;
+    }
+
+    :host-context(html.high-contrast) .menu-link.active {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+      border-left: 0 !important;
+    }
+
+    :host-context(html.high-contrast) .menu-link.active .menu-icon,
+    :host-context(html.high-contrast) .menu-link.active .menu-label {
+      color: #000000 !important;
+    }
+
+    /* Keep active menu item yellow when hovering */
+    :host-context(html.high-contrast) .menu-link.active:hover {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+    }
+
+    :host-context(html.high-contrast) .menu-icon {
+      color: #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .collapse-btn {
+      background-color: #000000 !important;
+      color: #FFFF00 !important;
+      border: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .collapse-btn:hover {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+    }
+
+    :host-context(html.high-contrast) .collapse-btn:hover i {
+      color: #000000 !important;
+    }
+
     .menu-label {
       margin-left: 1rem;
       white-space: normal;
@@ -172,7 +239,7 @@ export class SidebarComponent {
 
   menuItems: MenuItem[] = [
     { label: 'Biblioteka - repozytorium plików', icon: 'pi pi-folder-open', route: '/library' },
-    { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/auth/access-requests' },
+    { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/wnioski' },
     { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
     { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases' },
     { label: 'Sprawozdawczość', icon: 'pi pi-chart-line', route: '/reports' },

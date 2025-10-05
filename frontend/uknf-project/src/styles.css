@@ -114,33 +114,639 @@ html.font-size-large h4 { font-size: 1.5rem; }
 
 /* High Contrast Mode */
 html.high-contrast {
-  --uknf-primary-blue: #000080;
-  --uknf-accent-blue: #0000FF;
-  --uknf-light-blue: #E6F0FF;
-  --uknf-white: #FFFFFF;
-  --uknf-light-gray: #F0F0F0;
-  --uknf-medium-gray: #404040;
-  --uknf-dark-gray: #000000;
+  --uknf-primary-blue: #FFFF00;
+  --uknf-accent-blue: #FFFF00;
+  --uknf-light-blue: #1a1a1a;
+  --uknf-white: #000000;
+  --uknf-light-gray: #1a1a1a;
+  --uknf-medium-gray: #FFFF00;
+  --uknf-dark-gray: #FFFF00;
 }
 
 html.high-contrast body {
-  background-color: #FFFFFF;
-  color: #000000;
+  background-color: #000000;
+  color: #FFFF00;
 }
 
 html.high-contrast a {
-  color: #0000FF;
+  color: #FFFF00;
   text-decoration: underline;
 }
 
 html.high-contrast button,
 html.high-contrast .p-button {
-  border: 2px solid #000000 !important;
+  border: 2px solid #FFFF00 !important;
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+/* Hover effect - yellow background with black text */
+html.high-contrast button:hover,
+html.high-contrast .p-button:hover {
+  background-color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast button:hover *,
+html.high-contrast .p-button:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-button:enabled:hover {
+  background-color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-button:enabled:hover * {
+  color: #000000 !important;
+}
+
+/* Selected/Active state - yellow background with black text */
+html.high-contrast button:active,
+html.high-contrast .p-button:active,
+html.high-contrast button.p-button-active,
+html.high-contrast .p-button.p-button-active,
+html.high-contrast button.active,
+html.high-contrast .p-button.active,
+html.high-contrast button[aria-selected="true"],
+html.high-contrast .p-button[aria-selected="true"] {
+  background-color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+  color: #000000 !important;
+}
+
+/* Keep selected buttons yellow even when hovering */
+html.high-contrast button.p-button-active:hover,
+html.high-contrast .p-button.p-button-active:hover,
+html.high-contrast button.active:hover,
+html.high-contrast .p-button.active:hover,
+html.high-contrast button[aria-selected="true"]:hover,
+html.high-contrast .p-button[aria-selected="true"]:hover {
+  background-color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast button:active *,
+html.high-contrast .p-button:active *,
+html.high-contrast button.p-button-active *,
+html.high-contrast .p-button.p-button-active *,
+html.high-contrast button.active *,
+html.high-contrast .p-button.active *,
+html.high-contrast button[aria-selected="true"] *,
+html.high-contrast .p-button[aria-selected="true"] * {
+  color: #000000 !important;
+}
+
+/* Keep selected button text black even when hovering */
+html.high-contrast button.p-button-active:hover *,
+html.high-contrast .p-button.p-button-active:hover *,
+html.high-contrast button.active:hover *,
+html.high-contrast .p-button.active:hover *,
+html.high-contrast button[aria-selected="true"]:hover *,
+html.high-contrast .p-button[aria-selected="true"]:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-button:enabled:active {
+  background-color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-button:enabled:active * {
+  color: #000000 !important;
 }
 
 html.high-contrast *:focus-visible {
-  outline: 3px solid #000000 !important;
+  outline: 3px solid #FFFF00 !important;
   outline-offset: 2px;
+}
+
+/* High Contrast - Additional Elements */
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast select {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast table,
+html.high-contrast th,
+html.high-contrast td {
+  border: 1px solid #FFFF00 !important;
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable .p-datatable-thead > tr > th,
+html.high-contrast .p-datatable .p-datatable-tbody > tr > td {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 1px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable-thead,
+html.high-contrast .p-datatable-thead > tr,
+html.high-contrast .p-datatable-thead > tr > th {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 1px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable-tbody,
+html.high-contrast .p-datatable-tbody > tr,
+html.high-contrast .p-datatable-tbody > tr > td {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 1px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable-tbody > tr:hover {
+  background-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable-tbody > tr.p-highlight {
+  background-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable-tbody > tr:hover > td {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-datatable-tbody > tr.p-highlight > td {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-dropdown,
+html.high-contrast .p-inputtext {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-card {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-panel {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-menubar {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-menubar-root-list > .p-menuitem > .p-menuitem-link:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menubar-root-list > .p-menuitem > .p-menuitem-link:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menuitem-link {
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-menuitem-link:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menuitem-link:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menuitem-link:hover .p-menuitem-icon,
+html.high-contrast .p-menuitem-link:hover .p-menuitem-text,
+html.high-contrast .p-menuitem-link:hover label,
+html.high-contrast .p-menuitem-link:hover span {
+  color: #000000 !important;
+}
+
+/* High Contrast - Comprehensive PrimeNG Component Overrides */
+html.high-contrast .p-component,
+html.high-contrast .p-element,
+html.high-contrast div,
+html.high-contrast section,
+html.high-contrast article,
+html.high-contrast aside,
+html.high-contrast header,
+html.high-contrast footer,
+html.high-contrast main,
+html.high-contrast nav {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable,
+html.high-contrast .p-datatable-wrapper,
+html.high-contrast .p-datatable-table,
+html.high-contrast .p-datatable-header,
+html.high-contrast .p-datatable-footer {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable-scrollable-header,
+html.high-contrast .p-datatable-scrollable-body,
+html.high-contrast .p-datatable-scrollable-footer {
+  background-color: #000000 !important;
+}
+
+html.high-contrast .p-sortable-column:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-sortable-column:hover .p-sortable-column-icon {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-sortable-column-icon {
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable .p-sortable-column.p-highlight {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-datatable .p-sortable-column.p-highlight .p-sortable-column-icon {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-paginator {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-paginator-page,
+html.high-contrast .p-paginator-next,
+html.high-contrast .p-paginator-prev,
+html.high-contrast .p-paginator-first,
+html.high-contrast .p-paginator-last {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 1px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-paginator-page:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-paginator-page.p-highlight {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+/* Keep selected paginator page yellow even when hovering */
+html.high-contrast .p-paginator-page.p-highlight:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-paginator-next:hover,
+html.high-contrast .p-paginator-prev:hover,
+html.high-contrast .p-paginator-first:hover,
+html.high-contrast .p-paginator-last:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-paginator-current {
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-dialog,
+html.high-contrast .p-dialog-header,
+html.high-contrast .p-dialog-content,
+html.high-contrast .p-dialog-footer {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-breadcrumb {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-breadcrumb-item a {
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-checkbox,
+html.high-contrast .p-checkbox-box {
+  background-color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-checkbox-box.p-highlight,
+html.high-contrast .p-checkbox-box.p-checked {
+  background-color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-checkbox-icon {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-datepicker,
+html.high-contrast .p-calendar,
+html.high-contrast .p-datepicker-header,
+html.high-contrast .p-datepicker-calendar {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datepicker td,
+html.high-contrast .p-datepicker th {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datepicker td:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-datepicker td.p-highlight {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+/* Keep selected datepicker date yellow even when hovering */
+html.high-contrast .p-datepicker td.p-highlight:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-dropdown-panel,
+html.high-contrast .p-dropdown-items,
+html.high-contrast .p-dropdown-item {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-dropdown-item:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-dropdown-item:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-dropdown-item.p-highlight,
+html.high-contrast .p-dropdown-item.p-selected {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-dropdown-item.p-highlight *,
+html.high-contrast .p-dropdown-item.p-selected * {
+  color: #000000 !important;
+}
+
+/* Keep selected dropdown item yellow even when hovering */
+html.high-contrast .p-dropdown-item.p-highlight:hover,
+html.high-contrast .p-dropdown-item.p-selected:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-select,
+html.high-contrast .p-select-panel,
+html.high-contrast .p-select-option {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-select-option:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-select-option:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-select-option.p-selected,
+html.high-contrast .p-select-option.p-highlight {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-select-option.p-selected *,
+html.high-contrast .p-select-option.p-highlight * {
+  color: #000000 !important;
+}
+
+/* Keep selected select option yellow even when hovering */
+html.high-contrast .p-select-option.p-selected:hover,
+html.high-contrast .p-select-option.p-highlight:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast label,
+html.high-contrast span,
+html.high-contrast p,
+html.high-contrast h1,
+html.high-contrast h2,
+html.high-contrast h3,
+html.high-contrast h4,
+html.high-contrast h5,
+html.high-contrast h6 {
+  color: #FFFF00 !important;
+}
+
+/* Override typography color for selected/active elements with yellow background */
+html.high-contrast button:active label,
+html.high-contrast button:active span,
+html.high-contrast button.active label,
+html.high-contrast button.active span,
+html.high-contrast button[aria-selected="true"] label,
+html.high-contrast button[aria-selected="true"] span,
+html.high-contrast .p-button:active label,
+html.high-contrast .p-button:active span,
+html.high-contrast .p-button.active label,
+html.high-contrast .p-button.active span,
+html.high-contrast .p-button[aria-selected="true"] label,
+html.high-contrast .p-button[aria-selected="true"] span,
+html.high-contrast .p-datatable-tbody > tr.p-highlight label,
+html.high-contrast .p-datatable-tbody > tr.p-highlight span,
+html.high-contrast .p-datatable-tbody > tr.p-highlight p,
+html.high-contrast .p-dropdown-item.p-highlight label,
+html.high-contrast .p-dropdown-item.p-highlight span,
+html.high-contrast .p-dropdown-item.p-selected label,
+html.high-contrast .p-dropdown-item.p-selected span,
+html.high-contrast .p-select-option.p-highlight label,
+html.high-contrast .p-select-option.p-highlight span,
+html.high-contrast .p-select-option.p-selected label,
+html.high-contrast .p-select-option.p-selected span,
+html.high-contrast .p-paginator-page.p-highlight label,
+html.high-contrast .p-paginator-page.p-highlight span,
+html.high-contrast .p-tabview-nav-link.p-highlight label,
+html.high-contrast .p-tabview-nav-link.p-highlight span,
+html.high-contrast .p-tabview-nav-link[aria-selected="true"] label,
+html.high-contrast .p-tabview-nav-link[aria-selected="true"] span,
+html.high-contrast .p-menuitem.p-highlight label,
+html.high-contrast .p-menuitem.p-highlight span,
+html.high-contrast .p-datatable .p-sortable-column.p-highlight label,
+html.high-contrast .p-datatable .p-sortable-column.p-highlight span {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-toast,
+html.high-contrast .p-toast-message {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-badge,
+html.high-contrast .p-tag {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-toolbar {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast .p-fieldset,
+html.high-contrast .p-fieldset-legend {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-accordion,
+html.high-contrast .p-accordion-header,
+html.high-contrast .p-accordion-content {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-tabview,
+html.high-contrast .p-tabview-nav,
+html.high-contrast .p-tabview-panel {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-tabview-nav-link {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-tabview-nav-link:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-tabview-nav-link.p-highlight,
+html.high-contrast .p-tabview-nav-link[aria-selected="true"] {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+/* Keep selected tab yellow even when hovering */
+html.high-contrast .p-tabview-nav-link.p-highlight:hover,
+html.high-contrast .p-tabview-nav-link[aria-selected="true"]:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menu,
+html.high-contrast .p-menu-list,
+html.high-contrast .p-menuitem {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-menuitem:hover {
+  background-color: #FFFF00 !important;
+}
+
+html.high-contrast .p-menuitem:hover .p-menuitem-link {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menuitem:hover .p-menuitem-link * {
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menuitem.p-highlight,
+html.high-contrast .p-menuitem-link:active {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-menuitem.p-highlight * {
+  color: #000000 !important;
+}
+
+/* Keep highlighted menu items yellow when hovering */
+html.high-contrast .p-menuitem.p-highlight:hover,
+html.high-contrast .p-menuitem.p-highlight:hover .p-menuitem-link {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .p-datatable-emptymessage td {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-datatable-loading-overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+html.high-contrast .p-progress-spinner {
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .p-button-icon {
+  color: #FFFF00 !important;
+}
+
+html.high-contrast .pi {
+  color: #FFFF00 !important;
 }
 
 /* Custom PrimeNG Component Overrides */
@@ -346,3 +952,218 @@ a:hover {
 .border-primary { border-color: var(--uknf-primary-blue) !important; }
 .border-accent { border-color: var(--uknf-accent-blue) !important; }
 .border-gray { border-color: var(--uknf-medium-gray) !important; }
+
+/* ========================================
+   GLOBAL HIGH CONTRAST - TABLES & PAGINATION
+   Applied to all components across the app
+   ======================================== */
+
+/* High Contrast - Global Table Headers (all components) */
+html.high-contrast ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-bottom: 2px solid #FFFF00 !important;
+  border-right: 1px solid #FFFF00 !important;
+}
+
+/* High Contrast - Global Table Body Cells */
+html.high-contrast ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-bottom: 1px solid #FFFF00 !important;
+  border-right: 1px solid #FFFF00 !important;
+}
+
+/* High Contrast - Global Table Row Hover */
+html.high-contrast ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background: #FFFF00 !important;
+  background-color: #FFFF00 !important;
+  transform: none;
+  box-shadow: none;
+}
+
+html.high-contrast ::ng-deep .p-datatable .p-datatable-tbody > tr:hover > td {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast ::ng-deep .p-datatable .p-datatable-tbody > tr:hover * {
+  color: #000000 !important;
+}
+
+/* High Contrast - Global Even Rows */
+html.high-contrast ::ng-deep .p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #000000 !important;
+}
+
+html.high-contrast ::ng-deep .p-datatable .p-datatable-tbody > tr:nth-child(even):hover {
+  background: #FFFF00 !important;
+  background-color: #FFFF00 !important;
+}
+
+/* High Contrast - Global Paginator Footer */
+html.high-contrast ::ng-deep .p-paginator {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+  border-top: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-paginator-current {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-paginator-pages {
+  background-color: #000000 !important;
+}
+
+/* High Contrast - Global Paginator Navigation Buttons */
+html.high-contrast ::ng-deep .p-paginator .p-paginator-first,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-prev,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-next,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-last {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-paginator-first:hover,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-prev:hover,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-next:hover,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-last:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+  transform: none;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-paginator-first:hover *,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-prev:hover *,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-next:hover *,
+html.high-contrast ::ng-deep .p-paginator .p-paginator-last:hover * {
+  color: #000000 !important;
+}
+
+/* High Contrast - Global Page Number Buttons */
+html.high-contrast ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+  transform: none;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+/* Keep highlighted page yellow when hovering */
+html.high-contrast ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+/* High Contrast - Global p-dropdown in Paginator */
+html.high-contrast ::ng-deep .p-paginator .p-dropdown {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-dropdown:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-dropdown:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-dropdown .p-dropdown-trigger {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-dropdown .p-dropdown-label {
+  color: inherit !important;
+}
+
+/* High Contrast - Global p-select in Paginator */
+html.high-contrast ::ng-deep .p-paginator .p-select {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-select:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-select:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-select .p-select-trigger {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+html.high-contrast ::ng-deep .p-paginator .p-select .p-select-label {
+  color: inherit !important;
+}
+
+/* High Contrast - Global p-select Panel (applies everywhere) */
+html.high-contrast ::ng-deep .p-select-panel {
+  background-color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-select-list {
+  background-color: #000000 !important;
+}
+
+html.high-contrast ::ng-deep .p-select-option {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-select-option:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast ::ng-deep .p-select-option.p-selected,
+html.high-contrast ::ng-deep .p-select-option.p-highlight {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast ::ng-deep .p-select-option:hover *,
+html.high-contrast ::ng-deep .p-select-option.p-selected *,
+html.high-contrast ::ng-deep .p-select-option.p-highlight * {
+  color: #000000 !important;
+}
+
+/* High Contrast - Global Empty Message */
+html.high-contrast ::ng-deep .p-datatable-emptymessage td {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+/* High Contrast - Global Loading Overlay */
+html.high-contrast ::ng-deep .p-datatable-loading-overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}

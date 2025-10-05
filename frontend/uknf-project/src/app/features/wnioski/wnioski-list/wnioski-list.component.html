@@ -1,0 +1,117 @@
+<div class="wnioski-list-container">
+  <div class="header">
+    <h1>Wnioski o dostęp</h1>
+    <p-button 
+      label="Nowy wniosek" 
+      icon="pi pi-plus" 
+      routerLink="/wnioski/create"
+      styleClass="p-button-primary">
+    </p-button>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="search">Szukaj</label>
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input 
+          pInputText 
+          type="text" 
+          id="search"
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+          placeholder="Szukaj po tytule lub autorze..."
+          class="w-full" />
+      </span>
+    </div>
+
+    <div class="filter-group">
+      <label for="status-filter">Status</label>
+      <p-select
+        id="status-filter"
+        [options]="statusOptions"
+        [(ngModel)]="selectedStatus"
+        (onChange)="applyFilters()"
+        placeholder="Wybierz status"
+        [showClear]="true"
+        styleClass="w-full">
+      </p-select>
+    </div>
+
+    <div class="filter-group">
+      <label for="type-filter">Typ wniosku</label>
+      <p-select
+        id="type-filter"
+        [options]="typeOptions"
+        [(ngModel)]="selectedType"
+        (onChange)="applyFilters()"
+        placeholder="Wybierz typ"
+        [showClear]="true"
+        styleClass="w-full">
+      </p-select>
+    </div>
+  </div>
+
+  <p-table 
+    [value]="filteredWnioski" 
+    [paginator]="true" 
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Pokazuje {first} do {last} z {totalRecords} wniosków"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    styleClass="p-datatable-striped"
+    [tableStyle]="{ 'min-width': '60rem' }">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5%">ID</th>
+        <th style="width: 30%">Tytuł</th>
+        <th style="width: 15%">Typ</th>
+        <th style="width: 12%">Status</th>
+        <th style="width: 15%">Data złożenia</th>
+        <th style="width: 15%">Złożony przez</th>
+        <th style="width: 8%">Akcje</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-wniosek>
+      <tr>
+        <td>{{ wniosek.id }}</td>
+        <td>
+          <a [routerLink]="['/wnioski', wniosek.id]" class="title-link">
+            {{ wniosek.title }}
+          </a>
+        </td>
+        <td>{{ getTypeLabel(wniosek.type) }}</td>
+        <td>
+          <p-tag 
+            [value]="getStatusLabel(wniosek.status)" 
+            [severity]="getStatusSeverity(wniosek.status)">
+          </p-tag>
+        </td>
+        <td>{{ wniosek.submittedDate | date: 'dd.MM.yyyy' }}</td>
+        <td>{{ wniosek.submittedBy }}</td>
+        <td>
+          <p-button 
+            icon="pi pi-eye" 
+            [routerLink]="['/wnioski', wniosek.id]"
+            styleClass="p-button-rounded p-button-text p-button-sm"
+            pTooltip="Zobacz szczegóły"
+            tooltipPosition="top">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">
+          <div class="empty-state">
+            <i class="pi pi-inbox" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+            <p>Brak wniosków do wyświetlenia</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

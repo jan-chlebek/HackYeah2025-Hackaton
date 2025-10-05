@@ -29,9 +29,7 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
         <div class="flex justify-content-between align-items-center">
           <!-- Logo and Title -->
           <div class="flex align-items-center gap-3">
-            <div class="logo-box">
-              <span class="logo-text">UKNF</span>
-            </div>
+            <img src="/uknf.png" alt="UKNF - Urząd Komisji Nadzoru Finansowego" class="uknf-logo">
             <h1 class="header-title m-0">System Komunikacji z Podmiotami</h1>
           </div>
 
@@ -124,6 +122,12 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
       background-color: #f3f4f6;
     }
 
+    .uknf-logo {
+      height: 2.5rem;
+      width: auto;
+      object-fit: contain;
+    }
+
     .logo-box {
       background-color: #003366;
       color: white;
@@ -207,6 +211,83 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
     .change-podmiot-btn {
       color: #6b7280;
       padding: 0.25rem 0.5rem;
+    }
+
+    /* High Contrast Mode Styles */
+    :host-context(html.high-contrast) .app-header {
+      background-color: #000000 !important;
+      border-bottom: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .header-top {
+      background-color: #000000 !important;
+      border-bottom: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .header-bottom {
+      background-color: #000000 !important;
+    }
+
+    :host-context(html.high-contrast) .header-title,
+    :host-context(html.high-contrast) .user-info,
+    :host-context(html.high-contrast) .user-name,
+    :host-context(html.high-contrast) .user-role,
+    :host-context(html.high-contrast) .system-info,
+    :host-context(html.high-contrast) .system-info span,
+    :host-context(html.high-contrast) .system-info strong {
+      color: #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .font-size-btn,
+    :host-context(html.high-contrast) .p-button-text {
+      background-color: #000000 !important;
+      color: #FFFF00 !important;
+      border: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .font-size-btn:hover,
+    :host-context(html.high-contrast) .p-button-text:hover {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+      border: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .font-size-btn:hover i,
+    :host-context(html.high-contrast) .p-button-text:hover i {
+      color: #000000 !important;
+    }
+
+    :host-context(html.high-contrast) .font-size-btn.active,
+    :host-context(html.high-contrast) .p-button-text.active {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+      border: 2px solid #FFFF00 !important;
+    }
+
+    /* Keep active buttons yellow when hovering */
+    :host-context(html.high-contrast) .font-size-btn.active:hover,
+    :host-context(html.high-contrast) .p-button-text.active:hover {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+    }
+
+    :host-context(html.high-contrast) .logout-btn,
+    :host-context(html.high-contrast) .change-podmiot-btn {
+      background-color: #000000 !important;
+      color: #FFFF00 !important;
+      border: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .logout-btn:hover,
+    :host-context(html.high-contrast) .change-podmiot-btn:hover {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+      border: 2px solid #FFFF00 !important;
+    }
+
+    :host-context(html.high-contrast) .logout-btn:hover i,
+    :host-context(html.high-contrast) .change-podmiot-btn:hover i {
+      color: #000000 !important;
     }
 
     @media (max-width: 1024px) {
