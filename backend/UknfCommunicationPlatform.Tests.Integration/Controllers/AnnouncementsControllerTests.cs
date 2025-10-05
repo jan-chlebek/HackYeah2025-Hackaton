@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using UknfCommunicationPlatform.Core.DTOs.Announcements;
 using UknfCommunicationPlatform.Core.DTOs.Responses;
@@ -65,13 +66,13 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         // Arrange
         var announcements = await SeedAnnouncementsAsync(3);
 
-        // Mark first announcement as read
+        // Mark first announcement as read by user ID 2 (the hardcoded user when auth is disabled)
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         context.AnnouncementReads.Add(new AnnouncementRead
         {
             AnnouncementId = announcements[0].Id,
-            UserId = _entityUser!.Id,
+            UserId = 2, // Hardcoded user ID used when authorization is disabled
             ReadAt = DateTime.UtcNow
         });
         await context.SaveChangesAsync();
@@ -93,13 +94,13 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         // Arrange
         var announcements = await SeedAnnouncementsAsync(2);
 
-        // Mark first announcement as read
+        // Mark first announcement as read by user ID 2 (the hardcoded user when auth is disabled)
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         context.AnnouncementReads.Add(new AnnouncementRead
         {
             AnnouncementId = announcements[0].Id,
-            UserId = _entityUser!.Id,
+            UserId = 2, // Hardcoded user ID used when authorization is disabled
             ReadAt = DateTime.UtcNow
         });
         await context.SaveChangesAsync();
@@ -178,7 +179,8 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         result.Content.Should().Be("This is the content of the new announcement.");
 
         response.Headers.Location.Should().NotBeNull();
-        response.Headers.Location!.ToString().Should().Contain($"/api/v1/announcements/{result.Id}");
+        // Case-insensitive check for location header (controller uses "Announcements" with capital A)
+        response.Headers.Location!.ToString().ToLowerInvariant().Should().Contain($"/api/v1/announcements/{result.Id}".ToLowerInvariant());
     }
 
     [Fact]
