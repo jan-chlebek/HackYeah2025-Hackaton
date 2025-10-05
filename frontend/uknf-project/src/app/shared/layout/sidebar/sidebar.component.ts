@@ -188,14 +188,14 @@ interface MenuItem {
 })
 export class SidebarComponent {
   menuItems: MenuItem[] = [
+    { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
+    { label: 'Komunikaty', icon: 'pi pi-megaphone', route: '/announcements' },
     { label: 'Biblioteka - repozytorium plików', icon: 'pi pi-folder-open', route: '/library' },
     { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/wnioski' },
-    { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
-    { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases' },
     { label: 'Sprawozdawczość', icon: 'pi pi-chart-line', route: '/reports' },
-    { label: 'Komunikaty', icon: 'pi pi-megaphone', route: '/announcements' },
     { label: 'Moje pytania', icon: 'pi pi-question-circle', route: '/faq' },
     { label: 'Kartoteka Podmiotów', icon: 'pi pi-building', route: '/entities' },
+    { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases' },
     { label: 'Adresaci', icon: 'pi pi-users', route: '/contacts' }
   ];
 }
