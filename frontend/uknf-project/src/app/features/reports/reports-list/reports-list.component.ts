@@ -86,11 +86,10 @@ export class ReportsListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError in zoneless mode
+    // Replace mock with real backend load; keep mock only as first paint placeholder
+    this.generateMockData();
     setTimeout(() => {
-      this.generateMockData();
-      // Uncomment when backend is ready
-      // this.loadReports();
+      this.loadReports();
     }, 0);
   }
 
@@ -98,18 +97,69 @@ export class ReportsListComponent implements OnInit {
     this.loading = true;
     const page = Math.floor(this.first / this.rows) + 1;
 
-    this.reportService.getReports(page, this.rows, this.filters).subscribe({
+    // Build a translated filters object for backend (quarter only)
+    const backendFilters: ReportFilters = { ...this.filters };
+    if (backendFilters.okresSprawozdawczy) {
+      backendFilters.okresSprawozdawczy = backendFilters.okresSprawozdawczy.split('_')[0];
+    }
+
+    const previous = [...this.reports];
+    this.reportService.getReports(page, this.rows, backendFilters).subscribe({
       next: (response) => {
         console.log('Reports loaded successfully:', response);
-        this.reports = response.data || [];
-        this.totalRecords = response.pagination?.totalCount || 0;
+        // Map backend ReportDto -> Report shape if backend has only minimal fields
+        if (response && Array.isArray(response as any)) {
+          // Defensive: if backend returns raw array (fallback scenario)
+          // @ts-ignore
+          const arr = response as any[];
+          this.reports = arr.map((r, idx) => ({
+            id: r.id ?? r.Id ?? idx + 1,
+            nazwaPliku: r.fileName ?? r.FileName ?? 'Plik.xlsx',
+            numerSprawozdania: r.reportNumber ?? r.ReportNumber,
+            podmiotNazwa: r.entityName ?? r.EntityName ?? '-',
+            podmiotId: r.entityId ?? 0,
+            okresSprawozdawczy: r.reportingPeriod ?? r.ReportingPeriod ?? '-',
+            dataZlozenia: r.submittedAt ?? new Date().toISOString(),
+            statusWalidacji: 'Robocze',
+            uzytkownikNazwisko: undefined,
+            uzytkownikImie: undefined,
+            uzytkownikEmail: undefined,
+            uzytkownikTelefon: undefined,
+            czyKorekta: false,
+            wielkoscPliku: 0
+          }));
+          this.totalRecords = this.reports.length;
+        } else if ((response as any).data) {
+          const resp: any = response;
+          this.reports = (resp.data || []).map((r: any, idx: number) => ({
+            id: r.id ?? r.Id ?? idx + 1,
+            nazwaPliku: r.fileName ?? r.FileName ?? 'Plik.xlsx',
+            numerSprawozdania: r.reportNumber ?? r.ReportNumber,
+            podmiotNazwa: r.entityName ?? r.EntityName ?? '-',
+            podmiotId: r.entityId ?? 0,
+            okresSprawozdawczy: r.reportingPeriod ?? r.ReportingPeriod ?? '-',
+            dataZlozenia: r.submittedAt ?? new Date().toISOString(),
+            statusWalidacji: 'Robocze',
+            uzytkownikNazwisko: undefined,
+            uzytkownikImie: undefined,
+            uzytkownikEmail: undefined,
+            uzytkownikTelefon: undefined,
+            czyKorekta: false,
+            wielkoscPliku: 0
+          }));
+          this.totalRecords = resp.pagination?.totalCount || this.reports.length;
+        }
+        // Keep previous mock if backend returned empty quickly to avoid flicker
+        if (this.reports.length === 0 && previous.length > 0) {
+            this.reports = previous;
+            this.totalRecords = previous.length;
+        }
         this.loading = false;
         this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error loading reports:', error);
-        this.reports = [];
-        this.totalRecords = 0;
+        // Preserve previous data instead of clearing to prevent disappearance
         this.loading = false;
         this.cdr.markForCheck();
       }
