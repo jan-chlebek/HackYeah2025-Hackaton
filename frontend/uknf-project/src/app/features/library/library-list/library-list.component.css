@@ -455,16 +455,19 @@ html.high-contrast .table-container {
   color: #FFFF00;
 }
 
-html.high-contrast .filter-field,
-html.high-contrast .form-field,
-html.high-contrast .page-header,
-html.high-contrast .actions-bar {
+:host-context(html.high-contrast) .filter-field,
+:host-context(html.high-contrast) .form-field,
+:host-context(html.high-contrast) .page-header,
+:host-context(html.high-contrast) .actions-bar {
+  background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
 }
 
 /* High Contrast - Table Headers */
-html.high-contrast :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+:host-context(html.high-contrast) :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
   background: #000000 !important;
   background-color: #000000 !important;
   color: #FFFF00 !important;

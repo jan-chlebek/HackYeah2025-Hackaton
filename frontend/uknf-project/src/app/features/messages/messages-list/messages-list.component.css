@@ -465,16 +465,16 @@
 }
 
 /* High Contrast Mode Support */
-html.high-contrast .filter-section,
-html.high-contrast .table-container {
+:host-context(html.high-contrast) .filter-section,
+:host-context(html.high-contrast) .table-container {
   border: 2px solid #FFFF00;
   background-color: #000000;
   color: #FFFF00;
 }
 
 /* High Contrast - Status and Priority Badges (chiplets with no background, yellow border) */
-html.high-contrast .status-badge,
-html.high-contrast .priority-badge {
+:host-context(html.high-contrast) .status-badge,
+:host-context(html.high-contrast) .priority-badge {
   border: 2px solid #FFFF00 !important;
   background: transparent !important;
   background-color: transparent !important;
@@ -484,20 +484,23 @@ html.high-contrast .priority-badge {
   box-shadow: none !important;
 }
 
-html.high-contrast .status-badge:hover,
-html.high-contrast .priority-badge:hover {
+:host-context(html.high-contrast) .status-badge:hover,
+:host-context(html.high-contrast) .priority-badge:hover {
   transform: none !important;
   box-shadow: none !important;
 }
 
 /* High Contrast - All Component Elements */
-html.high-contrast .filter-field,
-html.high-contrast .detail-field,
-html.high-contrast .form-group,
-html.high-contrast .page-header,
-html.high-contrast .actions-bar {
+:host-context(html.high-contrast) .filter-field,
+:host-context(html.high-contrast) .detail-field,
+:host-context(html.high-contrast) .form-group,
+:host-context(html.high-contrast) .page-header,
+:host-context(html.high-contrast) .actions-bar {
+  background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
 }
 
 /* High Contrast - Table Headers */

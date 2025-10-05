@@ -247,6 +247,12 @@
   color: #FFFF00;
 }
 
+:host-context(html.high-contrast) .page-header {
+  background: #000000 !important;
+  background-image: none !important;
+  border: 2px solid #FFFF00 !important;
+}
+
 :host-context(html.high-contrast) .page-header h1 {
   color: #FFFF00;
 }

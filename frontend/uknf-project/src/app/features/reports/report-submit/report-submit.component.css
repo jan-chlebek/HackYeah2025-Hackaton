@@ -336,3 +336,20 @@ textarea:focus,
   outline: 2px solid #0073E6;
   outline-offset: 2px;
 }
+
+/* High Contrast Mode */
+:host-context(html.high-contrast) .report-submit-container {
+  background-color: #000000;
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .page-header {
+  background: #000000 !important;
+  background-image: none !important;
+  border: 2px solid #FFFF00 !important;
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .page-title {
+  color: #FFFF00;
+}
