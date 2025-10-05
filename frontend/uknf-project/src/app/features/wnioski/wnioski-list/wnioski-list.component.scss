@@ -1,0 +1,136 @@
+.wnioski-list-container {
+  padding: 0;
+  background-color: var(--surface-ground);
+  min-height: 100vh;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: var(--surface-card);
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+  }
+
+  .filters-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+    padding: 0 1.5rem 1.5rem;
+    background-color: var(--surface-card);
+    margin: 0 1.5rem 1.5rem;
+    border-radius: 6px;
+    padding: 1.5rem;
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      label {
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 0.875rem;
+      }
+
+      ::ng-deep .p-inputtext,
+      ::ng-deep .p-select {
+        width: 100%;
+      }
+    }
+  }
+
+  ::ng-deep .p-datatable {
+    margin: 0 1.5rem;
+    background-color: var(--surface-card);
+    border-radius: 6px;
+    overflow: hidden;
+
+    .p-datatable-header {
+      background-color: var(--surface-card);
+      border: none;
+      padding: 1rem 1.5rem;
+    }
+
+    .p-datatable-thead > tr > th {
+      background-color: var(--surface-section);
+      color: var(--text-color);
+      font-weight: 600;
+      padding: 1rem;
+      border-bottom: 2px solid var(--surface-border);
+    }
+
+    .p-datatable-tbody > tr {
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: var(--highlight-bg);
+      }
+
+      > td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--surface-border);
+
+        .title-link {
+          color: var(--primary-color);
+          text-decoration: none;
+          font-weight: 500;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+
+      p {
+        margin-top: 1rem;
+        color: var(--text-color-secondary);
+        font-size: 1rem;
+      }
+    }
+  }
+
+  ::ng-deep .p-paginator {
+    background-color: var(--surface-card);
+    border-top: 1px solid var(--surface-border);
+    padding: 1rem 1.5rem;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .wnioski-list-container {
+    .filters-section {
+      grid-template-columns: 1fr;
+    }
+
+    ::ng-deep .p-datatable {
+      margin: 0 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  }
+}

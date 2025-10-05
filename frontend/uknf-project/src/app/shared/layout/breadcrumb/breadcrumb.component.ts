@@ -61,6 +61,7 @@ export class BreadcrumbComponent implements OnInit {
     'reports': 'Sprawozdania',
     'messages': 'Wiadomości',
     'cases': 'Sprawy',
+    'wnioski': 'Wnioski o dostęp',
     'library': 'Biblioteka',
     'announcements': 'Komunikaty',
     'faq': 'FAQ',

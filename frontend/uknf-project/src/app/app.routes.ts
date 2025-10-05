@@ -49,6 +49,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/cases/cases.routes').then(m => m.casesRoutes)
       },
 
+      // Communication Module - Wnioski (Applications/Access Requests)
+      {
+        path: 'wnioski',
+        loadChildren: () => import('./features/wnioski/wnioski.routes').then(m => m.wnioskirRoutes)
+      },
+
       // Communication Module - Announcements (Komunikaty/Tablica Ogłoszeń)
       {
         path: 'announcements',
