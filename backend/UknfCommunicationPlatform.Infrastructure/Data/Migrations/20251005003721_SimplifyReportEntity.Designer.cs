@@ -9,7 +9,7 @@ using UknfCommunicationPlatform.Infrastructure.Data;
 
 #nullable disable
 
-namespace UknfCommunicationPlatform.Infrastructure.Migrations
+namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20251005003721_SimplifyReportEntity")]

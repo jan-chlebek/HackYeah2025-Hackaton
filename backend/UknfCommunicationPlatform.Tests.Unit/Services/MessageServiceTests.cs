@@ -67,9 +67,7 @@ public class MessageServiceTests : IDisposable
         {
             Subject = "Test Subject",
             Body = "Test Body",
-            RecipientId = _testRecipient.Id,
-            Folder = MessageFolder.Sent,
-            SendImmediately = true
+            RecipientId = _testRecipient.Id
         };
 
         // Act
@@ -84,27 +82,6 @@ public class MessageServiceTests : IDisposable
         result.Recipient!.Id.Should().Be(_testRecipient.Id);
         result.Status.Should().Be(MessageStatus.Sent);
         result.IsRead.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task CreateMessageAsync_AsDraft_ShouldCreateDraft()
-    {
-        // Arrange
-        var request = new CreateMessageRequest
-        {
-            Subject = "Draft Message",
-            Body = "Draft Body",
-            RecipientId = _testRecipient.Id,
-            SendImmediately = false
-        };
-
-        // Act
-        var result = await _sut.CreateMessageAsync(_testSender.Id, request);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Status.Should().Be(MessageStatus.Draft);
-        result.SentAt.Should().Be(default(DateTime));
     }
 
     [Fact]
@@ -124,23 +101,6 @@ public class MessageServiceTests : IDisposable
         totalCount.Should().BeGreaterThan(0);
         messages.Should().OnlyContain(m =>
             m.Sender.Id == _testSender.Id || (m.Recipient != null && m.Recipient.Id == _testSender.Id));
-    }
-
-    [Fact]
-    public async Task GetMessagesAsync_WithFolderFilter_ShouldReturnFilteredMessages()
-    {
-        // Arrange
-        await SeedMessagesAsync();
-
-        // Act
-        var (messages, totalCount) = await _sut.GetMessagesAsync(
-            userId: _testSender.Id,
-            page: 1,
-            pageSize: 10,
-            folder: MessageFolder.Sent);
-
-        // Assert
-        messages.Should().OnlyContain(m => m.Folder == MessageFolder.Sent);
     }
 
     [Fact]
@@ -175,7 +135,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testRecipient.Id,
             RecipientId = _testSender.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Inbox,
             IsRead = false,
             SentAt = DateTime.UtcNow
         };
@@ -205,7 +164,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Sent,
             IsRead = false,
             SentAt = DateTime.UtcNow
         };
@@ -218,7 +176,6 @@ public class MessageServiceTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result!.Subject.Should().Be("Detail Test");
-        result.Replies.Should().NotBeNull();
         result.Attachments.Should().NotBeNull();
     }
 
@@ -233,7 +190,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Sent,
             SentAt = DateTime.UtcNow
         };
         _context.Messages.Add(message);
@@ -257,7 +213,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Inbox,
             IsRead = false,
             SentAt = DateTime.UtcNow
         };
@@ -286,7 +241,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Read,
-            Folder = MessageFolder.Inbox,
             IsRead = true,
             ReadAt = DateTime.UtcNow,
             SentAt = DateTime.UtcNow
@@ -314,7 +268,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             },
@@ -325,7 +278,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             }
@@ -347,195 +299,6 @@ public class MessageServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task UpdateMessageAsync_WithDraft_ShouldUpdateMessage()
-    {
-        // Arrange
-        var draft = new Message
-        {
-            Subject = "Original Subject",
-            Body = "Original Body",
-            SenderId = _testSender.Id,
-            RecipientId = _testRecipient.Id,
-            Status = MessageStatus.Draft,
-            Folder = MessageFolder.Drafts
-        };
-        _context.Messages.Add(draft);
-        await _context.SaveChangesAsync();
-
-        var updateRequest = new UpdateMessageRequest
-        {
-            Subject = "Updated Subject",
-            Body = "Updated Body"
-        };
-
-        // Act
-        var result = await _sut.UpdateMessageAsync(draft.Id, _testSender.Id, updateRequest);
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Subject.Should().Be("Updated Subject");
-        result.Body.Should().Be("Updated Body");
-    }
-
-    [Fact]
-    public async Task UpdateMessageAsync_WithSentMessage_ShouldReturnNull()
-    {
-        // Arrange
-        var sentMessage = new Message
-        {
-            Subject = "Sent Message",
-            Body = "Sent Body",
-            SenderId = _testSender.Id,
-            RecipientId = _testRecipient.Id,
-            Status = MessageStatus.Sent,
-            Folder = MessageFolder.Sent,
-            SentAt = DateTime.UtcNow
-        };
-        _context.Messages.Add(sentMessage);
-        await _context.SaveChangesAsync();
-
-        var updateRequest = new UpdateMessageRequest
-        {
-            Subject = "Try to Update"
-        };
-
-        // Act
-        var result = await _sut.UpdateMessageAsync(sentMessage.Id, _testSender.Id, updateRequest);
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task SendDraftAsync_WithDraft_ShouldSendMessage()
-    {
-        // Arrange
-        var draft = new Message
-        {
-            Subject = "Draft to Send",
-            Body = "Draft Body",
-            SenderId = _testSender.Id,
-            RecipientId = _testRecipient.Id,
-            Status = MessageStatus.Draft,
-            Folder = MessageFolder.Drafts
-        };
-        _context.Messages.Add(draft);
-        await _context.SaveChangesAsync();
-
-        // Act
-        var result = await _sut.SendDraftAsync(draft.Id, _testSender.Id);
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Status.Should().Be(MessageStatus.Sent);
-        result.SentAt.Should().NotBe(default(DateTime));
-    }
-
-    [Fact]
-    public async Task CancelMessageAsync_WithUnreadMessage_ShouldCancelMessage()
-    {
-        // Arrange
-        var message = new Message
-        {
-            Subject = "To Cancel",
-            Body = "Body",
-            SenderId = _testSender.Id,
-            RecipientId = _testRecipient.Id,
-            Status = MessageStatus.Sent,
-            Folder = MessageFolder.Sent,
-            IsRead = false,
-            SentAt = DateTime.UtcNow
-        };
-        _context.Messages.Add(message);
-        await _context.SaveChangesAsync();
-
-        // Act
-        var result = await _sut.CancelMessageAsync(message.Id, _testSender.Id);
-
-        // Assert
-        result.Should().BeTrue();
-        var cancelledMessage = await _context.Messages.FindAsync(message.Id);
-        cancelledMessage!.IsCancelled.Should().BeTrue();
-        cancelledMessage.CancelledAt.Should().NotBeNull();
-        cancelledMessage.Status.Should().Be(MessageStatus.Cancelled);
-    }
-
-    [Fact]
-    public async Task CancelMessageAsync_WithReadMessage_ShouldReturnFalse()
-    {
-        // Arrange
-        var message = new Message
-        {
-            Subject = "Already Read",
-            Body = "Body",
-            SenderId = _testSender.Id,
-            RecipientId = _testRecipient.Id,
-            Status = MessageStatus.Read,
-            Folder = MessageFolder.Sent,
-            IsRead = true,
-            ReadAt = DateTime.UtcNow,
-            SentAt = DateTime.UtcNow
-        };
-        _context.Messages.Add(message);
-        await _context.SaveChangesAsync();
-
-        // Act
-        var result = await _sut.CancelMessageAsync(message.Id, _testSender.Id);
-
-        // Assert
-        result.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task DeleteDraftAsync_WithDraft_ShouldDeleteMessage()
-    {
-        // Arrange
-        var draft = new Message
-        {
-            Subject = "Draft to Delete",
-            Body = "Draft Body",
-            SenderId = _testSender.Id,
-            Status = MessageStatus.Draft,
-            Folder = MessageFolder.Drafts
-        };
-        _context.Messages.Add(draft);
-        await _context.SaveChangesAsync();
-        var draftId = draft.Id;
-
-        // Act
-        var result = await _sut.DeleteDraftAsync(draftId, _testSender.Id);
-
-        // Assert
-        result.Should().BeTrue();
-        var deletedDraft = await _context.Messages.FindAsync(draftId);
-        deletedDraft.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task DeleteDraftAsync_WithSentMessage_ShouldReturnFalse()
-    {
-        // Arrange
-        var sentMessage = new Message
-        {
-            Subject = "Sent Message",
-            Body = "Body",
-            SenderId = _testSender.Id,
-            RecipientId = _testRecipient.Id,
-            Status = MessageStatus.Sent,
-            Folder = MessageFolder.Sent,
-            SentAt = DateTime.UtcNow
-        };
-        _context.Messages.Add(sentMessage);
-        await _context.SaveChangesAsync();
-
-        // Act
-        var result = await _sut.DeleteDraftAsync(sentMessage.Id, _testSender.Id);
-
-        // Assert
-        result.Should().BeFalse();
-    }
-
-    [Fact]
     public async Task GetUnreadCountAsync_ShouldReturnCorrectCount()
     {
         // Arrange
@@ -548,7 +311,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             },
@@ -559,7 +321,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             }
@@ -587,7 +348,6 @@ public class MessageServiceTests : IDisposable
         stats.Should().NotBeNull();
         stats.TotalInbox.Should().BeGreaterThanOrEqualTo(0);
         stats.TotalSent.Should().BeGreaterThanOrEqualTo(0);
-        stats.TotalDrafts.Should().BeGreaterThanOrEqualTo(0);
         stats.UnreadCount.Should().BeGreaterThanOrEqualTo(0);
     }
 
@@ -602,7 +362,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             },
@@ -613,18 +372,9 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
                 IsRead = true,
                 SentAt = DateTime.UtcNow,
                 ReadAt = DateTime.UtcNow
-            },
-            new Message
-            {
-                Subject = "Draft Message",
-                Body = "Draft content",
-                SenderId = _testSender.Id,
-                Status = MessageStatus.Draft,
-                Folder = MessageFolder.Drafts
             }
         };
 

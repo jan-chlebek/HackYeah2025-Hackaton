@@ -28,7 +28,6 @@ public class MessageService
         long userId,
         int page,
         int pageSize,
-        MessageFolder? folder = null,
         bool? isRead = null,
         string? searchTerm = null,
         long? relatedEntityId = null)
@@ -38,15 +37,8 @@ public class MessageService
             .Include(m => m.Recipient)
             .Include(m => m.RelatedEntity)
             .Include(m => m.Attachments)
-            .Include(m => m.Replies)
             .Where(m => m.SenderId == userId || m.RecipientId == userId)
             .Where(m => !m.IsCancelled);
-
-        // Filter by folder
-        if (folder.HasValue)
-        {
-            query = query.Where(m => m.Folder == folder.Value);
-        }
 
         // Filter by read status
         if (isRead.HasValue)
@@ -92,16 +84,19 @@ public class MessageService
             .Include(m => m.Recipient)
             .Include(m => m.RelatedEntity)
             .Include(m => m.Attachments)
-            .Include(m => m.Replies)
-                .ThenInclude(r => r.Sender)
-            .Include(m => m.Replies)
-                .ThenInclude(r => r.Recipient)
             .FirstOrDefaultAsync(m =>
                 m.Id == messageId &&
                 (m.SenderId == userId || m.RecipientId == userId) &&
                 !m.IsCancelled);
 
         if (message == null) return null;
+
+        // Determine if sender is external user (has supervised entity)
+        var isExternalSender = message.Sender.SupervisedEntityId != null;
+
+        // Get the entity context - either from sender or recipient
+        var entityId = message.RelatedEntityId ?? message.Sender.SupervisedEntityId ?? message.Recipient?.SupervisedEntityId;
+        var entityName = message.RelatedEntity?.Name;
 
         return new MessageDetailResponse
         {
@@ -123,21 +118,32 @@ public class MessageService
                 LastName = message.Recipient.LastName
             } : null,
             Status = message.Status,
-            Folder = message.Folder,
-            ThreadId = message.ThreadId,
-            ParentMessageId = message.ParentMessageId,
             IsRead = message.IsRead,
             SentAt = message.SentAt,
             ReadAt = message.ReadAt,
-            RelatedEntityId = message.RelatedEntityId,
-            RelatedEntityName = message.RelatedEntity?.Name,
-            RelatedReportId = message.RelatedReportId,
-            RelatedCaseId = message.RelatedCaseId,
+            RelatedEntityId = entityId,
+            RelatedEntityName = entityName,
             AttachmentCount = message.Attachments.Count,
-            ReplyCount = message.Replies.Count,
             IsCancelled = message.IsCancelled,
-            CancelledAt = message.CancelledAt,
-            Replies = message.Replies.Select(r => MapToResponse(r)).ToList(),
+
+            // Polish UI fields - computed from entity data
+            Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
+            SygnaturaSprawy = $"{message.SentAt.Year:D4}/{message.Id:D6}",
+            Podmiot = entityName ?? "Brak powiązania",
+            StatusWiadomosci = message.Status switch
+            {
+                MessageStatus.Sent => "Wysłana",
+                MessageStatus.Closed => "Zamknięta",
+                MessageStatus.Read => "Przeczytana",
+                MessageStatus.AwaitingUknfResponse => "Oczekuje na odpowiedź UKNF",
+                MessageStatus.AwaitingUserResponse => "Oczekuje na odpowiedź użytkownika",
+                _ => message.Status.ToString()
+            },
+            WiadomoscUzytkownika = isExternalSender ? message.Body : null,
+            DataPrzeslaniaUKNF = !isExternalSender ? message.SentAt : null,
+            PracownikUKNF = !isExternalSender ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
+            WiadomoscPracownikaUKNF = !isExternalSender ? message.Body : null,
+
             Attachments = message.Attachments.Select(a => new MessageAttachmentInfo
             {
                 Id = a.Id,
@@ -161,15 +167,10 @@ public class MessageService
             Body = request.Body,
             SenderId = senderId,
             RecipientId = request.RecipientId,
-            Folder = request.Folder,
-            ThreadId = request.ThreadId,
-            ParentMessageId = request.ParentMessageId,
             RelatedEntityId = request.RelatedEntityId,
-            RelatedReportId = request.RelatedReportId,
-            RelatedCaseId = request.RelatedCaseId,
-            Status = request.SendImmediately ? MessageStatus.Sent : MessageStatus.Draft,
+            Status = MessageStatus.Sent,
             IsRead = false,
-            SentAt = request.SendImmediately ? DateTime.UtcNow : default,
+            SentAt = DateTime.UtcNow,
             IsCancelled = false
         };
 
@@ -214,40 +215,8 @@ public class MessageService
         }
         await _context.Entry(message).Collection(m => m.Attachments).LoadAsync();
 
-        _logger.LogInformation("Message {MessageId} created by user {UserId} with {AttachmentCount} attachments", 
+        _logger.LogInformation("Message {MessageId} created by user {UserId} with {AttachmentCount} attachments",
             message.Id, senderId, message.Attachments.Count);
-
-        return MapToResponse(message);
-    }
-
-    /// <summary>
-    /// Update a message (typically drafts only)
-    /// </summary>
-    public async Task<MessageResponse?> UpdateMessageAsync(long messageId, long userId, UpdateMessageRequest request)
-    {
-        var message = await _context.Messages
-            .Include(m => m.Sender)
-            .Include(m => m.Recipient)
-            .Include(m => m.RelatedEntity)
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return null;
-
-        if (!string.IsNullOrWhiteSpace(request.Subject))
-            message.Subject = request.Subject;
-
-        if (!string.IsNullOrWhiteSpace(request.Body))
-            message.Body = request.Body;
-
-        if (request.RecipientId.HasValue)
-            message.RecipientId = request.RecipientId.Value;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Message {MessageId} updated by user {UserId}", messageId, userId);
 
         return MapToResponse(message);
     }
@@ -303,78 +272,6 @@ public class MessageService
     }
 
     /// <summary>
-    /// Send a draft message
-    /// </summary>
-    public async Task<MessageResponse?> SendDraftAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .Include(m => m.Sender)
-            .Include(m => m.Recipient)
-            .Include(m => m.RelatedEntity)
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return null;
-
-        message.Status = MessageStatus.Sent;
-        message.SentAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Draft message {MessageId} sent by user {UserId}", messageId, userId);
-
-        return MapToResponse(message);
-    }
-
-    /// <summary>
-    /// Cancel a sent message (before it's read)
-    /// </summary>
-    public async Task<bool> CancelMessageAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                !m.IsRead &&
-                !m.IsCancelled);
-
-        if (message == null) return false;
-
-        message.IsCancelled = true;
-        message.CancelledAt = DateTime.UtcNow;
-        message.Status = MessageStatus.Cancelled;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Message {MessageId} cancelled by user {UserId}", messageId, userId);
-
-        return true;
-    }
-
-    /// <summary>
-    /// Delete a draft message
-    /// </summary>
-    public async Task<bool> DeleteDraftAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return false;
-
-        _context.Messages.Remove(message);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Draft message {MessageId} deleted by user {UserId}", messageId, userId);
-
-        return true;
-    }
-
-    /// <summary>
     /// Get unread message count for a user
     /// </summary>
     public async Task<int> GetUnreadCountAsync(long userId)
@@ -394,11 +291,9 @@ public class MessageService
         var stats = new MessageStatsResponse
         {
             TotalInbox = await _context.Messages.CountAsync(m =>
-                m.RecipientId == userId && m.Folder == MessageFolder.Inbox && !m.IsCancelled),
+                m.RecipientId == userId && !m.IsCancelled),
             TotalSent = await _context.Messages.CountAsync(m =>
-                m.SenderId == userId && m.Folder == MessageFolder.Sent && !m.IsCancelled),
-            TotalDrafts = await _context.Messages.CountAsync(m =>
-                m.SenderId == userId && m.Status == MessageStatus.Draft),
+                m.SenderId == userId && !m.IsCancelled),
             UnreadCount = await GetUnreadCountAsync(userId)
         };
 
@@ -410,6 +305,13 @@ public class MessageService
     /// </summary>
     private MessageResponse MapToResponse(Message message)
     {
+        // Determine if sender is external user (has supervised entity)
+        var isExternalSender = message.Sender.SupervisedEntityId != null;
+
+        // Get the entity context - either from sender or recipient
+        var entityId = message.RelatedEntityId ?? message.Sender.SupervisedEntityId ?? message.Recipient?.SupervisedEntityId;
+        var entityName = message.RelatedEntity?.Name;
+
         return new MessageResponse
         {
             Id = message.Id,
@@ -430,41 +332,31 @@ public class MessageService
                 LastName = message.Recipient.LastName
             } : null,
             Status = message.Status,
-            Folder = message.Folder,
-            ThreadId = message.ThreadId,
-            ParentMessageId = message.ParentMessageId,
             IsRead = message.IsRead,
             SentAt = message.SentAt,
             ReadAt = message.ReadAt,
-            RelatedEntityId = message.RelatedEntityId,
-            RelatedEntityName = message.RelatedEntity?.Name,
-            RelatedReportId = message.RelatedReportId,
-            RelatedCaseId = message.RelatedCaseId,
+            RelatedEntityId = entityId,
+            RelatedEntityName = entityName,
             AttachmentCount = message.Attachments?.Count ?? 0,
-            ReplyCount = message.Replies?.Count ?? 0,
             IsCancelled = message.IsCancelled,
-            CancelledAt = message.CancelledAt,
 
             // Polish UI fields - computed from entity data
             Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
-            SygnaturaSprawy = message.RelatedCase?.CaseNumber,
-            Podmiot = message.RelatedEntity?.Name,
+            SygnaturaSprawy = $"{message.SentAt.Year:D4}/{message.Id:D6}",
+            Podmiot = entityName ?? "Brak powiązania",
             StatusWiadomosci = message.Status switch
             {
                 MessageStatus.Sent => "Wysłana",
-                MessageStatus.Draft => "Wersja robocza",
-                MessageStatus.Cancelled => "Anulowana",
                 MessageStatus.Closed => "Zamknięta",
                 MessageStatus.Read => "Przeczytana",
+                MessageStatus.AwaitingUknfResponse => "Oczekuje na odpowiedź UKNF",
+                MessageStatus.AwaitingUserResponse => "Oczekuje na odpowiedź użytkownika",
                 _ => message.Status.ToString()
             },
-            Priorytet = null, // Priority not tracked in current model
-            DataPrzeslaniaPodmiotu = message.SenderId != message.RelatedEntity?.Id ? null : message.SentAt,
-            Uzytkownik = $"{message.Sender.FirstName} {message.Sender.LastName}",
-            WiadomoscUzytkownika = message.Body,
-            DataPrzeslaniaUKNF = message.Sender.SupervisedEntityId == null ? message.SentAt : null,
-            PracownikUKNF = message.Sender.SupervisedEntityId == null ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
-            WiadomoscPracownikaUKNF = message.Sender.SupervisedEntityId == null ? message.Body : null
+            WiadomoscUzytkownika = isExternalSender ? message.Body : null,
+            DataPrzeslaniaUKNF = !isExternalSender ? message.SentAt : null,
+            PracownikUKNF = !isExternalSender ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
+            WiadomoscPracownikaUKNF = !isExternalSender ? message.Body : null
         };
     }
 
@@ -483,7 +375,7 @@ public class MessageService
 
         if (message == null)
         {
-            _logger.LogWarning("User {UserId} attempted to access attachment {AttachmentId} for message {MessageId} - access denied", 
+            _logger.LogWarning("User {UserId} attempted to access attachment {AttachmentId} for message {MessageId} - access denied",
                 userId, attachmentId, messageId);
             return null;
         }
@@ -496,7 +388,7 @@ public class MessageService
 
         if (attachment != null)
         {
-            _logger.LogInformation("User {UserId} downloading attachment {AttachmentId} ({FileName}) from message {MessageId}", 
+            _logger.LogInformation("User {UserId} downloading attachment {AttachmentId} ({FileName}) from message {MessageId}",
                 userId, attachmentId, attachment.FileName, messageId);
         }
 
@@ -511,6 +403,5 @@ public class MessageStatsResponse
 {
     public int TotalInbox { get; set; }
     public int TotalSent { get; set; }
-    public int TotalDrafts { get; set; }
     public int UnreadCount { get; set; }
 }

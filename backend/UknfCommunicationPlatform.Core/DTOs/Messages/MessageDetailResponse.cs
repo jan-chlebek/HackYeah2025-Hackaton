@@ -1,15 +1,10 @@
 namespace UknfCommunicationPlatform.Core.DTOs.Messages;
 
 /// <summary>
-/// Detailed message response with full conversation thread
+/// Detailed message response with full information including attachments
 /// </summary>
 public class MessageDetailResponse : MessageResponse
 {
-    /// <summary>
-    /// List of replies to this message
-    /// </summary>
-    public List<MessageResponse> Replies { get; set; } = new();
-
     /// <summary>
     /// List of attachments
     /// </summary>

@@ -48,31 +48,6 @@ public class Message
     public MessageStatus Status { get; set; }
 
     /// <summary>
-    /// Message folder classification
-    /// </summary>
-    public MessageFolder Folder { get; set; }
-
-    /// <summary>
-    /// Thread ID for conversation grouping
-    /// </summary>
-    public long? ThreadId { get; set; }
-
-    /// <summary>
-    /// Parent message ID (if this is a reply)
-    /// </summary>
-    public long? ParentMessageId { get; set; }
-
-    /// <summary>
-    /// Navigation property - Parent message
-    /// </summary>
-    public Message? ParentMessage { get; set; }
-
-    /// <summary>
-    /// Navigation property - Child messages (replies)
-    /// </summary>
-    public ICollection<Message> Replies { get; set; } = new List<Message>();
-
-    /// <summary>
     /// Has the message been read
     /// </summary>
     public bool IsRead { get; set; }
@@ -98,26 +73,6 @@ public class Message
     public SupervisedEntity? RelatedEntity { get; set; }
 
     /// <summary>
-    /// Related report ID (optional)
-    /// </summary>
-    public long? RelatedReportId { get; set; }
-
-    /// <summary>
-    /// Navigation property - Related report
-    /// </summary>
-    public Report? RelatedReport { get; set; }
-
-    /// <summary>
-    /// Related case ID (optional)
-    /// </summary>
-    public long? RelatedCaseId { get; set; }
-
-    /// <summary>
-    /// Navigation property - Related case
-    /// </summary>
-    public Case? RelatedCase { get; set; }
-
-    /// <summary>
     /// Navigation property - Message attachments
     /// </summary>
     public ICollection<MessageAttachment> Attachments { get; set; } = new List<MessageAttachment>();
@@ -126,9 +81,4 @@ public class Message
     /// Is this message cancelled
     /// </summary>
     public bool IsCancelled { get; set; }
-
-    /// <summary>
-    /// Cancellation date
-    /// </summary>
-    public DateTime? CancelledAt { get; set; }
 }

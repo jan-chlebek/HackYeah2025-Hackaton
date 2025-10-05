@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace UknfCommunicationPlatform.Infrastructure.Migrations
+namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
     public partial class SimplifyReportEntity : Migration

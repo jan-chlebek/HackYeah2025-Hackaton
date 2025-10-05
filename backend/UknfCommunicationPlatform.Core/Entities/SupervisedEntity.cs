@@ -136,11 +136,6 @@ public class SupervisedEntity
     public DateTime UpdatedAt { get; set; }
 
     /// <summary>
-    /// Navigation property - Reports submitted by this entity
-    /// </summary>
-    public ICollection<Report> Reports { get; set; } = new List<Report>();
-
-    /// <summary>
     /// Navigation property - Users associated with this entity
     /// </summary>
     public ICollection<User> Users { get; set; } = new List<User>();

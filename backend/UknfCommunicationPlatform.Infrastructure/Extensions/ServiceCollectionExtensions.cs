@@ -54,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<UserManagementService>();
         services.AddScoped<EntityManagementService>();
         services.AddScoped<MessageService>();
+        services.AddScoped<ReportsService>();
 
         // TODO: Register additional repositories and services here
         // services.AddScoped<IReportRepository, ReportRepository>();

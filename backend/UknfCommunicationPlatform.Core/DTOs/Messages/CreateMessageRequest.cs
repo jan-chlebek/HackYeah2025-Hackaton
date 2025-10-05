@@ -24,44 +24,14 @@ public class CreateMessageRequest
     public string Body { get; set; } = string.Empty;
 
     /// <summary>
-    /// Recipient user ID (optional for drafts)
+    /// Recipient user ID
     /// </summary>
     public long? RecipientId { get; set; }
-
-    /// <summary>
-    /// Message folder classification
-    /// </summary>
-    public MessageFolder Folder { get; set; } = MessageFolder.Inbox;
-
-    /// <summary>
-    /// Thread ID for conversation grouping
-    /// </summary>
-    public long? ThreadId { get; set; }
-
-    /// <summary>
-    /// Parent message ID (if this is a reply)
-    /// </summary>
-    public long? ParentMessageId { get; set; }
 
     /// <summary>
     /// Related supervised entity ID (optional)
     /// </summary>
     public long? RelatedEntityId { get; set; }
-
-    /// <summary>
-    /// Related report ID (optional)
-    /// </summary>
-    public long? RelatedReportId { get; set; }
-
-    /// <summary>
-    /// Related case ID (optional)
-    /// </summary>
-    public long? RelatedCaseId { get; set; }
-
-    /// <summary>
-    /// Whether to send immediately (true) or save as draft (false)
-    /// </summary>
-    public bool SendImmediately { get; set; } = true;
 
     /// <summary>
     /// Optional file attachments (multiple files allowed, can be empty)

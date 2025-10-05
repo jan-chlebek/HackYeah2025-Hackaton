@@ -703,8 +703,8 @@ public class DatabaseSeeder
                     Body = messageBodies[i],
                     SenderId = internalUser.Id,
                     RecipientId = externalUser.Id,
+                    RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
-                    Folder = MessageFolder.Sent,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 4 != 0,
                     ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null
@@ -718,8 +718,8 @@ public class DatabaseSeeder
                     Body = messageBodies[i],
                     SenderId = externalUser.Id,
                     RecipientId = internalUser.Id,
+                    RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
-                    Folder = MessageFolder.Inbox,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 3 != 0,
                     ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null
@@ -731,6 +731,192 @@ public class DatabaseSeeder
 
         await _context.Messages.AddRangeAsync(messages);
         await _context.SaveChangesAsync();
+
+        // Add attachments to some messages - demonstrating 0, 1, 2, 3 attachments
+        _logger.LogInformation("Seeding message attachments...");
+
+        var attachments = new List<MessageAttachment>();
+
+        // Create sample file content for different file types
+        var pdfContent = System.Text.Encoding.UTF8.GetBytes("%PDF-1.4 Sample PDF content for testing");
+        var xlsxContent = System.Text.Encoding.UTF8.GetBytes("PK Sample XLSX content for testing");
+        var docxContent = System.Text.Encoding.UTF8.GetBytes("PK Sample DOCX content for testing");
+        var txtContent = System.Text.Encoding.UTF8.GetBytes("Sample text file content for testing purposes.");
+
+        // Message 1: 0 attachments (no attachments added)
+
+        // Message 2: 1 attachment (PDF report)
+        if (messages.Count > 1)
+        {
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[1].Id,
+                FileName = "raport_kwartalny_Q4_2024.pdf",
+                FileSize = pdfContent.Length,
+                ContentType = "application/pdf",
+                FileContent = pdfContent,
+                UploadedAt = messages[1].SentAt,
+                UploadedByUserId = messages[1].SenderId
+            });
+        }
+
+        // Message 3: 2 attachments (XLSX and PDF)
+        if (messages.Count > 2)
+        {
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[2].Id,
+                FileName = "dane_finansowe_2024.xlsx",
+                FileSize = xlsxContent.Length,
+                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                FileContent = xlsxContent,
+                UploadedAt = messages[2].SentAt,
+                UploadedByUserId = messages[2].SenderId
+            });
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[2].Id,
+                FileName = "podsumowanie_kontroli.pdf",
+                FileSize = pdfContent.Length,
+                ContentType = "application/pdf",
+                FileContent = pdfContent,
+                UploadedAt = messages[2].SentAt,
+                UploadedByUserId = messages[2].SenderId
+            });
+        }
+
+        // Message 4: 3 attachments (PDF, DOCX, TXT)
+        if (messages.Count > 3)
+        {
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[3].Id,
+                FileName = "raport_ryzyka_Q3.pdf",
+                FileSize = pdfContent.Length,
+                ContentType = "application/pdf",
+                FileContent = pdfContent,
+                UploadedAt = messages[3].SentAt,
+                UploadedByUserId = messages[3].SenderId
+            });
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[3].Id,
+                FileName = "wyjasnienie_rozbieznosci.docx",
+                FileSize = docxContent.Length,
+                ContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                FileContent = docxContent,
+                UploadedAt = messages[3].SentAt,
+                UploadedByUserId = messages[3].SenderId
+            });
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[3].Id,
+                FileName = "notatka_wewnetrzna.txt",
+                FileSize = txtContent.Length,
+                ContentType = "text/plain",
+                FileContent = txtContent,
+                UploadedAt = messages[3].SentAt,
+                UploadedByUserId = messages[3].SenderId
+            });
+        }
+
+        // Message 5: 1 attachment (XLSX)
+        if (messages.Count > 4)
+        {
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[4].Id,
+                FileName = "poprawiony_raport.xlsx",
+                FileSize = xlsxContent.Length,
+                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                FileContent = xlsxContent,
+                UploadedAt = messages[4].SentAt,
+                UploadedByUserId = messages[4].SenderId
+            });
+        }
+
+        // Message 6: 2 attachments (PDF documents)
+        if (messages.Count > 5)
+        {
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[5].Id,
+                FileName = "program_szkolenia.pdf",
+                FileSize = pdfContent.Length,
+                ContentType = "application/pdf",
+                FileContent = pdfContent,
+                UploadedAt = messages[5].SentAt,
+                UploadedByUserId = messages[5].SenderId
+            });
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[5].Id,
+                FileName = "formularz_rejestracyjny.pdf",
+                FileSize = pdfContent.Length,
+                ContentType = "application/pdf",
+                FileContent = pdfContent,
+                UploadedAt = messages[5].SentAt,
+                UploadedByUserId = messages[5].SenderId
+            });
+        }
+
+        // Message 7: 0 attachments (no attachments added)
+
+        // Message 8: 1 attachment (DOCX)
+        if (messages.Count > 7)
+        {
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[7].Id,
+                FileName = "potwierdzenie_odbioru.docx",
+                FileSize = docxContent.Length,
+                ContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                FileContent = docxContent,
+                UploadedAt = messages[7].SentAt,
+                UploadedByUserId = messages[7].SenderId
+            });
+        }
+
+        // Message 9: 3 attachments (mixed types)
+        if (messages.Count > 8)
+        {
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[8].Id,
+                FileName = "dane_historyczne.xlsx",
+                FileSize = xlsxContent.Length,
+                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                FileContent = xlsxContent,
+                UploadedAt = messages[8].SentAt,
+                UploadedByUserId = messages[8].SenderId
+            });
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[8].Id,
+                FileName = "analiza_trendy.pdf",
+                FileSize = pdfContent.Length,
+                ContentType = "application/pdf",
+                FileContent = pdfContent,
+                UploadedAt = messages[8].SentAt,
+                UploadedByUserId = messages[8].SenderId
+            });
+            attachments.Add(new MessageAttachment
+            {
+                MessageId = messages[8].Id,
+                FileName = "uwagi.txt",
+                FileSize = txtContent.Length,
+                ContentType = "text/plain",
+                FileContent = txtContent,
+                UploadedAt = messages[8].SentAt,
+                UploadedByUserId = messages[8].SenderId
+            });
+        }
+
+        await _context.MessageAttachments.AddRangeAsync(attachments);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Seeded {Count} message attachments across messages (demonstrating 0, 1, 2, and 3 attachments)",
+            attachments.Count);
     }
 
     private async Task SeedReportsAsync()
@@ -976,6 +1162,12 @@ public class DatabaseSeeder
 
     private async Task SeedFileLibrariesAsync()
     {
+        if (await _context.FileLibraries.AnyAsync())
+        {
+            _logger.LogInformation("File libraries already seeded");
+            return;
+        }
+
         _logger.LogInformation("Seeding file libraries...");
 
         var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
