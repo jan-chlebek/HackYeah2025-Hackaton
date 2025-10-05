@@ -1,0 +1,82 @@
+<div class="accessibility-controls" [class.panel-open]="panelOpen()">
+  <button
+    class="accessibility-toggle-btn"
+    type="button"
+    (click)="togglePanel()"
+    [class.active]="panelOpen()"
+    aria-label="Ustawienia dostępności"
+  >
+    <svg class="accessibility-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z" />
+    </svg>
+  </button>
+
+  @if (panelOpen()) {
+    <div class="accessibility-panel">
+      <div class="panel-header">
+        <h3 class="panel-title">Ustawienia dostępności</h3>
+        <button
+          class="panel-close"
+          type="button"
+          (click)="closePanel()"
+          aria-label="Zamknij"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="panel-content">
+        <div class="accessibility-section">
+          <label class="section-label">Rozmiar czcionki:</label>
+          <div class="font-controls">
+            <button
+              class="font-btn small"
+              type="button"
+              [class.active]="currentFontSize() === 'small'"
+              (click)="setFontSize('small')"
+              aria-label="Mała czcionka"
+            >
+              A
+            </button>
+            <button
+              class="font-btn medium"
+              type="button"
+              [class.active]="currentFontSize() === 'medium'"
+              (click)="setFontSize('medium')"
+              aria-label="Średnia czcionka"
+            >
+              A
+            </button>
+            <button
+              class="font-btn large"
+              type="button"
+              [class.active]="currentFontSize() === 'large'"
+              (click)="setFontSize('large')"
+              aria-label="Duża czcionka"
+            >
+              A
+            </button>
+          </div>
+        </div>
+
+        <div class="accessibility-section">
+          <label class="section-label">Kontrast:</label>
+          <div class="theme-controls">
+            <button
+              class="theme-btn"
+              type="button"
+              [class.active]="highContrastMode()"
+              (click)="toggleContrast()"
+              aria-label="Przełącz wysoki kontrast"
+            >
+              <svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+              </svg>
+              <span class="theme-label">{{ highContrastMode() ? 'Kontrast normalny' : 'Wysoki kontrast' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
