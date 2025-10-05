@@ -52,14 +52,13 @@ export class BreadcrumbComponent implements OnInit {
   breadcrumbs: MenuItem[] = [];
   home: MenuItem = {
     icon: 'pi pi-home',
-    routerLink: '/dashboard',
-    label: 'Pulpit'
+    routerLink: '/messages',
+    label: 'Strona główna'
   };
 
   private breadcrumbMap: { [key: string]: string } = {
-    'dashboard': 'Pulpit',
-    'reports': 'Sprawozdania',
     'messages': 'Wiadomości',
+    'reports': 'Sprawozdania',
     'cases': 'Sprawy',
     'wnioski': 'Wnioski o dostęp',
     'library': 'Biblioteka',

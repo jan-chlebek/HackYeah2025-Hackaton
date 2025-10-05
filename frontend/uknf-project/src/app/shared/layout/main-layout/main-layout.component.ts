@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
-import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { AccessibilityControlsComponent } from '../../components/accessibility-controls/accessibility-controls.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -12,13 +12,12 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
     CommonModule,
     RouterModule,
     HeaderComponent,
-    BreadcrumbComponent,
-    SidebarComponent
+    SidebarComponent,
+    AccessibilityControlsComponent
   ],
   template: `
     <div class="main-layout">
       <app-header></app-header>
-      <app-breadcrumb></app-breadcrumb>
       
       <div class="content-wrapper">
         <app-sidebar></app-sidebar>
@@ -26,6 +25,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
           <router-outlet></router-outlet>
         </main>
       </div>
+      <app-accessibility-controls></app-accessibility-controls>
     </div>
   `,
   styles: [`

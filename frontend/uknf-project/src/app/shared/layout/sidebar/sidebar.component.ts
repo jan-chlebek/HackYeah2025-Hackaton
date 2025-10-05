@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { AuthService } from '../../../services/auth.service';
 
 interface MenuItem {
   label: string;
   icon: string;
   route: string;
   active?: boolean;
+  requiresElevatedPermissions?: boolean;
 }
 
 @Component({
@@ -15,32 +17,23 @@ interface MenuItem {
   standalone: true,
   imports: [CommonModule, RouterModule, ButtonModule],
   template: `
-    <aside class="sidebar" [class.sidebar-collapsed]="isCollapsed">
-      <div class="sidebar-header" *ngIf="!isCollapsed">
+    <aside class="sidebar">
+      <div class="sidebar-header">
         <h2 class="sidebar-title">MENU</h2>
       </div>
       
       <nav class="sidebar-nav">
         <ul class="menu-list">
-          <li *ngFor="let item of menuItems" class="menu-item">
+          <li *ngFor="let item of visibleMenuItems()" class="menu-item">
             <a [routerLink]="item.route" 
                routerLinkActive="active"
                class="menu-link">
               <i [class]="item.icon + ' menu-icon'"></i>
-              <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+              <span class="menu-label">{{ item.label }}</span>
             </a>
           </li>
         </ul>
       </nav>
-
-      <button 
-        pButton 
-        type="button"
-        [icon]="isCollapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'"
-        class="p-button-text collapse-btn"
-        (click)="toggleSidebar()"
-        [title]="isCollapsed ? 'Rozwiń menu' : 'Zwiń menu'">
-      </button>
     </aside>
   `,
   styles: [`
@@ -50,14 +43,9 @@ interface MenuItem {
       border-right: 1px solid #e0e0e0;
       display: flex;
       flex-direction: column;
-      transition: width 0.3s ease;
       position: relative;
       min-height: calc(100vh - 140px);
       flex-shrink: 0;
-    }
-
-    .sidebar-collapsed {
-      width: 60px;
     }
 
     .sidebar-header {
@@ -177,46 +165,12 @@ interface MenuItem {
       color: #FFFF00 !important;
     }
 
-    :host-context(html.high-contrast) .collapse-btn {
-      background-color: #000000 !important;
-      color: #FFFF00 !important;
-      border: 2px solid #FFFF00 !important;
-    }
-
-    :host-context(html.high-contrast) .collapse-btn:hover {
-      background-color: #FFFF00 !important;
-      color: #000000 !important;
-    }
-
-    :host-context(html.high-contrast) .collapse-btn:hover i {
-      color: #000000 !important;
-    }
-
     .menu-label {
       margin-left: 1rem;
       white-space: normal;
       word-wrap: break-word;
       line-height: 1.4;
       font-size: 0.95rem;
-    }
-
-    .sidebar-collapsed .menu-label {
-      display: none;
-    }
-
-    .sidebar-collapsed .sidebar-header {
-      display: none;
-    }
-
-    .collapse-btn {
-      position: absolute;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2rem;
-      height: 2rem;
-      padding: 0;
-      border-radius: 50%;
     }
 
     @media (max-width: 768px) {
@@ -235,18 +189,39 @@ interface MenuItem {
   `]
 })
 export class SidebarComponent {
-  isCollapsed = false;
-
-  menuItems: MenuItem[] = [
-    { label: 'Biblioteka - repozytorium plików', icon: 'pi pi-folder-open', route: '/library' },
-    { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/wnioski' },
+  private authService = inject(AuthService);
+  private platformId = inject(PLATFORM_ID);
+  public readonly isBrowser = isPlatformBrowser(this.platformId);
+  
+  constructor() {
+    console.log('[Sidebar] Component initialized');
+    console.log('[Sidebar] Initial user:', this.authService.currentUser());
+    console.log('[Sidebar] Initial hasElevated:', this.authService.hasElevatedPermissionsSignal());
+  }
+  
+  // All menu items with permission requirements
+  private allMenuItems: MenuItem[] = [
     { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
-    { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases' },
+    { label: 'Komunikaty', icon: 'pi pi-megaphone', route: '/announcements' },
+    { label: 'Biblioteka - repozytorium plików', icon: 'pi pi-folder-open', route: '/library' },
+    { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/wnioski', requiresElevatedPermissions: true },
     { label: 'Sprawozdawczość', icon: 'pi pi-chart-line', route: '/reports' },
-    { label: 'Moje pytania', icon: 'pi pi-question-circle', route: '/faq' }
+    { label: 'Moje pytania', icon: 'pi pi-question-circle', route: '/faq' },
+    { label: 'Kartoteka Podmiotów', icon: 'pi pi-building', route: '/entities', requiresElevatedPermissions: true },
+    { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases', requiresElevatedPermissions: true },
+    { label: 'Adresaci', icon: 'pi pi-users', route: '/contacts', requiresElevatedPermissions: true }
   ];
 
-  toggleSidebar(): void {
-    this.isCollapsed = !this.isCollapsed;
-  }
+  // Computed property that filters menu items based on user permissions
+  // Uses the signal-based hasElevatedPermissionsSignal for reactivity
+  visibleMenuItems = computed(() => {
+    // During SSR always hide elevated-only items to avoid leakage / mismatches
+    if (!this.isBrowser) {
+      return this.allMenuItems.filter(i => !i.requiresElevatedPermissions);
+    }
+
+    const hasElevatedPermissions = this.authService.hasElevatedPermissionsSignal();
+    const filtered = this.allMenuItems.filter(item => !item.requiresElevatedPermissions || hasElevatedPermissions);
+    return filtered;
+  });
 }

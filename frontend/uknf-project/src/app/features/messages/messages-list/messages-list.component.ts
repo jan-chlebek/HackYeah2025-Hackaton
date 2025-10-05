@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -10,7 +11,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
-import { MessageService, Message, MessageFilters } from '../../../services/message.service';
+import { MessageService, Message, MessageFilters, MessageAttachment } from '../../../services/message.service';
+import { AuthService } from '../../../services/auth.service';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -34,15 +36,14 @@ import { MenuItem } from 'primeng/api';
 })
 export class MessagesListComponent implements OnInit {
   private messageService = inject(MessageService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private platformId = inject(PLATFORM_ID);
+  // Flag to prevent PrimeNG table/theme logic from executing during SSR (causing isNaN errors)
+  public readonly isBrowser = isPlatformBrowser(this.platformId);
 
   // Breadcrumb
-  breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
-    { label: 'Wnioski o dostęp', routerLink: '/wnioski' },
-    { label: 'Biblioteka - repozytorium plików', routerLink: '/biblioteka' },
-    { label: 'Wiadomości' }
-  ];
+  breadcrumbItems: MenuItem[] = [];
   
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
 
@@ -50,11 +51,16 @@ export class MessagesListComponent implements OnInit {
   messages: Message[] = [];
   totalRecords = 0;
   loading = false;
+  errorMessage: string | null = null;
   
   // Pagination
   page = 1;
   pageSize = 10;
   pageSizeOptions = [10, 25, 50, 100];
+
+  // Sorting
+  sortField: string | null = null;
+  sortOrder: 1 | -1 | 0 = 0; // PrimeNG uses 1 (asc) / -1 (desc)
 
   // Filters
   showFilters = false;
@@ -80,7 +86,34 @@ export class MessagesListComponent implements OnInit {
   selectedMessage: Message | null = null;
   showDetailsDialog = false;
 
+  // Determine if currently authenticated user is an ExternalUser (by role name)
+  get isExternalUser(): boolean {
+    const user = this.authService.getCurrentUser?.() || this.authService['currentUserSignal']?.();
+    if (!user) return false;
+    return user.roles?.some((r: string) => r.toLowerCase() === 'externaluser');
+  }
+
+  // Determine if currently authenticated user is an InternalUser (UKNF staff)
+  get isInternalUser(): boolean {
+    const user = this.authService.getCurrentUser?.() || this.authService['currentUserSignal']?.();
+    if (!user) return false;
+    const internalRoles = ['administrator', 'internaluser', 'supervisor'];
+    return user.roles?.some((r: string) => internalRoles.includes(r.toLowerCase()));
+  }
+
   ngOnInit(): void {
+    // Build breadcrumb based on permissions
+    const items: MenuItem[] = [];
+    
+    if (this.authService.hasElevatedPermissions()) {
+      items.push({ label: 'Wnioski o dostęp', routerLink: '/wnioski' });
+    }
+    
+    items.push({ label: 'Biblioteka - repozytorium plików', routerLink: '/biblioteka' });
+    items.push({ label: 'Wiadomości' });
+    
+    this.breadcrumbItems = items;
+    
     // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError in zoneless mode
     setTimeout(() => {
       this.loadMessages();
@@ -91,11 +124,45 @@ export class MessagesListComponent implements OnInit {
     this.loading = true;
     console.log('Loading messages with params:', { page: this.page, pageSize: this.pageSize, filters: this.filters });
     
-    this.messageService.getMessages(this.page, this.pageSize, this.filters).subscribe({
+    this.errorMessage = null;
+    this.messageService.getMessages(
+      this.page,
+      this.pageSize,
+      this.filters,
+      this.sortField || undefined,
+      this.sortOrder === 0 ? undefined : (this.sortOrder === 1 ? 'asc' : 'desc')
+    ).subscribe({
       next: (response) => {
         console.log('Messages loaded successfully:', response);
-        this.messages = response.data || [];
+        let data = response.data || [];
         this.totalRecords = response.pagination?.totalCount || 0;
+
+        // Client-side sorting fallback if backend ignores sort parameters
+        if (this.sortField && this.sortOrder !== 0) {
+          const before = JSON.stringify(data.map(d => (d as any)[this.sortField!]).slice(0,5));
+          data = [...data].sort((a: any, b: any) => {
+            const av = (a as any)[this.sortField!];
+            const bv = (b as any)[this.sortField!];
+            if (av == null && bv == null) return 0;
+            if (av == null) return 1;
+            if (bv == null) return -1;
+            // Attempt date comparison
+            const aDate = Date.parse(av);
+            const bDate = Date.parse(bv);
+            if (!isNaN(aDate) && !isNaN(bDate)) {
+              return (aDate - bDate) * (this.sortOrder as number);
+            }
+            // Fallback string/number comparison
+            if (typeof av === 'number' && typeof bv === 'number') {
+              return (av - bv) * (this.sortOrder as number);
+            }
+            return av.toString().localeCompare(bv.toString(), 'pl', { numeric: true }) * (this.sortOrder as number);
+          });
+          const after = JSON.stringify(data.map(d => (d as any)[this.sortField!]).slice(0,5));
+          console.log('[MessagesList] Applied client-side sort fallback', { field: this.sortField, order: this.sortOrder, before, after });
+        }
+
+        this.messages = data;
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -110,6 +177,13 @@ export class MessagesListComponent implements OnInit {
         this.messages = [];
         this.totalRecords = 0;
         this.loading = false;
+        if (error.status === 401) {
+          this.errorMessage = 'Brak autoryzacji – zaloguj się ponownie.';
+        } else if (error.status === 403) {
+          this.errorMessage = 'Brak uprawnień do wyświetlenia wiadomości.';
+        } else {
+          this.errorMessage = 'Nie udało się załadować wiadomości. Spróbuj ponownie.';
+        }
         this.cdr.markForCheck();
       }
     });
@@ -118,6 +192,14 @@ export class MessagesListComponent implements OnInit {
   onPageChange(event: any): void {
     this.page = event.page + 1;
     this.pageSize = event.rows;
+    this.loadMessages();
+  }
+
+  onSort(event: any): void {
+    // event: { field, order }
+    this.sortField = event.field;
+    this.sortOrder = event.order;
+    this.page = 1; // reset to first page on new sort
     this.loadMessages();
   }
 
@@ -137,15 +219,41 @@ export class MessagesListComponent implements OnInit {
   }
 
   viewMessageDetails(message: Message): void {
-    // Create a copy of the message to avoid mutating the original
-    this.selectedMessage = { ...message };
-    
-    // Set default priority if not set
-    if (!this.selectedMessage.priorytet) {
-      this.selectedMessage.priorytet = 'Średni';
-    }
-    
-    this.showDetailsDialog = true;
+    // Fetch full message details including attachments
+    this.messageService.getMessageById(message.id).subscribe({
+      next: (response: any) => {
+        console.log('Full message details loaded:', response);
+        
+        // Handle wrapped response with data array or direct message object
+        if (response.data && Array.isArray(response.data)) {
+          this.selectedMessage = response.data[0] || null;
+        } else if (response.attachments) {
+          // Direct message object with attachments
+          this.selectedMessage = response;
+        } else {
+          // Fallback to original message
+          this.selectedMessage = { ...message };
+        }
+        
+        // Set default priority if not set
+        if (this.selectedMessage && !this.selectedMessage.priorytet) {
+          this.selectedMessage.priorytet = 'Średni';
+        }
+        
+        this.showDetailsDialog = true;
+      },
+      error: (error) => {
+        console.error('Error loading message details:', error);
+        // Fallback to using the message from the list
+        this.selectedMessage = { ...message };
+        
+        if (!this.selectedMessage.priorytet) {
+          this.selectedMessage.priorytet = 'Średni';
+        }
+        
+        this.showDetailsDialog = true;
+      }
+    });
   }
 
   closeDetailsDialog(): void {
@@ -202,5 +310,32 @@ export class MessagesListComponent implements OnInit {
     if (statusLower.includes('zamknięta')) return 'status-closed';
     if (statusLower.includes('wysłana')) return 'status-sent';
     return '';
+  }
+
+  downloadMessageAttachment(attachment: MessageAttachment): void {
+    if (!this.selectedMessage) return;
+    
+    console.log('Downloading attachment:', attachment);
+    this.messageService.downloadAttachment(this.selectedMessage.id, attachment.id).subscribe({
+      next: (blob) => {
+        // Create a temporary URL for the blob
+        const url = window.URL.createObjectURL(blob);
+        
+        // Create a temporary anchor element to trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = attachment.fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Error downloading attachment:', error);
+        alert('Nie udało się pobrać załącznika. Spróbuj ponownie.');
+      }
+    });
   }
 }

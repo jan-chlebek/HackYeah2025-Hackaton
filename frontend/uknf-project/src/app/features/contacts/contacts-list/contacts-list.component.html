@@ -1,0 +1,257 @@
+<div class="contacts-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Adresaci</h1>
+      <p class="page-subtitle">Zarządzaj kontaktami i grupami odbiorców wiadomości</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        pButton 
+        type="button" 
+        label="Zarządzaj grupami" 
+        icon="pi pi-users"
+        (click)="manageGroups()"
+        class="p-button-outlined"
+      ></button>
+      <button 
+        pButton 
+        type="button" 
+        label="Dodaj adresata" 
+        icon="pi pi-plus"
+        (click)="createContact()"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <h2>Wyszukiwanie i filtrowanie</h2>
+      <button 
+        pButton 
+        type="button" 
+        [label]="showFilters ? 'Zwiń' : 'Rozwiń'" 
+        [icon]="showFilters ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+        (click)="toggleFilters()"
+        class="p-button-text"
+        [attr.aria-expanded]="showFilters"
+        aria-controls="filter-panel"
+      ></button>
+    </div>
+
+    <div id="filter-panel" class="filter-panel" [class.expanded]="showFilters">
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label for="filter-search">Szukaj (imię, email, telefon)</label>
+          <input 
+            id="filter-search"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.searchTerm"
+            placeholder="Wpisz frazę do wyszukania"
+            (keyup.enter)="applyFilters()"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-entity">Podmiot</label>
+          <p-select
+            id="filter-entity"
+            [(ngModel)]="filters.supervisedEntityId"
+            [options]="entityOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz podmiot"
+            [showClear]="true"
+          ></p-select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-active">Status</label>
+          <p-select
+            id="filter-active"
+            [(ngModel)]="filters.isActive"
+            [options]="activeStatusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz status"
+            [showClear]="true"
+          ></p-select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-primary">Typ kontaktu</label>
+          <p-select
+            id="filter-primary"
+            [(ngModel)]="filters.isPrimary"
+            [options]="primaryOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz typ"
+            [showClear]="true"
+          ></p-select>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Wyczyść" 
+          icon="pi pi-times"
+          class="p-button-outlined"
+          (click)="clearFilters()"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Szukaj" 
+          icon="pi pi-search"
+          (click)="applyFilters()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contacts Table -->
+  <div class="table-container">
+    <p-table 
+      [value]="contacts" 
+      [loading]="loading"
+      [rows]="pageSize"
+      [totalRecords]="totalRecords"
+      [paginator]="true"
+      [rowsPerPageOptions]="pageSizeOptions"
+      (onPage)="onPageChange($event)"
+      [lazy]="true"
+      responsiveLayout="scroll"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Wyświetlono {first} do {last} z {totalRecords} adresatów"
+      styleClass="p-datatable-striped"
+      [first]="first"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">#</th>
+          <th pSortableColumn="name">
+            Imię i nazwisko
+            <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th>Stanowisko</th>
+          <th pSortableColumn="email">
+            Email
+            <p-sortIcon field="email"></p-sortIcon>
+          </th>
+          <th>Telefon</th>
+          <th>Podmiot</th>
+          <th style="width: 8rem">Typ</th>
+          <th style="width: 8rem">Grupy</th>
+          <th style="width: 8rem" pSortableColumn="isActive">
+            Status
+            <p-sortIcon field="isActive"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-contact let-rowIndex="rowIndex">
+        <tr>
+          <td>{{ first + rowIndex + 1 }}</td>
+          <td>
+            <strong>{{ contact.name }}</strong>
+          </td>
+          <td>{{ contact.position || '-' }}</td>
+          <td>
+            <a [href]="'mailto:' + contact.email" class="email-link">{{ contact.email }}</a>
+          </td>
+          <td>
+            <span *ngIf="contact.phone">
+              <a [href]="'tel:' + contact.phone">{{ contact.phone }}</a>
+            </span>
+            <span *ngIf="!contact.phone">-</span>
+          </td>
+          <td>{{ contact.supervisedEntityName || '-' }}</td>
+          <td>
+            <span 
+              *ngIf="contact.isPrimary" 
+              class="contact-type-badge primary"
+              title="Kontakt główny">
+              Główny
+            </span>
+            <span 
+              *ngIf="!contact.isPrimary" 
+              class="contact-type-badge additional">
+              Dodatkowy
+            </span>
+          </td>
+          <td class="text-center">
+            <span class="group-count-badge" *ngIf="contact.groupCount > 0">
+              {{ contact.groupCount }}
+            </span>
+            <span *ngIf="contact.groupCount === 0" class="text-muted">-</span>
+          </td>
+          <td>
+            <span 
+              class="status-badge" 
+              [class.status-active]="contact.isActive"
+              [class.status-inactive]="!contact.isActive">
+              {{ contact.isActive ? 'Aktywny' : 'Nieaktywny' }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-users" style="font-size: 3rem; color: #ccc;"></i>
+              <p>Nie znaleziono adresatów</p>
+              <p class="text-muted">Dodaj nowych adresatów lub zmień kryteria wyszukiwania</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="9" class="text-center">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+            <p>Ładowanie danych...</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Delete Confirmation Dialog -->
+<p-dialog 
+  [(visible)]="showDeleteDialog" 
+  [modal]="true"
+  [closable]="true"
+  [style]="{width: '450px'}"
+  header="Potwierdź usunięcie">
+  <p>Czy na pewno chcesz usunąć adresata <strong>{{ contactToDelete?.name }}</strong>?</p>
+  <p class="text-muted">Ta operacja dezaktywuje kontakt, ale nie usuwa go trwale z bazy danych.</p>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button"
+      label="Anuluj" 
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="cancelDelete()">
+    </button>
+    <button 
+      pButton 
+      type="button"
+      label="Usuń" 
+      icon="pi pi-check"
+      class="p-button-danger"
+      (click)="deleteContact()">
+    </button>
+  </ng-template>
+</p-dialog>

@@ -7,14 +7,38 @@
 
 /* Page Header */
 .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #003366 0%, #0047AB 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 51, 102, 0.1);
+  color: white;
 }
 
-.page-header h1 {
-  color: var(--uknf-primary-blue);
+.header-content {
+  flex: 1;
+}
+
+.page-title {
   font-size: 2rem;
   font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.page-subtitle {
+  font-size: 1rem;
   margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 /* Filter Section - Same as messages */
@@ -390,6 +414,20 @@
     padding: 1rem;
   }
 
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .header-actions button {
+    width: 100%;
+  }
+
   .filter-grid,
   .form-row,
   .recipient-groups {
@@ -417,16 +455,19 @@ html.high-contrast .table-container {
   color: #FFFF00;
 }
 
-html.high-contrast .filter-field,
-html.high-contrast .form-field,
-html.high-contrast .page-header,
-html.high-contrast .actions-bar {
+:host-context(html.high-contrast) .filter-field,
+:host-context(html.high-contrast) .form-field,
+:host-context(html.high-contrast) .page-header,
+:host-context(html.high-contrast) .actions-bar {
+  background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
 }
 
 /* High Contrast - Table Headers */
-html.high-contrast :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+:host-context(html.high-contrast) :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
   background: #000000 !important;
   background-color: #000000 !important;
   color: #FFFF00 !important;

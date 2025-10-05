@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -107,7 +108,7 @@ import { FaqQuestion, FaqListResponse } from '../../../models/faq.model';
               <i class="pi pi-check-circle"></i>
               <span>Odpowiedź</span>
             </div>
-            <div class="answer-content">{{ item.answer }}</div>
+            <div class="answer-content" [innerHTML]="getAnswerHtml(item)"></div>
           </div>
         </div>
       </div>
@@ -469,7 +470,7 @@ export class FaqListComponent implements OnInit, OnDestroy {
   private readonly destroyRef: DestroyRef = inject(DestroyRef);
   private isDestroyed = false;
 
-  constructor(private faqService: FaqService, private readonly cdr: ChangeDetectorRef) {
+  constructor(private faqService: FaqService, private readonly cdr: ChangeDetectorRef, private readonly sanitizer: DomSanitizer) {
     this.destroyRef.onDestroy(() => {
       this.isDestroyed = true;
     });
@@ -581,5 +582,13 @@ export class FaqListComponent implements OnInit, OnDestroy {
     if (!this.isDestroyed) {
       this.cdr.detectChanges();
     }
+  }
+
+  /**
+   * Returns sanitized HTML for an answer. If backend already stores safe HTML, this prevents Angular from stripping tags.
+   * Minimal sanitation: relying on backend to whitelist tags; could be extended with client-side DOMPurify if needed.
+   */
+  getAnswerHtml(item: FaqQuestion): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(item.answer || '');
   }
 }

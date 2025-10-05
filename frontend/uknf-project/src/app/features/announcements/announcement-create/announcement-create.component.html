@@ -1,0 +1,108 @@
+<div class="announcement-create-container">
+  <!-- Toast for notifications -->
+  <p-toast></p-toast>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">{{ isEditMode ? 'Edytuj komunikat' : 'Nowy komunikat' }}</h1>
+  </div>
+
+  <!-- Form Card -->
+  <p-card class="form-card">
+    <form [formGroup]="announcementForm" (ngSubmit)="onSubmit()">
+      <!-- Title Field -->
+      <div class="form-field">
+        <label for="title" class="field-label required">
+          Tytuł komunikatu
+        </label>
+        <input 
+          id="title"
+          type="text" 
+          pInputText 
+          formControlName="title"
+          placeholder="Wprowadź tytuł komunikatu"
+          [class.ng-invalid]="isFieldInvalid('title')"
+          [class.ng-dirty]="isFieldInvalid('title')"
+          class="w-full">
+        <small 
+          *ngIf="isFieldInvalid('title')" 
+          class="error-message">
+          {{ getFieldError('title') }}
+        </small>
+        <small class="field-hint">
+          Maksymalnie 200 znaków
+        </small>
+      </div>
+
+      <!-- Content Field -->
+      <div class="form-field">
+        <label for="content" class="field-label required">
+          Treść komunikatu
+        </label>
+        <textarea 
+          id="content"
+          pTextarea 
+          formControlName="content"
+          placeholder="Wprowadź treść komunikatu"
+          [class.ng-invalid]="isFieldInvalid('content')"
+          [class.ng-dirty]="isFieldInvalid('content')"
+          rows="15"
+          class="w-full">
+        </textarea>
+        <small 
+          *ngIf="isFieldInvalid('content')" 
+          class="error-message">
+          {{ getFieldError('content') }}
+        </small>
+        <small class="field-hint">
+          Maksymalnie 10,000 znaków. Możesz używać formatowania tekstowego.
+        </small>
+      </div>
+
+      <!-- Character Count -->
+      <div class="character-count" *ngIf="announcementForm.get('content')?.value">
+        <span>
+          Liczba znaków: {{ announcementForm.get('content')?.value.length }} / 10,000
+        </span>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Anuluj" 
+          icon="pi pi-times"
+          class="p-button-outlined p-button-secondary"
+          (click)="onCancel()"
+          [disabled]="loading">
+        </button>
+        <button 
+          pButton 
+          type="submit" 
+          [label]="isEditMode ? 'Zaktualizuj' : 'Utwórz'"
+          [icon]="loading ? 'pi pi-spin pi-spinner' : (isEditMode ? 'pi pi-check' : 'pi pi-plus')"
+          class="p-button-primary"
+          [disabled]="loading || announcementForm.invalid">
+        </button>
+      </div>
+
+      <!-- Required Fields Notice -->
+      <div class="required-notice">
+        <span class="required-indicator">*</span> Pola wymagane
+      </div>
+    </form>
+  </p-card>
+
+  <!-- Help Section -->
+  <p-card class="help-card">
+    <h3>Wskazówki</h3>
+    <ul>
+      <li>Tytuł powinien być zwięzły i opisowy</li>
+      <li>Treść komunikatu powinna zawierać wszystkie istotne informacje</li>
+      <li>Komunikaty są widoczne dla wszystkich użytkowników platformy</li>
+      <li>Możesz używać formatowania tekstowego (akapity, listy)</li>
+      <li>Po utworzeniu komunikatu możesz go edytować lub usunąć</li>
+    </ul>
+  </p-card>
+</div>

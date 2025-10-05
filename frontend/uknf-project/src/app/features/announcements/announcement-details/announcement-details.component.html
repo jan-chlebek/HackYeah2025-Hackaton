@@ -1,0 +1,100 @@
+<div class="announcement-details-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: #003366;"></i>
+    <p>Ładowanie komunikatu...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <i class="pi pi-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
+    <h2>Nie udało się załadować komunikatu</h2>
+    <p>Komunikat nie istnieje lub wystąpił błąd podczas ładowania.</p>
+    <p *ngIf="errorMessage" class="error-details">{{ errorMessage }}</p>
+    <button 
+      pButton 
+      type="button" 
+      label="Wróć do listy" 
+      icon="pi pi-arrow-left"
+      (click)="goBack()">
+    </button>
+    <button 
+      pButton 
+      type="button" 
+      label="Spróbuj ponownie" 
+      icon="pi pi-refresh"
+      class="p-button-outlined"
+      style="margin-left: 1rem;"
+      (click)="ngOnInit()">
+    </button>
+  </div>
+
+  <!-- Announcement Details -->
+  <div *ngIf="announcement && !loading && !error" class="announcement-content">
+    <!-- Header -->
+    <div class="announcement-header">
+      <div class="header-info">
+        <h1 class="announcement-title">{{ announcement.title }}</h1>
+        <div class="announcement-meta">
+          <span class="meta-item">
+            <i class="pi pi-user"></i>
+            <strong>Utworzył:</strong> {{ announcement.createdByName }}
+          </span>
+          <span class="meta-item">
+            <i class="pi pi-calendar"></i>
+            <strong>Data utworzenia:</strong> {{ formatDate(announcement.createdAt) }}
+          </span>
+          <span class="meta-item" *ngIf="announcement.updatedAt !== announcement.createdAt">
+            <i class="pi pi-clock"></i>
+            <strong>Zaktualizowano:</strong> {{ formatDate(announcement.updatedAt) }}
+          </span>
+          <span class="meta-item">
+            <p-tag 
+              [value]="getReadStatusLabel(announcement.isReadByCurrentUser)"
+              [severity]="getReadStatusSeverity(announcement.isReadByCurrentUser)">
+            </p-tag>
+          </span>
+        </div>
+        <div class="read-info" *ngIf="announcement.isReadByCurrentUser && announcement.readAt">
+          <i class="pi pi-check-circle"></i>
+          <span>Przeczytano: {{ formatDate(announcement.readAt) }}</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Wróć" 
+          icon="pi pi-arrow-left"
+          class="p-button-outlined"
+          (click)="goBack()">
+        </button>
+        <!-- TODO: Add role check for UKNF staff -->
+        <button 
+          pButton 
+          type="button" 
+          label="Edytuj" 
+          icon="pi pi-pencil"
+          class="p-button-outlined p-button-warning"
+          (click)="editAnnouncement()">
+        </button>
+        <button 
+          pButton 
+          type="button" 
+          label="Usuń" 
+          icon="pi pi-trash"
+          class="p-button-outlined p-button-danger"
+          (click)="deleteAnnouncement()">
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <p-card class="announcement-body">
+      <div class="content-section">
+        <div class="content-text" [innerHTML]="announcement.content"></div>
+      </div>
+    </p-card>
+  </div>
+</div>

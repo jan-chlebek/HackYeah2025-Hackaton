@@ -1,15 +1,12 @@
 <div class="messages-page">
-  <!-- Breadcrumb Navigation -->
-  <p-breadcrumb 
-    [model]="breadcrumbItems" 
-    [home]="home"
-    class="mb-4"
-    aria-label="Ścieżka nawigacji"
-  ></p-breadcrumb>
-
   <!-- Page Header -->
   <div class="page-header">
-    <h1>Wiadomości</h1>
+    <div class="header-content">
+      <h1 class="page-title">Wiadomości</h1>
+      <p class="page-subtitle">Wyświetl i zarządzaj korespondencją z UKNF</p>
+    </div>
+    <div class="header-actions">
+    </div>
   </div>
 
   <!-- Search and Filter Section -->
@@ -134,25 +131,7 @@
         </div>
       </div>
 
-      <div class="filter-checkboxes">
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="filter-moje-podmioty"
-            [(ngModel)]="filters.mojePodmioty"
-            [binary]="true"
-            label="Moje podmioty"
-          ></p-checkbox>
-        </div>
-
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="filter-wymagana-odpowiedz"
-            [(ngModel)]="filters.wymaganaOdpowiedzUKNF"
-            [binary]="true"
-            label="Wymagana odpowiedź UKNF"
-          ></p-checkbox>
-        </div>
-      </div>
+      <!-- Removed unused checkbox filters (Moje podmioty, Wymagana odpowiedź UKNF) -->
 
       <div class="filter-actions">
         <button 
@@ -176,6 +155,9 @@
 
   <!-- Messages Table -->
   <div class="table-container">
+    <div *ngIf="errorMessage" class="error-banner" role="alert">{{ errorMessage }}</div>
+    <!-- Avoid rendering PrimeNG table on the server to prevent SSR theming (isNaN) errors -->
+    <ng-container *ngIf="isBrowser; else ssrTableFallback">
     <p-table 
       [value]="messages" 
       [loading]="loading"
@@ -185,6 +167,10 @@
       [rowsPerPageOptions]="pageSizeOptions"
       (onPage)="onPageChange($event)"
       [lazy]="true"
+      [customSort]="true"
+      (sortFunction)="onSort($event)"
+      [sortField]="sortField"
+      [sortOrder]="sortOrder"
       responsiveLayout="scroll"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
@@ -192,17 +178,17 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th>Identyfikator</th>
-          <th>Sygnatura sprawy</th>
-          <th>Podmiot</th>
-          <th>Status wiadomości</th>
-          <th>Priorytet</th>
-          <th>Data przesłania podmiotu</th>
-          <th>Użytkownik</th>
-          <th>Wiadomość użytkownika</th>
-          <th>Data przesłania UKNF</th>
-          <th>Pracownik UKNF</th>
-          <th>Wiadomość pracownika UKNF</th>
+          <th pSortableColumn="identyfikator">Identyfikator <p-sortIcon field="identyfikator"></p-sortIcon></th>
+          <th pSortableColumn="sygnaturaSprawy">Sygnatura sprawy <p-sortIcon field="sygnaturaSprawy"></p-sortIcon></th>
+          <th pSortableColumn="podmiot">Podmiot <p-sortIcon field="podmiot"></p-sortIcon></th>
+          <th pSortableColumn="statusWiadomosci">Status wiadomości <p-sortIcon field="statusWiadomosci"></p-sortIcon></th>
+          <th pSortableColumn="priorytet">Priorytet <p-sortIcon field="priorytet"></p-sortIcon></th>
+          <th pSortableColumn="dataPrzeslaniaPodmiotu">Data przesłania podmiotu <p-sortIcon field="dataPrzeslaniaPodmiotu"></p-sortIcon></th>
+          <th pSortableColumn="uzytkownik">Użytkownik <p-sortIcon field="uzytkownik"></p-sortIcon></th>
+          <th pSortableColumn="wiadomoscUzytkownika">Wiadomość użytkownika <p-sortIcon field="wiadomoscUzytkownika"></p-sortIcon></th>
+          <th pSortableColumn="dataPrzeslaniaUKNF">Data przesłania UKNF <p-sortIcon field="dataPrzeslaniaUKNF"></p-sortIcon></th>
+          <th pSortableColumn="pracownikUKNF">Pracownik UKNF <p-sortIcon field="pracownikUKNF"></p-sortIcon></th>
+          <th pSortableColumn="wiadomoscPracownikaUKNF">Wiadomość pracownika UKNF <p-sortIcon field="wiadomoscPracownikaUKNF"></p-sortIcon></th>
           <th>Akcje</th>
         </tr>
       </ng-template>
@@ -250,6 +236,10 @@
         </tr>
       </ng-template>
     </p-table>
+    </ng-container>
+    <ng-template #ssrTableFallback>
+      <div class="ssr-fallback" aria-busy="true">Ładowanie wiadomości...</div>
+    </ng-template>
   </div>
 </div>
 
@@ -282,20 +272,8 @@
       </div>
     </div>
 
-    <!-- Status and Dates Section -->
+    <!-- User and Date Section (readonly fields) -->
     <div class="detail-grid">
-      <div class="detail-field">
-        <label for="detail-status">Status wiadomości</label>
-        <p-select 
-          id="detail-status"
-          [options]="statusOptions" 
-          [(ngModel)]="selectedMessage.statusWiadomosci"
-          optionLabel="label"
-          optionValue="value"
-          [style]="{'width': '100%'}"
-        ></p-select>
-      </div>
-
       <div class="detail-field">
         <label for="detail-uzytkownik">Użytkownik</label>
         <input 
@@ -304,22 +282,26 @@
           pInputText 
           [(ngModel)]="selectedMessage.uzytkownik"
           [style]="{'width': '100%'}"
+          readonly
+          [disabled]="true"
         />
       </div>
 
       <div class="detail-field">
-        <label for="detail-data-podmiotu">Data przesłania podmiotu</label>
-        <p-datepicker 
+        <label for="detail-data-podmiotu">Data przesłania dokumentu</label>
+        <input 
           id="detail-data-podmiotu"
-          [(ngModel)]="selectedMessage.dataPrzeslaniaPodmiotu"
-          [showTime]="true"
-          dateFormat="yy-mm-dd"
+          type="text" 
+          pInputText 
+          [value]="formatDate(selectedMessage.dataPrzeslaniaPodmiotu)"
           [style]="{'width': '100%'}"
-        ></p-datepicker>
+          readonly
+          [disabled]="true"
+        />
       </div>
     </div>
 
-    <!-- User Message Section -->
+    <!-- User Message Section (editable only by external users) -->
     <div class="detail-section">
       <label for="detail-wiadomosc-uzytkownika" class="detail-label">Wiadomość użytkownika</label>
       <textarea 
@@ -329,35 +311,16 @@
         rows="5"
         [style]="{'width': '100%'}"
         placeholder="Treść wiadomości użytkownika..."
+        [readonly]="!isExternalUser"
+        [disabled]="!isExternalUser"
+        [class.user-message-readonly]="!isExternalUser"
+        [attr.aria-readonly]="!isExternalUser"
       ></textarea>
+      <small class="field-hint" *ngIf="!isExternalUser">Pole edytowalne tylko dla użytkowników zewnętrznych.</small>
+      <small class="field-hint" *ngIf="isExternalUser">Możesz edytować treść wiadomości.</small>
     </div>
 
-    <!-- Attachments Section -->
-    <div class="detail-section">
-      <label class="detail-label">Załączniki</label>
-      <div class="attachments-list">
-        <div class="attachment-item">
-          <span>Zalącznik_pierwszy.pdf</span>
-          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
-        </div>
-        <div class="attachment-item">
-          <span>Zalącznik_drugi.pdf</span>
-          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
-        </div>
-        <div class="attachment-item">
-          <span>Zalącznik_trzeci.txt</span>
-          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
-        </div>
-      </div>
-      <div class="attachment-actions">
-        <button pButton type="button" label="Pobierz" icon="pi pi-download" class="p-button-outlined"></button>
-        <button pButton type="button" label="Edytuj" icon="pi pi-pencil" class="p-button-outlined"></button>
-        <button pButton type="button" label="Usuń" icon="pi pi-trash" class="p-button-outlined p-button-danger"></button>
-        <button pButton type="button" label="Dodaj" icon="pi pi-plus" class="p-button-outlined"></button>
-      </div>
-    </div>
-
-    <!-- UKNF Response Section -->
+    <!-- UKNF Response Section (readonly fields) -->
     <div class="detail-grid">
       <div class="detail-field">
         <label for="detail-pracownik-uknf">Pracownik UKNF</label>
@@ -367,23 +330,27 @@
           pInputText 
           [(ngModel)]="selectedMessage.pracownikUKNF"
           [style]="{'width': '100%'}"
+          readonly
+          [disabled]="true"
         />
       </div>
 
       <div class="detail-field">
         <label for="detail-data-uknf">Data przesłania UKNF</label>
-        <p-datepicker 
+        <input 
           id="detail-data-uknf"
-          [(ngModel)]="selectedMessage.dataPrzeslaniaUKNF"
-          [showTime]="true"
-          dateFormat="yy-mm-dd"
+          type="text" 
+          pInputText 
+          [value]="formatDate(selectedMessage.dataPrzeslaniaUKNF)"
           [style]="{'width': '100%'}"
-        ></p-datepicker>
+          readonly
+          [disabled]="true"
+        />
       </div>
     </div>
 
     <div class="detail-section">
-      <label for="detail-wiadomosc-uknf" class="detail-label">Wiadomość pracownika UKNF *</label>
+      <label for="detail-wiadomosc-uknf" class="detail-label">Wiadomość pracownika UKNF</label>
       <textarea 
         id="detail-wiadomosc-uknf"
         pInputTextarea
@@ -391,29 +358,12 @@
         rows="5"
         [style]="{'width': '100%'}"
         placeholder="Treść odpowiedzi UKNF..."
-        required
+        [readonly]="!isInternalUser"
+        [disabled]="!isInternalUser"
+        [attr.aria-readonly]="!isInternalUser"
       ></textarea>
-    </div>
-
-    <!-- UKNF Attachments Section -->
-    <div class="detail-section">
-      <label class="detail-label">Załączniki UKNF</label>
-      <div class="attachments-list">
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="attachment-1"
-            [binary]="true"
-            label="Załącznik_pierwszy.txt"
-          ></p-checkbox>
-        </div>
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="attachment-2"
-            [binary]="true"
-            label="Załącznik_drugi.pdf"
-          ></p-checkbox>
-        </div>
-      </div>
+      <small class="field-hint" *ngIf="!isInternalUser">Pole edytowalne tylko dla użytkowników wewnętrznych (pracowników UKNF).</small>
+      <small class="field-hint" *ngIf="isInternalUser">Możesz edytować treść odpowiedzi UKNF.</small>
     </div>
   </div>
 

@@ -7,14 +7,38 @@
 
 /* Page Header */
 .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #003366 0%, #0047AB 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 51, 102, 0.1);
+  color: white;
 }
 
-.page-header h1 {
-  color: var(--uknf-primary-blue);
+.header-content {
+  flex: 1;
+}
+
+.page-title {
   font-size: 2rem;
   font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.page-subtitle {
+  font-size: 1rem;
   margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 /* Filter Section */
@@ -50,6 +74,93 @@
 .filter-panel.expanded {
   max-height: 1000px;
   transition: max-height 0.5s ease-in;
+  /* Allow datepicker popup to extend beyond panel */
+  overflow: visible;
+  position: relative;
+  z-index: 20;
+}
+
+/* Fix PrimeNG datepicker overlay clipping inside filter panel */
+:host ::ng-deep .p-datepicker:not(.p-datepicker-inline) {
+  z-index: 1000 !important;
+}
+
+/* Ensure datepicker panel has minimum width for full header controls */
+:host ::ng-deep .p-datepicker .p-datepicker-group-container {
+  min-width: 300px;
+}
+
+/* Force visibility of navigation arrows in PrimeNG DatePicker */
+:host ::ng-deep .p-datepicker .p-datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem 1rem;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-prev,
+:host ::ng-deep .p-datepicker .p-datepicker-next {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d0d7e2;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  position: relative;
+  color: #0047AB !important;
+}
+
+/* If icon font/svg missing, draw fallback chevron */
+:host ::ng-deep .p-datepicker .p-datepicker-prev::before,
+:host ::ng-deep .p-datepicker .p-datepicker-next::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(135deg);
+  display: block;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-next::before {
+  transform: rotate(-45deg);
+}
+
+/* Remove duplicate inner icon space if original icon still renders */
+:host ::ng-deep .p-datepicker .p-datepicker-prev .p-datepicker-prev-icon,
+:host ::ng-deep .p-datepicker .p-datepicker-next .p-datepicker-next-icon {
+  font-size: 1rem;
+  color: #0047AB;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-prev:hover,
+:host ::ng-deep .p-datepicker .p-datepicker-next:hover {
+  background: #f0f7ff;
+  border-color: #90CAF9;
+  cursor: pointer;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-prev:focus-visible,
+:host ::ng-deep .p-datepicker .p-datepicker-next:focus-visible {
+  outline: 2px solid #0047AB;
+  outline-offset: 2px;
+}
+
+/* High contrast adaptation */
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-prev,
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-next {
+  background: #000 !important;
+  border: 2px solid #FFFF00 !important;
+  color: #FFFF00 !important;
+  box-shadow: none;
+}
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-prev:hover,
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-next:hover {
+  background: #FFFF00 !important;
+  color: #000 !important;
 }
 
 .filter-grid {
@@ -292,6 +403,22 @@
   margin-bottom: 1.5rem;
 }
 
+.user-message-readonly {
+  background: #f5f7fa;
+  border: 1px solid #d0d7e2;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--uknf-medium-gray);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
 .detail-label {
   display: block;
   color: var(--uknf-dark-gray);
@@ -371,6 +498,18 @@
   flex-wrap: wrap;
 }
 
+.no-attachments {
+  text-align: center;
+  padding: 1rem;
+  color: var(--uknf-medium-gray);
+  font-style: italic;
+}
+
+.text-muted {
+  color: var(--uknf-medium-gray);
+  opacity: 0.8;
+}
+
 /* Dialog Footer */
 :host ::ng-deep .p-dialog .p-dialog-footer {
   display: flex;
@@ -389,6 +528,20 @@
 @media screen and (max-width: 768px) {
   .messages-page {
     padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .header-actions button {
+    width: 100%;
   }
 
   .filter-grid {
@@ -415,16 +568,16 @@
 }
 
 /* High Contrast Mode Support */
-html.high-contrast .filter-section,
-html.high-contrast .table-container {
+:host-context(html.high-contrast) .filter-section,
+:host-context(html.high-contrast) .table-container {
   border: 2px solid #FFFF00;
   background-color: #000000;
   color: #FFFF00;
 }
 
 /* High Contrast - Status and Priority Badges (chiplets with no background, yellow border) */
-html.high-contrast .status-badge,
-html.high-contrast .priority-badge {
+:host-context(html.high-contrast) .status-badge,
+:host-context(html.high-contrast) .priority-badge {
   border: 2px solid #FFFF00 !important;
   background: transparent !important;
   background-color: transparent !important;
@@ -434,20 +587,23 @@ html.high-contrast .priority-badge {
   box-shadow: none !important;
 }
 
-html.high-contrast .status-badge:hover,
-html.high-contrast .priority-badge:hover {
+:host-context(html.high-contrast) .status-badge:hover,
+:host-context(html.high-contrast) .priority-badge:hover {
   transform: none !important;
   box-shadow: none !important;
 }
 
 /* High Contrast - All Component Elements */
-html.high-contrast .filter-field,
-html.high-contrast .detail-field,
-html.high-contrast .form-group,
-html.high-contrast .page-header,
-html.high-contrast .actions-bar {
+:host-context(html.high-contrast) .filter-field,
+:host-context(html.high-contrast) .detail-field,
+:host-context(html.high-contrast) .form-group,
+:host-context(html.high-contrast) .page-header,
+:host-context(html.high-contrast) .actions-bar {
+  background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
 }
 
 /* High Contrast - Table Headers */

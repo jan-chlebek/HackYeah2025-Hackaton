@@ -1,0 +1,272 @@
+.announcement-create-container {
+  padding: 2rem;
+  background-color: #ffffff;
+  min-height: calc(100vh - 140px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  margin-bottom: 1.5rem;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #003366;
+  margin: 0;
+}
+
+/* Form Card */
+.form-card {
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Fields */
+.form-field {
+  margin-bottom: 2rem;
+}
+
+.field-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 1rem;
+}
+
+.field-label.required::after {
+  content: ' *';
+  color: #dc3545;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.error-message {
+  display: block;
+  color: #dc3545;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.field-hint {
+  display: block;
+  color: #666;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* Character Count */
+.character-count {
+  text-align: right;
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 2rem;
+}
+
+.form-actions button {
+  min-width: 150px;
+}
+
+/* Required Notice */
+.required-notice {
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.required-indicator {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Help Card */
+.help-card {
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.help-card h3 {
+  color: #003366;
+  font-size: 1.25rem;
+  margin: 0 0 1rem 0;
+}
+
+.help-card ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.help-card li {
+  margin-bottom: 0.5rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Input Validation States */
+input.ng-invalid.ng-dirty,
+textarea.ng-invalid.ng-dirty {
+  border-color: #dc3545;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+:host-context(html.high-contrast) .announcement-create-container {
+  background-color: #000000;
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .page-title {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .page-header {
+  background: #000000 !important;
+  background-image: none !important;
+  border: 2px solid #FFFF00 !important;
+  border-bottom-color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .form-card,
+:host-context(html.high-contrast) .help-card {
+  background-color: #000000;
+  border: 2px solid #FFFF00;
+  box-shadow: none;
+}
+
+:host-context(html.high-contrast) .field-label {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .field-label.required::after {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) input,
+:host-context(html.high-contrast) textarea {
+  background-color: #000000;
+  color: #FFFF00;
+  border-color: #FFFF00;
+}
+
+:host-context(html.high-contrast) input:focus,
+:host-context(html.high-contrast) textarea:focus {
+  outline-color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .error-message {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .field-hint,
+:host-context(html.high-contrast) .character-count,
+:host-context(html.high-contrast) .required-notice {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .form-actions {
+  border-top-color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .help-card h3 {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .help-card li {
+  color: #FFFF00;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .announcement-create-container {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .required-notice {
+    text-align: left;
+  }
+}
+
+/* Accessibility - Focus Indicators */
+button:focus-visible {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
+}
+
+:host-context(html.high-contrast) button:focus-visible {
+  outline-color: #FFFF00;
+}
+
+/* Loading State */
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Textarea Resize */
+textarea {
+  resize: vertical;
+  min-height: 200px;
+}
+
+/* Form Field Spacing */
+.form-field:last-of-type {
+  margin-bottom: 1rem;
+}
+
+/* Input Text Sizing */
+input[type="text"],
+textarea {
+  font-size: 1rem;
+  padding: 0.75rem;
+}
+
+/* Placeholder Styling */
+::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+:host-context(html.high-contrast) ::placeholder {
+  color: #888;
+}
