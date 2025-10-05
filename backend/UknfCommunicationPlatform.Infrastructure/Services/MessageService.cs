@@ -167,9 +167,9 @@ public class MessageService
             RelatedEntityId = request.RelatedEntityId,
             RelatedReportId = request.RelatedReportId,
             RelatedCaseId = request.RelatedCaseId,
-            Status = request.SendImmediately ? MessageStatus.Sent : MessageStatus.Draft,
+            Status = MessageStatus.Sent,
             IsRead = false,
-            SentAt = request.SendImmediately ? DateTime.UtcNow : default,
+            SentAt = DateTime.UtcNow,
             IsCancelled = false
         };
 
@@ -214,40 +214,8 @@ public class MessageService
         }
         await _context.Entry(message).Collection(m => m.Attachments).LoadAsync();
 
-        _logger.LogInformation("Message {MessageId} created by user {UserId} with {AttachmentCount} attachments", 
+        _logger.LogInformation("Message {MessageId} created by user {UserId} with {AttachmentCount} attachments",
             message.Id, senderId, message.Attachments.Count);
-
-        return MapToResponse(message);
-    }
-
-    /// <summary>
-    /// Update a message (typically drafts only)
-    /// </summary>
-    public async Task<MessageResponse?> UpdateMessageAsync(long messageId, long userId, UpdateMessageRequest request)
-    {
-        var message = await _context.Messages
-            .Include(m => m.Sender)
-            .Include(m => m.Recipient)
-            .Include(m => m.RelatedEntity)
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return null;
-
-        if (!string.IsNullOrWhiteSpace(request.Subject))
-            message.Subject = request.Subject;
-
-        if (!string.IsNullOrWhiteSpace(request.Body))
-            message.Body = request.Body;
-
-        if (request.RecipientId.HasValue)
-            message.RecipientId = request.RecipientId.Value;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Message {MessageId} updated by user {UserId}", messageId, userId);
 
         return MapToResponse(message);
     }
@@ -303,78 +271,6 @@ public class MessageService
     }
 
     /// <summary>
-    /// Send a draft message
-    /// </summary>
-    public async Task<MessageResponse?> SendDraftAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .Include(m => m.Sender)
-            .Include(m => m.Recipient)
-            .Include(m => m.RelatedEntity)
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return null;
-
-        message.Status = MessageStatus.Sent;
-        message.SentAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Draft message {MessageId} sent by user {UserId}", messageId, userId);
-
-        return MapToResponse(message);
-    }
-
-    /// <summary>
-    /// Cancel a sent message (before it's read)
-    /// </summary>
-    public async Task<bool> CancelMessageAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                !m.IsRead &&
-                !m.IsCancelled);
-
-        if (message == null) return false;
-
-        message.IsCancelled = true;
-        message.CancelledAt = DateTime.UtcNow;
-        message.Status = MessageStatus.Cancelled;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Message {MessageId} cancelled by user {UserId}", messageId, userId);
-
-        return true;
-    }
-
-    /// <summary>
-    /// Delete a draft message
-    /// </summary>
-    public async Task<bool> DeleteDraftAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return false;
-
-        _context.Messages.Remove(message);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Draft message {MessageId} deleted by user {UserId}", messageId, userId);
-
-        return true;
-    }
-
-    /// <summary>
     /// Get unread message count for a user
     /// </summary>
     public async Task<int> GetUnreadCountAsync(long userId)
@@ -397,8 +293,6 @@ public class MessageService
                 m.RecipientId == userId && m.Folder == MessageFolder.Inbox && !m.IsCancelled),
             TotalSent = await _context.Messages.CountAsync(m =>
                 m.SenderId == userId && m.Folder == MessageFolder.Sent && !m.IsCancelled),
-            TotalDrafts = await _context.Messages.CountAsync(m =>
-                m.SenderId == userId && m.Status == MessageStatus.Draft),
             UnreadCount = await GetUnreadCountAsync(userId)
         };
 
@@ -452,10 +346,10 @@ public class MessageService
             StatusWiadomosci = message.Status switch
             {
                 MessageStatus.Sent => "Wysłana",
-                MessageStatus.Draft => "Wersja robocza",
-                MessageStatus.Cancelled => "Anulowana",
                 MessageStatus.Closed => "Zamknięta",
                 MessageStatus.Read => "Przeczytana",
+                MessageStatus.AwaitingUknfResponse => "Oczekuje na odpowiedź UKNF",
+                MessageStatus.AwaitingUserResponse => "Oczekuje na odpowiedź użytkownika",
                 _ => message.Status.ToString()
             },
             Priorytet = null, // Priority not tracked in current model
@@ -483,7 +377,7 @@ public class MessageService
 
         if (message == null)
         {
-            _logger.LogWarning("User {UserId} attempted to access attachment {AttachmentId} for message {MessageId} - access denied", 
+            _logger.LogWarning("User {UserId} attempted to access attachment {AttachmentId} for message {MessageId} - access denied",
                 userId, attachmentId, messageId);
             return null;
         }
@@ -496,7 +390,7 @@ public class MessageService
 
         if (attachment != null)
         {
-            _logger.LogInformation("User {UserId} downloading attachment {AttachmentId} ({FileName}) from message {MessageId}", 
+            _logger.LogInformation("User {UserId} downloading attachment {AttachmentId} ({FileName}) from message {MessageId}",
                 userId, attachmentId, attachment.FileName, messageId);
         }
 
@@ -511,6 +405,5 @@ public class MessageStatsResponse
 {
     public int TotalInbox { get; set; }
     public int TotalSent { get; set; }
-    public int TotalDrafts { get; set; }
     public int UnreadCount { get; set; }
 }

@@ -91,7 +91,7 @@ public class MessagesController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new message or draft with optional file attachments
+    /// Create and send a new message with optional file attachments
     /// </summary>
     /// <param name="request">Message creation data with optional file attachments</param>
     /// <returns>Created message</returns>
@@ -104,9 +104,9 @@ public class MessagesController : ControllerBase
     {
         var userId = GetCurrentUserId();
 
-        if (request.SendImmediately && !request.RecipientId.HasValue)
+        if (!request.RecipientId.HasValue)
         {
-            return BadRequest(new { error = "Recipient is required when sending immediately" });
+            return BadRequest(new { error = "Recipient is required" });
         }
 
         // Validate attachments if provided
@@ -132,30 +132,6 @@ public class MessagesController : ControllerBase
             nameof(GetMessage),
             new { id = message.Id },
             message);
-    }
-
-    /// <summary>
-    /// Update a draft message
-    /// </summary>
-    /// <param name="id">Message ID</param>
-    /// <param name="request">Update data</param>
-    /// <returns>Updated message</returns>
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MessageResponse>> UpdateMessage(long id, [FromBody] UpdateMessageRequest request)
-    {
-        var userId = GetCurrentUserId();
-        var message = await _messageService.UpdateMessageAsync(id, userId, request);
-
-        if (message == null)
-        {
-            return NotFound(new { error = "Draft message not found or already sent" });
-        }
-
-        return Ok(message);
     }
 
     /// <summary>
@@ -194,72 +170,6 @@ public class MessagesController : ControllerBase
         var count = await _messageService.MarkMultipleAsReadAsync(request.MessageIds, userId);
 
         return Ok(new { markedCount = count, message = $"{count} message(s) marked as read" });
-    }
-
-    /// <summary>
-    /// Send a draft message
-    /// </summary>
-    /// <param name="id">Draft message ID</param>
-    /// <returns>Sent message</returns>
-    [HttpPost("{id}/send")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MessageResponse>> SendDraft(long id)
-    {
-        var userId = GetCurrentUserId();
-        var message = await _messageService.SendDraftAsync(id, userId);
-
-        if (message == null)
-        {
-            return NotFound(new { error = "Draft message not found" });
-        }
-
-        return Ok(message);
-    }
-
-    /// <summary>
-    /// Cancel a sent message (before it's read)
-    /// </summary>
-    /// <param name="id">Message ID</param>
-    /// <returns>Success status</returns>
-    [HttpPost("{id}/cancel")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> CancelMessage(long id)
-    {
-        var userId = GetCurrentUserId();
-        var success = await _messageService.CancelMessageAsync(id, userId);
-
-        if (!success)
-        {
-            return NotFound(new { error = "Message not found, already read, or cannot be cancelled" });
-        }
-
-        return Ok(new { message = "Message cancelled successfully" });
-    }
-
-    /// <summary>
-    /// Delete a draft message
-    /// </summary>
-    /// <param name="id">Draft message ID</param>
-    /// <returns>Success status</returns>
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> DeleteDraft(long id)
-    {
-        var userId = GetCurrentUserId();
-        var success = await _messageService.DeleteDraftAsync(id, userId);
-
-        if (!success)
-        {
-            return NotFound(new { error = "Draft message not found" });
-        }
-
-        return NoContent();
     }
 
     /// <summary>

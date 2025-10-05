@@ -106,8 +106,8 @@ curl -O http://localhost:5000/api/v1/messages/123/attachments/456/download
 **Method Signature**:
 ```csharp
 public async Task<MessageAttachment?> GetAttachmentAsync(
-    long messageId, 
-    long attachmentId, 
+    long messageId,
+    long attachmentId,
     long userId)
 ```
 
@@ -229,7 +229,7 @@ async function downloadAttachment(messageId: number, attachmentId: number, fileN
       }
     }
   );
-  
+
   if (response.ok) {
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
