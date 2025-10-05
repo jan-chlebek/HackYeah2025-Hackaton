@@ -58,4 +58,8 @@ Prefer polling with 0.3s to sleeping for more than 0.3s.
 
 Always strive to fix all warnings from compilation, to the extent it makes sense.
 
-Along the way, always implement basic and update the unit and integration tests and verify that they pass.
+Along the way, always implement basic and update the unit and integration tests of the backend and verify that they pass.
+
+At the end each change ensure here are proper basic tests as written above + run all backend tests and fix any issues.
+
+Update the script to run all backend tests at all times.

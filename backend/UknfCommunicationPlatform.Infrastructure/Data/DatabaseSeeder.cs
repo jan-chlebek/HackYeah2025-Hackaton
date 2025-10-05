@@ -275,7 +275,19 @@ public class DatabaseSeeder
                 Folder = MessageFolder.Sent,
                 SentAt = DateTime.UtcNow.AddDays(-5),
                 IsRead = true,
-                ReadAt = DateTime.UtcNow.AddDays(-4)
+                ReadAt = DateTime.UtcNow.AddDays(-4),
+                // Polish UI fields
+                Identyfikator = "2024/System14/1",
+                SygnaturaSprawy = "001/2025",
+                Podmiot = "PKO Bank Polski S.A.",
+                StatusWiadomosci = "Odpowiedziano",
+                Priorytet = "Średni",
+                DataPrzeslaniaPodmiotu = DateTime.UtcNow.AddDays(-5),
+                Uzytkownik = "Przedstawiciel PKO Bank Polski S.A.",
+                WiadomoscUzytkownika = "Prośba o przesłanie raportu kwartalnego",
+                DataPrzeslaniaUKNF = DateTime.UtcNow.AddDays(-5),
+                PracownikUKNF = "Jan Kowalski",
+                WiadomoscPracownikaUKNF = "Uprzejmie prosimy o przesłanie raportu finansowego za IV kwartał 2024 roku zgodnie z wymogami regulacyjnymi."
             },
             new Message
             {
@@ -286,7 +298,19 @@ public class DatabaseSeeder
                 Status = MessageStatus.Sent,
                 Folder = MessageFolder.Inbox,
                 SentAt = DateTime.UtcNow.AddDays(-3),
-                IsRead = false
+                IsRead = false,
+                // Polish UI fields
+                Identyfikator = "2024/System14/2",
+                SygnaturaSprawy = "001/2025",
+                Podmiot = "PKO Bank Polski S.A.",
+                StatusWiadomosci = "Oczekuje na odpowiedź UKNF",
+                Priorytet = "Wysoki",
+                DataPrzeslaniaPodmiotu = DateTime.UtcNow.AddDays(-3),
+                Uzytkownik = "Przedstawiciel PKO Bank Polski S.A.",
+                WiadomoscUzytkownika = "W załączeniu przesyłamy żądany raport finansowy za IV kwartał 2024.",
+                DataPrzeslaniaUKNF = null,
+                PracownikUKNF = "",
+                WiadomoscPracownikaUKNF = ""
             },
             new Message
             {
@@ -297,7 +321,19 @@ public class DatabaseSeeder
                 Status = MessageStatus.Sent,
                 Folder = MessageFolder.Sent,
                 SentAt = DateTime.UtcNow.AddDays(-1),
-                IsRead = false
+                IsRead = false,
+                // Polish UI fields
+                Identyfikator = "2024/System14/3",
+                SygnaturaSprawy = "002/2025",
+                Podmiot = "PKO Bank Polski S.A.",
+                StatusWiadomosci = "Oczekuje na odpowiedź podmiotu",
+                Priorytet = "Wysoki",
+                DataPrzeslaniaPodmiotu = null,
+                Uzytkownik = "",
+                WiadomoscUzytkownika = "",
+                DataPrzeslaniaUKNF = DateTime.UtcNow.AddDays(-1),
+                PracownikUKNF = "Jan Kowalski",
+                WiadomoscPracownikaUKNF = "Informujemy o zaplanowanej kontroli w dniach 20-22 stycznia 2025."
             }
         };
 
