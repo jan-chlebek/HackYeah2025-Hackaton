@@ -1,3 +1,113 @@
 <div class="wnioski-create-container">
-  <h1>Wnioski o dostęp - Utwórz</h1>
+  <div class="header">
+    <h1>Nowy wniosek o dostęp</h1>
+  </div>
+
+  <p-card styleClass="form-card">
+    <form [formGroup]="wniosekForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="title">
+            Tytuł wniosku <span class="required">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="title" 
+            formControlName="title"
+            placeholder="Wprowadź tytuł wniosku"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && f['title'].errors}" />
+          <small class="error-message" *ngIf="submitted && f['title'].errors">
+            <span *ngIf="f['title'].errors['required']">Tytuł jest wymagany</span>
+            <span *ngIf="f['title'].errors['minlength']">Tytuł musi mieć minimum 5 znaków</span>
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="type">
+            Typ wniosku <span class="required">*</span>
+          </label>
+          <p-select
+            id="type"
+            formControlName="type"
+            [options]="typeOptions"
+            placeholder="Wybierz typ wniosku"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && f['type'].errors}"
+            styleClass="w-full">
+          </p-select>
+          <small class="error-message" *ngIf="submitted && f['type'].errors">
+            <span *ngIf="f['type'].errors['required']">Typ wniosku jest wymagany</span>
+          </small>
+        </div>
+
+        <div class="form-field full-width">
+          <label for="description">
+            Opis <span class="required">*</span>
+          </label>
+          <textarea 
+            pTextarea 
+            id="description" 
+            formControlName="description"
+            rows="4"
+            placeholder="Opisz szczegółowo swój wniosek"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && f['description'].errors}">
+          </textarea>
+          <small class="error-message" *ngIf="submitted && f['description'].errors">
+            <span *ngIf="f['description'].errors['required']">Opis jest wymagany</span>
+            <span *ngIf="f['description'].errors['minlength']">Opis musi mieć minimum 20 znaków</span>
+          </small>
+        </div>
+
+        <div class="form-field full-width">
+          <label for="justification">
+            Uzasadnienie <span class="required">*</span>
+          </label>
+          <textarea 
+            pTextarea 
+            id="justification" 
+            formControlName="justification"
+            rows="4"
+            placeholder="Uzasadnij, dlaczego potrzebujesz tego dostępu"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && f['justification'].errors}">
+          </textarea>
+          <small class="error-message" *ngIf="submitted && f['justification'].errors">
+            <span *ngIf="f['justification'].errors['required']">Uzasadnienie jest wymagane</span>
+            <span *ngIf="f['justification'].errors['minlength']">Uzasadnienie musi mieć minimum 20 znaków</span>
+          </small>
+        </div>
+
+        <div class="form-field full-width">
+          <label for="requestedAccess">
+            Wnioskowane uprawnienia <span class="required">*</span>
+          </label>
+          <p-multiselect
+            id="requestedAccess"
+            formControlName="requestedAccess"
+            [options]="accessOptions"
+            placeholder="Wybierz uprawnienia"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && f['requestedAccess'].errors}"
+            styleClass="w-full"
+            [showClear]="true">
+          </p-multiselect>
+          <small class="error-message" *ngIf="submitted && f['requestedAccess'].errors">
+            <span *ngIf="f['requestedAccess'].errors['required']">Musisz wybrać przynajmniej jedno uprawnienie</span>
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <p-button 
+          label="Anuluj" 
+          icon="pi pi-times" 
+          (onClick)="onCancel()"
+          styleClass="p-button-outlined">
+        </p-button>
+        <p-button 
+          label="Złóż wniosek" 
+          icon="pi pi-check" 
+          type="submit"
+          styleClass="p-button-primary">
+        </p-button>
+      </div>
+    </form>
+  </p-card>
 </div>

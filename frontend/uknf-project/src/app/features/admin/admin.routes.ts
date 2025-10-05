@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-export const ADMIN_ROUTES: Routes = [
+export const adminRoutes: Routes = [
   {
     path: '',
     redirectTo: 'users',
@@ -8,14 +8,30 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'users',
-    loadComponent: () => import('./admin-users/admin-users.component').then(m => m.AdminUsersComponent)
+    loadComponent: () => import('./users/users-list.component').then(m => m.UsersListComponent)
+  },
+  {
+    path: 'users/create',
+    loadComponent: () => import('./users/user-create.component').then(m => m.UserCreateComponent)
+  },
+  {
+    path: 'users/:id',
+    loadComponent: () => import('./users/user-details.component').then(m => m.UserDetailsComponent)
   },
   {
     path: 'password-policy',
-    loadComponent: () => import('./admin-password-policy/admin-password-policy.component').then(m => m.AdminPasswordPolicyComponent)
+    loadComponent: () => import('./password-policy/password-policy.component').then(m => m.PasswordPolicyComponent)
   },
   {
     path: 'roles',
-    loadComponent: () => import('./admin-roles/admin-roles.component').then(m => m.AdminRolesComponent)
+    loadComponent: () => import('./roles/roles-list.component').then(m => m.RolesListComponent)
+  },
+  {
+    path: 'roles/create',
+    loadComponent: () => import('./roles/role-create.component').then(m => m.RoleCreateComponent)
+  },
+  {
+    path: 'roles/:id',
+    loadComponent: () => import('./roles/role-details.component').then(m => m.RoleDetailsComponent)
   }
 ];

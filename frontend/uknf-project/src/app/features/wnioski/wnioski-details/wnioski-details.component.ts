@@ -1,168 +1,128 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { TimelineModule } from 'primeng/timeline';
 
-interface Podmiot {
-  nazwa: string;
-  link: string;
-  sprawy: string;
-  ignarowaneZesde: string;
-  administrator: string;
+interface WniosekDetails {
+  id: number;
+  title: string;
+  type: string;
   status: string;
-}
-
-interface Zalacznik {
-  nazwa: string;
-  typ: string;
-}
-
-interface Wlasnosc {
-  dataRozrzecenia: string;
-  priorytet: string;
-  dataPrzewiania1: string;
-  dataPrzewiania2: string;
-  dataOtczania1: string;
-  dataOtczania2: string;
-  nazwisko: string;
-  akcesur: string;
-  statusWlasnosciowy: string;
+  submittedDate: Date;
+  submittedBy: string;
+  description: string;
+  justification?: string;
+  requestedAccess?: string[];
+  timeline: Array<{
+    status: string;
+    date: Date;
+    user: string;
+    comment?: string;
+  }>;
 }
 
 @Component({
   selector: 'app-wnioski-details',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ButtonModule,
+    CardModule,
+    TagModule,
+    TimelineModule
+  ],
   templateUrl: './wnioski-details.component.html',
-  styleUrl: './wnioski-details.component.css'
+  styleUrls: ['./wnioski-details.component.scss']
 })
 export class WnioskiDetailsComponent implements OnInit {
-  wniosekId: string = '';
-  
-  // Form fields
-  imie: string = 'Krzysztof';
-  drugieImie: string = '';
-  nazwisko: string = 'Kowalski';
-  pesel: string = '11223344550';
-  email: string = 'krzysztof@example.com';
-  telefon: string = '+48123456789';
-  
-  // Uprawnienia
-  uprawnieniaLiczebnosc: boolean = false;
-  uprawnieniaWykluczaneiane: boolean = true;
-  
-  // Table filters
-  nazwaPodmiotu: string = '';
-  linkNazwaRejestrowana: string = '';
-  sprawyFilter: string = '';
-  ignarowaneZesdeFilter: string = '';
-  administratorFilter: string = '';
-  statusFilter: string = '';
-  
-  // Podmioty data
-  podmioty: Podmiot[] = [
-    { nazwa: 'Nazwa podmiotu - testowy podmiot', link: 'Jan Kowalski', sprawy: 'Tak', ignarowaneZesde: 'Tak', administrator: 'Tak', status: 'Zainteresowany' },
-    { nazwa: 'Nazwa podmiotu - testowy podmiot', link: 'Jan Kowalski', sprawy: 'Tak', ignarowaneZesde: 'Tak', administrator: 'Tak', status: 'Zainteresowany' },
-    { nazwa: 'Nazwa podmiotu - testowy podmiot', link: 'Jan Kowalski', sprawy: 'Tak', ignarowaneZesde: 'Tak', administrator: 'Tak', status: 'Zainteresowany' },
-    { nazwa: 'Nazwa podmiotu - testowy podmiot', link: 'Jan Kowalski', sprawy: 'Tak', ignarowaneZesde: 'Tak', administrator: 'Tak', status: 'Zainteresowany' },
-    { nazwa: 'Nazwa podmiotu - testowy podmiot', link: 'Jan Kowalski', sprawy: 'Tak', ignarowaneZesde: 'Tak', administrator: 'Tak', status: 'Zainteresowany' }
-  ];
-  
-  filteredPodmioty: Podmiot[] = [];
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  totalItems: number = 0;
-  
-  // Załączniki
-  zalaczniki: Zalacznik[] = [
-    { nazwa: 'Zalacznik_umowa.pdf', typ: 'PDF' },
-    { nazwa: 'Zalacznik_druga.pdf', typ: 'PDF' },
-    { nazwa: 'Zalacznik_trzeci.txt', typ: 'TXT' }
-  ];
-  
-  // Wnioski section
-  wniosekDostepu: boolean = false;
-  wniosekKorzystania: boolean = false;
-  
-  // Własności data
-  wlasnosci: Wlasnosc[] = [
-    { dataRozrzecenia: '2025-01-11 13:48:16', priorytet: 'Branze', dataPrzewiania1: '2025-01-02 18:48:25', dataPrzewiania2: '2025-01-02 17:34:25', dataOtczania1: '', dataOtczania2: '', nazwisko: 'Jan Nowak', akcesur: 'UKNF', statusWlasnosciowy: 'Oczekuje na odpowiedz' },
-    { dataRozrzecenia: '2025-01-11 13:48:16', priorytet: 'Branze', dataPrzewiania1: '2025-01-02 18:48:25', dataPrzewiania2: '2025-01-02 17:34:25', dataOtczania1: '', dataOtczania2: '', nazwisko: 'Jan Nowak', akcesur: 'UKNF', statusWlasnosciowy: 'Oczekuje na odpowiedz' },
-    { dataRozrzecenia: '2025-01-11 13:48:16', priorytet: 'Branze', dataPrzewiania1: '2025-01-02 18:48:25', dataPrzewiania2: '2025-01-02 17:34:25', dataOtczania1: '', dataOtczania2: '', nazwisko: 'Jan Nowak', akcesur: 'UKNF', statusWlasnosciowy: 'Oczekuje na odpowiedz' },
-    { dataRozrzecenia: '2025-01-11 13:48:16', priorytet: 'Branze', dataPrzewiania1: '2025-01-02 18:48:25', dataPrzewiania2: '2025-01-02 17:34:25', dataOtczania1: '', dataOtczania2: '', nazwisko: 'Jan Nowak', akcesur: 'UKNF', statusWlasnosciowy: 'Oczekuje na odpowiedz' }
-  ];
-  
-  wlasnosciCurrentPage: number = 1;
-  wlasnosciItemsPerPage: number = 10;
-  
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
-  
+  wniosek: WniosekDetails | null = null;
+  wniosekId: string | null = null;
+
+  constructor(private route: ActivatedRoute) {}
+
   ngOnInit(): void {
-    this.wniosekId = this.route.snapshot.paramMap.get('id') || '';
-    this.filterPodmioty();
+    this.wniosekId = this.route.snapshot.paramMap.get('id');
+    this.loadWniosekDetails();
   }
-  
-  filterPodmioty(): void {
-    this.filteredPodmioty = this.podmioty.filter(p => {
-      return (
-        (!this.nazwaPodmiotu || p.nazwa.toLowerCase().includes(this.nazwaPodmiotu.toLowerCase())) &&
-        (!this.linkNazwaRejestrowana || p.link.toLowerCase().includes(this.linkNazwaRejestrowana.toLowerCase())) &&
-        (!this.sprawyFilter || p.sprawy === this.sprawyFilter) &&
-        (!this.ignarowaneZesdeFilter || p.ignarowaneZesde === this.ignarowaneZesdeFilter) &&
-        (!this.administratorFilter || p.administrator === this.administratorFilter) &&
-        (!this.statusFilter || p.status === this.statusFilter)
-      );
-    });
-    this.totalItems = this.filteredPodmioty.length;
+
+  loadWniosekDetails(): void {
+    // Mock data - replace with actual API call
+    this.wniosek = {
+      id: Number(this.wniosekId),
+      title: 'Wniosek o dostęp do modułu raportowania',
+      type: 'system-access',
+      status: 'in-progress',
+      submittedDate: new Date('2025-01-03'),
+      submittedBy: 'Jan Kowalski',
+      description: 'Prośba o przyznanie uprawnień do modułu raportowania w celu przygotowania miesięcznych raportów finansowych.',
+      justification: 'Jako kierownik działu finansowego potrzebuję dostępu do modułu raportowania, aby móc przygotowywać i analizować raporty finansowe wymagane przez dyrekcję.',
+      requestedAccess: [
+        'Moduł raportowania - odczyt',
+        'Moduł raportowania - eksport danych',
+        'Archiwum raportów - odczyt'
+      ],
+      timeline: [
+        {
+          status: 'Złożony',
+          date: new Date('2025-01-03 10:00'),
+          user: 'Jan Kowalski'
+        },
+        {
+          status: 'W weryfikacji',
+          date: new Date('2025-01-03 14:30'),
+          user: 'Administrator systemu',
+          comment: 'Wniosek przekazany do weryfikacji przez kierownika IT'
+        },
+        {
+          status: 'W trakcie akceptacji',
+          date: new Date('2025-01-04 09:15'),
+          user: 'Kierownik IT',
+          comment: 'Weryfikacja pozytywna, oczekiwanie na akceptację dyrektora'
+        }
+      ]
+    };
   }
-  
-  goBack(): void {
-    this.router.navigate(['/pulpit/wnioski']);
+
+  getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+    const severityMap: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast'> = {
+      'new': 'info',
+      'in-progress': 'warn',
+      'approved': 'success',
+      'rejected': 'danger'
+    };
+    return severityMap[status] || 'info';
   }
-  
-  pobierzZalacznik(zalacznik: Zalacznik): void {
-    console.log('Pobieranie załącznika:', zalacznik.nazwa);
-    // Implement download logic here
+
+  getStatusLabel(status: string): string {
+    const labelMap: Record<string, string> = {
+      'new': 'Nowy',
+      'in-progress': 'W trakcie',
+      'approved': 'Zatwierdzony',
+      'rejected': 'Odrzucony'
+    };
+    return labelMap[status] || status;
   }
-  
-  usunZalacznik(zalacznik: Zalacznik): void {
-    const index = this.zalaczniki.indexOf(zalacznik);
-    if (index > -1) {
-      this.zalaczniki.splice(index, 1);
-    }
+
+  getTypeLabel(type: string): string {
+    const labelMap: Record<string, string> = {
+      'system-access': 'Dostęp do systemu',
+      'data-change': 'Zmiana danych',
+      'other': 'Inne'
+    };
+    return labelMap[type] || type;
   }
-  
-  submitWniosek(type: string): void {
-    console.log(`Submitting wniosek: ${type}`);
-    // Implement submission logic
+
+  approveWniosek(): void {
+    console.log('Approving wniosek', this.wniosekId);
+    // Implement approval logic
   }
-  
-  changePage(page: number): void {
-    this.currentPage = page;
-  }
-  
-  changeWlasnosciPage(page: number): void {
-    this.wlasnosciCurrentPage = page;
-  }
-  
-  getPaginatedPodmioty(): Podmiot[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredPodmioty.slice(startIndex, startIndex + this.itemsPerPage);
-  }
-  
-  getPaginatedWlasnosci(): Wlasnosc[] {
-    const startIndex = (this.wlasnosciCurrentPage - 1) * this.wlasnosciItemsPerPage;
-    return this.wlasnosci.slice(startIndex, startIndex + this.wlasnosciItemsPerPage);
-  }
-  
-  getTotalPages(): number {
-    return Math.ceil(this.totalItems / this.itemsPerPage);
-  }
-  
-  getWlasnosciTotalPages(): number {
-    return Math.ceil(this.wlasnosci.length / this.wlasnosciItemsPerPage);
+
+  rejectWniosek(): void {
+    console.log('Rejecting wniosek', this.wniosekId);
+    // Implement rejection logic
   }
 }

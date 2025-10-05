@@ -5,9 +5,16 @@ import { CommonModule } from '@angular/common';
   selector: 'app-faq-manage',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './faq-manage.component.html',
-  styleUrl: './faq-manage.component.css'
+  template: `
+    <div class="faq-manage-container">
+      <h1>Manage FAQ</h1>
+      <p>Manage questions and answers - empty</p>
+    </div>
+  `,
+  styles: [`
+    .faq-manage-container {
+      padding: 2rem;
+    }
+  `]
 })
-export class FaqManageComponent {
-
-}
+export class FaqManageComponent {}

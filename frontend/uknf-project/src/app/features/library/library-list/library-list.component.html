@@ -1,0 +1,419 @@
+<div class="library-page">
+  <!-- Breadcrumb Navigation -->
+  <p-breadcrumb 
+    [model]="breadcrumbItems" 
+    [home]="home"
+    class="mb-4"
+    aria-label="Ścieżka nawigacji"
+  ></p-breadcrumb>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Biblioteka - repozytorium plików</h1>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <h2>Wyszukiwanie</h2>
+      <button 
+        pButton 
+        type="button" 
+        [label]="showFilters ? 'Zwiń' : 'Rozwiń'" 
+        [icon]="showFilters ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+        (click)="toggleFilters()"
+        class="p-button-text"
+        [attr.aria-expanded]="showFilters"
+        aria-controls="filter-panel"
+      ></button>
+    </div>
+
+    <div id="filter-panel" class="filter-panel" [class.expanded]="showFilters">
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label for="filter-data-aktualizacji">Data aktualizacji</label>
+          <p-datepicker 
+            id="filter-data-aktualizacji"
+            [(ngModel)]="filters.uploadDateFrom"
+            dateFormat="yy-mm-dd"
+            placeholder="Wybierz datę"
+            [showIcon]="true"
+          ></p-datepicker>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-nazwa-pliku">Nazwa pliku</label>
+          <input 
+            id="filter-nazwa-pliku"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.fileName"
+            placeholder="Wpisz nazwę pliku"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-okres">Okres sprawozdawczy</label>
+          <input 
+            id="filter-okres"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.reportingPeriod"
+            placeholder="np. Kwartal, Rok"
+          />
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Wyczyść" 
+          icon="pi pi-times"
+          class="p-button-outlined"
+          (click)="clearFilters()"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Szukaj" 
+          icon="pi pi-search"
+          (click)="applyFilters()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Files Table -->
+  <div class="table-container">
+    <p-table 
+      [value]="files" 
+      [loading]="loading"
+      [rows]="pageSize"
+      [totalRecords]="totalRecords"
+      [paginator]="true"
+      [rowsPerPageOptions]="pageSizeOptions"
+      (onPage)="onPageChange($event)"
+      [lazy]="true"
+      responsiveLayout="scroll"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="uploadDate">
+            Data aktualizacji
+            <p-sortIcon field="uploadDate"></p-sortIcon>
+          </th>
+          <th pSortableColumn="fileName">
+            Nazwa pliku
+            <p-sortIcon field="fileName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="reportingPeriod">
+            Okres sprawozdawczy
+            <p-sortIcon field="reportingPeriod"></p-sortIcon>
+          </th>
+          <th>Akcje</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-file>
+        <tr>
+          <td>{{ formatDate(file.dataAktualizacji) }}</td>
+          <td>
+            <span class="file-name">{{ file.nazwaPilku }}</span>
+          </td>
+          <td>{{ file.okresSprawozdawczy || '-' }}</td>
+          <td>
+            <div class="action-buttons-row">
+              <button 
+                pButton 
+                type="button" 
+                label="Pobierz"
+                class="p-button-sm p-button-outlined action-btn"
+                (click)="downloadFile(file)"
+                icon="pi pi-download"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center">
+            Brak plików do wyświetlenia
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="main-actions">
+    <button 
+      pButton 
+      type="button" 
+      label="Dodaj" 
+      icon="pi pi-plus"
+      class="p-button-primary"
+      (click)="openAddFileDialog()"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Modyfikuj" 
+      icon="pi pi-pencil"
+      class="p-button-outlined"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Poglądaj" 
+      icon="pi pi-search"
+      class="p-button-outlined"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Usuń" 
+      icon="pi pi-trash"
+      class="p-button-outlined p-button-danger"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Historia" 
+      icon="pi pi-history"
+      class="p-button-outlined"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Eksportuj" 
+      icon="pi pi-download"
+      class="p-button-outlined"
+    ></button>
+  </div>
+</div>
+
+<!-- Add File Dialog -->
+<p-dialog 
+  [(visible)]="showAddFileDialog" 
+  header="Repozytorium plików - dodaj plik"
+  [modal]="true"
+  [style]="{width: '70vw', maxWidth: '900px'}"
+  [closable]="true"
+  (onHide)="closeAddFileDialog()"
+>
+  <div class="file-upload-form">
+    <!-- Archived Checkbox -->
+    <div class="form-field checkbox-field">
+      <p-checkbox 
+        inputId="upload-archived"
+        [(ngModel)]="uploadIsArchived"
+        [binary]="true"
+        label="Archiwalny"
+      ></p-checkbox>
+    </div>
+
+    <!-- File Name and Reporting Period -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="upload-filename">Nazwa pliku *</label>
+        <input 
+          id="upload-filename"
+          type="text" 
+          pInputText 
+          [(ngModel)]="uploadFileName"
+          placeholder="np. Plik_w_repozytorium_01.xlsx"
+          [style]="{'width': '100%'}"
+          required
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="upload-period">Okres sprawozdawczy</label>
+        <p-select 
+          id="upload-period"
+          [(ngModel)]="uploadReportingPeriod"
+          [options]="[
+            {label: 'Kwartal', value: 'Kwartal'},
+            {label: 'Rok', value: 'Rok'},
+            {label: 'Miesiąc', value: 'Miesiąc'}
+          ]"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Wybierz okres"
+          [style]="{'width': '100%'}"
+        ></p-select>
+      </div>
+
+      <div class="form-field">
+        <label for="upload-date">Data aktualizacji</label>
+        <p-datepicker 
+          id="upload-date"
+          [(ngModel)]="uploadReportingPeriodDate"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          [style]="{'width': '100%'}"
+        ></p-datepicker>
+      </div>
+    </div>
+
+    <!-- File Upload -->
+    <div class="form-field">
+      <label for="upload-file">Załącznik *</label>
+      <div class="file-input-wrapper">
+        <input 
+          type="file" 
+          id="upload-file"
+          (change)="onFileSelected($event)"
+          style="display: none"
+        />
+        <label for="upload-file" class="file-input-button">
+          <button 
+            pButton 
+            type="button" 
+            label="Przeglądaj" 
+            icon="pi pi-folder-open"
+            class="p-button-outlined"
+          ></button>
+        </label>
+        <span class="file-input-name">{{ uploadFileName || 'Testowy_zalacznik.pdf' }}</span>
+      </div>
+      <div class="file-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Przeglądaj" 
+          icon="pi pi-folder-open"
+          class="p-button-text p-button-sm"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Usuń" 
+          icon="pi pi-trash"
+          class="p-button-text p-button-sm"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Historia" 
+          icon="pi pi-history"
+          class="p-button-text p-button-sm"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Pobierz" 
+          icon="pi pi-download"
+          class="p-button-text p-button-sm"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Poglądaj" 
+          icon="pi pi-search"
+          class="p-button-text p-button-sm"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Entity Recipients -->
+    <div class="form-section">
+      <h3>Adresaci powiadomień</h3>
+      
+      <div class="form-field">
+        <label for="recipient-select">Nazwa podmiotu</label>
+        <p-select 
+          id="recipient-select"
+          [(ngModel)]="selectedRecipient"
+          [options]="entityRecipientOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Wybierz adresata"
+          [style]="{'width': '100%'}"
+        ></p-select>
+      </div>
+
+      <div class="recipient-groups">
+        <div class="recipient-group">
+          <label>Adresaci grupa pierwsza</label>
+          <div class="recipient-value">-</div>
+        </div>
+        <div class="recipient-group">
+          <label>Adresaci grupa druga</label>
+          <div class="recipient-value">-</div>
+        </div>
+        <div class="recipient-group">
+          <label>Adresaci grupa trzecia</label>
+          <div class="recipient-value">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons in Dialog -->
+    <div class="dialog-action-buttons">
+      <button 
+        pButton 
+        type="button" 
+        label="Wybierz" 
+        class="p-button-outlined p-button-sm"
+      ></button>
+      <button 
+        pButton 
+        type="button" 
+        label="Utwórz i dodaj" 
+        class="p-button-outlined p-button-sm"
+      ></button>
+      <button 
+        pButton 
+        type="button" 
+        label="Podgląd" 
+        class="p-button-outlined p-button-sm"
+      ></button>
+      <button 
+        pButton 
+        type="button" 
+        label="Edycja" 
+        class="p-button-outlined p-button-sm"
+      ></button>
+      <button 
+        pButton 
+        type="button" 
+        label="Usuń" 
+        class="p-button-outlined p-button-sm"
+      ></button>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Anuluj" 
+      icon="pi pi-times"
+      class="p-button-text p-button-secondary"
+      (click)="closeAddFileDialog()"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Zapisz i wyślij" 
+      icon="pi pi-check"
+      class="p-button-primary"
+      (click)="uploadFile()"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Zapisz i zamknij" 
+      icon="pi pi-save"
+      class="p-button-primary"
+      (click)="uploadFile()"
+    ></button>
+  </ng-template>
+</p-dialog>

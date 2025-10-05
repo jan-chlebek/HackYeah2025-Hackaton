@@ -5,9 +5,16 @@ import { CommonModule } from '@angular/common';
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  template: `
+    <div class="register-container">
+      <h1>Register</h1>
+      <p>Registration screen - empty</p>
+    </div>
+  `,
+  styles: [`
+    .register-container {
+      padding: 2rem;
+    }
+  `]
 })
-export class RegisterComponent {
-
-}
+export class RegisterComponent {}
