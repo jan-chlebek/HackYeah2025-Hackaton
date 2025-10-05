@@ -74,6 +74,93 @@
 .filter-panel.expanded {
   max-height: 1000px;
   transition: max-height 0.5s ease-in;
+  /* Allow datepicker popup to extend beyond panel */
+  overflow: visible;
+  position: relative;
+  z-index: 20;
+}
+
+/* Fix PrimeNG datepicker overlay clipping inside filter panel */
+:host ::ng-deep .p-datepicker:not(.p-datepicker-inline) {
+  z-index: 1000 !important;
+}
+
+/* Ensure datepicker panel has minimum width for full header controls */
+:host ::ng-deep .p-datepicker .p-datepicker-group-container {
+  min-width: 300px;
+}
+
+/* Force visibility of navigation arrows in PrimeNG DatePicker */
+:host ::ng-deep .p-datepicker .p-datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem 1rem;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-prev,
+:host ::ng-deep .p-datepicker .p-datepicker-next {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d0d7e2;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  position: relative;
+  color: #0047AB !important;
+}
+
+/* If icon font/svg missing, draw fallback chevron */
+:host ::ng-deep .p-datepicker .p-datepicker-prev::before,
+:host ::ng-deep .p-datepicker .p-datepicker-next::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(135deg);
+  display: block;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-next::before {
+  transform: rotate(-45deg);
+}
+
+/* Remove duplicate inner icon space if original icon still renders */
+:host ::ng-deep .p-datepicker .p-datepicker-prev .p-datepicker-prev-icon,
+:host ::ng-deep .p-datepicker .p-datepicker-next .p-datepicker-next-icon {
+  font-size: 1rem;
+  color: #0047AB;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-prev:hover,
+:host ::ng-deep .p-datepicker .p-datepicker-next:hover {
+  background: #f0f7ff;
+  border-color: #90CAF9;
+  cursor: pointer;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-prev:focus-visible,
+:host ::ng-deep .p-datepicker .p-datepicker-next:focus-visible {
+  outline: 2px solid #0047AB;
+  outline-offset: 2px;
+}
+
+/* High contrast adaptation */
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-prev,
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-next {
+  background: #000 !important;
+  border: 2px solid #FFFF00 !important;
+  color: #FFFF00 !important;
+  box-shadow: none;
+}
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-prev:hover,
+html.high-contrast :host ::ng-deep .p-datepicker .p-datepicker-next:hover {
+  background: #FFFF00 !important;
+  color: #000 !important;
 }
 
 .filter-grid {
@@ -314,6 +401,22 @@
 
 .detail-section {
   margin-bottom: 1.5rem;
+}
+
+.user-message-readonly {
+  background: #f5f7fa;
+  border: 1px solid #d0d7e2;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--uknf-medium-gray);
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
 
 .detail-label {

@@ -10,6 +10,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { TagModule } from 'primeng/tag';
 import { MenuItem } from 'primeng/api';
 import { AnnouncementService, AnnouncementListItem, AnnouncementFilters } from '../../../services/announcement.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-announcements-list',
@@ -29,6 +30,7 @@ import { AnnouncementService, AnnouncementListItem, AnnouncementFilters } from '
 })
 export class AnnouncementsListComponent implements OnInit {
   private announcementService = inject(AnnouncementService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -54,6 +56,38 @@ export class AnnouncementsListComponent implements OnInit {
   filters: AnnouncementFilters = {};
   searchTerm = '';
 
+  // Sorting
+  sortField: string = 'createdAt';
+  sortOrder: number = -1; // -1 for descending, 1 for ascending
+
+  // Check if user is internal (UKNF staff) - NOT external user
+  get isInternalUser(): boolean {
+    const user = this.authService.getCurrentUser();
+    console.log('[AnnouncementsList] Checking isInternalUser:', {
+      user,
+      roles: user?.roles,
+      email: user?.email
+    });
+    
+    if (!user || !user.roles || user.roles.length === 0) {
+      console.log('[AnnouncementsList] No user or no roles found, returning false');
+      return false;
+    }
+    
+    // Check if user has ExternalUser role - if yes, they are NOT internal
+    const hasExternalRole = user.roles.some((r: string) => r.toLowerCase() === 'externaluser');
+    if (hasExternalRole) {
+      console.log('[AnnouncementsList] User has ExternalUser role, returning false');
+      return false;
+    }
+    
+    // Check if user has internal roles
+    const internalRoles = ['administrator', 'internaluser', 'supervisor'];
+    const isInternal = user.roles.some((r: string) => internalRoles.includes(r.toLowerCase()));
+    console.log('[AnnouncementsList] isInternalUser result:', isInternal);
+    return isInternal;
+  }
+
   ngOnInit(): void {
     setTimeout(() => {
       this.loadAnnouncements();
@@ -63,9 +97,17 @@ export class AnnouncementsListComponent implements OnInit {
   loadAnnouncements(): void {
     this.loading = true;
     const page = Math.floor(this.first / this.pageSize) + 1;
-    console.log('Loading announcements with params:', { page, pageSize: this.pageSize, first: this.first, filters: this.filters });
     
-    this.announcementService.getAnnouncements(page, this.pageSize, this.filters).subscribe({
+    // Add sorting to filters
+    const filtersWithSort = {
+      ...this.filters,
+      sortBy: this.sortField,
+      sortDirection: this.sortOrder === 1 ? 'asc' as const : 'desc' as const
+    };
+    
+    console.log('Loading announcements with params:', { page, pageSize: this.pageSize, first: this.first, filters: filtersWithSort });
+    
+    this.announcementService.getAnnouncements(page, this.pageSize, filtersWithSort).subscribe({
       next: (response) => {
         console.log('Announcements loaded successfully:', response);
         this.announcements = response.items || [];
@@ -93,6 +135,14 @@ export class AnnouncementsListComponent implements OnInit {
     console.log('Page change event:', event);
     this.first = event.first;
     this.pageSize = event.rows;
+    this.loadAnnouncements();
+  }
+
+  onSort(event: any): void {
+    console.log('Sort event:', event);
+    this.sortField = event.field;
+    this.sortOrder = event.order;
+    this.first = 0; // Reset to first page when sorting
     this.loadAnnouncements();
   }
 

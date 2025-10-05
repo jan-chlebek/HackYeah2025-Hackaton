@@ -1,5 +1,5 @@
-import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../../services/auth.service';
@@ -190,6 +190,8 @@ interface MenuItem {
 })
 export class SidebarComponent {
   private authService = inject(AuthService);
+  private platformId = inject(PLATFORM_ID);
+  public readonly isBrowser = isPlatformBrowser(this.platformId);
   
   constructor() {
     console.log('[Sidebar] Component initialized');
@@ -213,23 +215,13 @@ export class SidebarComponent {
   // Computed property that filters menu items based on user permissions
   // Uses the signal-based hasElevatedPermissionsSignal for reactivity
   visibleMenuItems = computed(() => {
+    // During SSR always hide elevated-only items to avoid leakage / mismatches
+    if (!this.isBrowser) {
+      return this.allMenuItems.filter(i => !i.requiresElevatedPermissions);
+    }
+
     const hasElevatedPermissions = this.authService.hasElevatedPermissionsSignal();
-    
-    console.log('[Sidebar] Computing visible menu items, hasElevatedPermissions:', hasElevatedPermissions);
-    
-    const filtered = this.allMenuItems.filter(item => {
-      // If item doesn't require elevated permissions, show it
-      if (!item.requiresElevatedPermissions) {
-        return true;
-      }
-      
-      // If item requires elevated permissions, only show if user has them
-      const shouldShow = hasElevatedPermissions;
-      console.log(`[Sidebar] Item "${item.label}" requires elevated perms:`, shouldShow);
-      return shouldShow;
-    });
-    
-    console.log('[Sidebar] Visible items count:', filtered.length, '/', this.allMenuItems.length);
+    const filtered = this.allMenuItems.filter(item => !item.requiresElevatedPermissions || hasElevatedPermissions);
     return filtered;
   });
 }

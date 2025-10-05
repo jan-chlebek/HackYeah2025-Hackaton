@@ -12,7 +12,7 @@ namespace UknfCommunicationPlatform.Api.Controllers;
 /// </summary>
 [ApiController]
 [Authorize]
-[Route("api/announcements")]
+[Route("api/v1/announcements")]
 [Produces("application/json")]
 public class AnnouncementsController : ControllerBase
 {

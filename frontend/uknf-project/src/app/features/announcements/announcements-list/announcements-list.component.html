@@ -5,7 +5,7 @@
       <h1 class="page-title">Komunikaty</h1>
       <p class="page-subtitle">Ogłoszenia i ważne informacje dla podmiotów nadzorowanych</p>
     </div>
-    <div class="header-actions">
+    <div class="header-actions" *ngIf="isInternalUser">
       <button 
         pButton 
         type="button" 
@@ -20,16 +20,13 @@
   <!-- Search and Filters -->
   <div class="filters-section">
     <div class="search-bar">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input 
-          pInputText 
-          type="text" 
-          placeholder="Szukaj komunikatów..." 
-          [(ngModel)]="searchTerm"
-          (keyup.enter)="applyFilters()"
-          class="search-input">
-      </span>
+      <input 
+        pInputText 
+        type="text" 
+        placeholder="Szukaj komunikatów..." 
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="applyFilters()"
+        class="search-input">
       <button 
         pButton 
         type="button" 
@@ -93,21 +90,38 @@
     [totalRecords]="totalRecords"
     [lazy]="true"
     (onLazyLoad)="onPageChange($event)"
+    (onSort)="onSort($event)"
     [loading]="loading"
     [rowsPerPageOptions]="pageSizeOptions"
     [showCurrentPageReport]="true"
     currentPageReportTemplate="Wyświetlanie {first} do {last} z {totalRecords} komunikatów"
-    styleClass="p-datatable-striped"
-    [tableStyle]="{ 'min-width': '60rem' }">
+    styleClass="p-datatable-striped announcements-table"
+    responsiveLayout="scroll"
+    [sortField]="sortField"
+    [sortOrder]="sortOrder">
     
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 5%">ID</th>
-        <th style="width: 30%">Tytuł</th>
-        <th style="width: 35%">Podgląd treści</th>
-        <th style="width: 12%">Utworzony przez</th>
-        <th style="width: 10%">Data utworzenia</th>
-        <th style="width: 8%">Status</th>
+        <th pSortableColumn="title">
+          Tytuł
+          <p-sortIcon field="title"></p-sortIcon>
+        </th>
+        <th pSortableColumn="contentPreview">
+          Podgląd treści
+          <p-sortIcon field="contentPreview"></p-sortIcon>
+        </th>
+        <th pSortableColumn="createdByName">
+          Utworzony przez
+          <p-sortIcon field="createdByName"></p-sortIcon>
+        </th>
+        <th pSortableColumn="createdAt">
+          Data utworzenia
+          <p-sortIcon field="createdAt"></p-sortIcon>
+        </th>
+        <th pSortableColumn="isReadByCurrentUser">
+          Status
+          <p-sortIcon field="isReadByCurrentUser"></p-sortIcon>
+        </th>
       </tr>
     </ng-template>
     
@@ -117,7 +131,6 @@
         [class.unread]="!announcement.isReadByCurrentUser"
         (click)="viewAnnouncementDetails(announcement)"
         style="cursor: pointer;">
-        <td>{{ announcement.id }}</td>
         <td>
           <strong [class.unread-text]="!announcement.isReadByCurrentUser">
             {{ announcement.title }}
@@ -139,7 +152,7 @@
     
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="empty-message">
+        <td colspan="5" class="empty-message">
           <div class="empty-state">
             <i class="pi pi-megaphone empty-icon"></i>
             <p>Nie znaleziono komunikatów</p>
