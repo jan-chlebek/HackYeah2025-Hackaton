@@ -84,6 +84,13 @@ public class DatabaseSeeder
     {
         _logger.LogInformation("Seeding roles and permissions...");
 
+        // Check if permissions already exist
+        if (await _context.Permissions.AnyAsync())
+        {
+            _logger.LogInformation("Permissions already exist. Skipping permission seeding.");
+            return;
+        }
+
         var permissions = new List<Permission>
         {
             new Permission { Name = "users.read", Resource = "users", Action = "read", Description = "Can view user information" },
