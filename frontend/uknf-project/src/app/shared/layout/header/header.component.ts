@@ -35,12 +35,6 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
 
           <!-- Right Section -->
           <div class="flex align-items-center gap-4">
-            <!-- Session Timer -->
-            <div class="flex align-items-center gap-2 text-sm">
-              <i class="pi pi-clock"></i>
-              <span>Koniec sesji za: <strong>{{ sessionTime }}</strong></span>
-            </div>
-
             <!-- Font Size Controls -->
             <div class="flex align-items-center gap-1">
               <button 
@@ -94,13 +88,6 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
           </div>
         </div>
       </div>
-
-      <div class="header-bottom">
-        <div class="system-info">
-          <span>System: / Podmiot: <strong>{{ selectedPodmiot?.name || 'Instytucja Testowa' }}</strong></span>
-          <button pButton type="button" icon="pi pi-sync" label="Zmień" class="p-button-sm p-button-text change-podmiot-btn" (click)="changePodmiot()"></button>
-        </div>
-      </div>
     </header>
   `,
   styles: [`
@@ -114,12 +101,6 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
 
     .header-top {
       padding: 0.75rem 1.5rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .header-bottom {
-      padding: 0.5rem 1.5rem;
-      background-color: #f3f4f6;
     }
 
     .uknf-logo {
@@ -200,19 +181,6 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
       border-color: #4b5563;
     }
 
-    .system-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      font-size: 0.875rem;
-      color: #4b5563;
-    }
-
-    .change-podmiot-btn {
-      color: #6b7280;
-      padding: 0.25rem 0.5rem;
-    }
-
     /* High Contrast Mode Styles */
     :host-context(html.high-contrast) .app-header {
       background-color: #000000 !important;
@@ -221,20 +189,12 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
 
     :host-context(html.high-contrast) .header-top {
       background-color: #000000 !important;
-      border-bottom: 2px solid #FFFF00 !important;
-    }
-
-    :host-context(html.high-contrast) .header-bottom {
-      background-color: #000000 !important;
     }
 
     :host-context(html.high-contrast) .header-title,
     :host-context(html.high-contrast) .user-info,
     :host-context(html.high-contrast) .user-name,
-    :host-context(html.high-contrast) .user-role,
-    :host-context(html.high-contrast) .system-info,
-    :host-context(html.high-contrast) .system-info span,
-    :host-context(html.high-contrast) .system-info strong {
+    :host-context(html.high-contrast) .user-role {
       color: #FFFF00 !important;
     }
 
@@ -271,22 +231,19 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
       color: #000000 !important;
     }
 
-    :host-context(html.high-contrast) .logout-btn,
-    :host-context(html.high-contrast) .change-podmiot-btn {
+    :host-context(html.high-contrast) .logout-btn {
       background-color: #000000 !important;
       color: #FFFF00 !important;
       border: 2px solid #FFFF00 !important;
     }
 
-    :host-context(html.high-contrast) .logout-btn:hover,
-    :host-context(html.high-contrast) .change-podmiot-btn:hover {
+    :host-context(html.high-contrast) .logout-btn:hover {
       background-color: #FFFF00 !important;
       color: #000000 !important;
       border: 2px solid #FFFF00 !important;
     }
 
-    :host-context(html.high-contrast) .logout-btn:hover i,
-    :host-context(html.high-contrast) .change-podmiot-btn:hover i {
+    :host-context(html.high-contrast) .logout-btn:hover i {
       color: #000000 !important;
     }
 
@@ -303,9 +260,6 @@ export class HeaderComponent {
     role: 'Użytkownik podmiotu'
   };
 
-  selectedPodmiot: any = { name: 'Instytucja Testowa', code: 'TEST001' };
-  sessionTime = '12:46';
-
   // Computed signals for reactive UI updates
   currentFontSize = computed(() => this.accessibilityService.fontSize);
   highContrastEnabled = computed(() => this.accessibilityService.highContrast);
@@ -313,9 +267,7 @@ export class HeaderComponent {
   constructor(
     private router: Router,
     private accessibilityService: AccessibilityService
-  ) {
-    this.startSessionTimer();
-  }
+  ) {}
 
   setFontSize(size: FontSize): void {
     this.accessibilityService.setFontSize(size);
@@ -325,20 +277,8 @@ export class HeaderComponent {
     this.accessibilityService.toggleHighContrast();
   }
 
-  changePodmiot(): void {
-    // TODO: Implement podmiot change dialog
-    console.log('Change podmiot');
-  }
-
   logout(): void {
     // TODO: Implement logout logic
     this.router.navigate(['/auth/login']);
-  }
-
-  private startSessionTimer(): void {
-    // TODO: Implement real session timer
-    setInterval(() => {
-      // Update session time countdown
-    }, 1000);
   }
 }

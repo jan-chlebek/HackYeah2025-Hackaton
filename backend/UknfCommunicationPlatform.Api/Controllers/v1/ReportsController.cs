@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UknfCommunicationPlatform.Core.DTOs.Reports;
+using UknfCommunicationPlatform.Core.DTOs.Requests;
 using UknfCommunicationPlatform.Infrastructure.Services;
 
 namespace UknfCommunicationPlatform.Api.Controllers.v1;
@@ -9,8 +10,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 /// Reports management operations
 /// </summary>
 [ApiController]
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// [Authorize]
+[Authorize]
 [Route("api/v1/reports")]
 [Produces("application/json")]
 public class ReportsController : ControllerBase
@@ -79,4 +79,99 @@ public class ReportsController : ControllerBase
             return StatusCode(500, new { message = "An error occurred while retrieving the report" });
         }
     }
+
+    /// <summary>
+    /// Submit a new report with XLSX file attachment
+    /// </summary>
+    /// <param name="model">Form data containing file and reporting period</param>
+    /// <returns>Created report details</returns>
+    [HttpPost]
+    [Consumes("multipart/form-data")]
+    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
+    // [RequirePermission("reports.create")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<ReportDto>> SubmitReport(
+        [FromForm] Models.SubmitReportFormModel model)
+    {
+        try
+        {
+            // Get user ID from authentication context
+            var userIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid user authentication" });
+            }
+
+            // Parse reporting period
+            if (!Enum.TryParse<Core.Enums.ReportingPeriod>(model.ReportingPeriod, out var period))
+            {
+                return BadRequest(new { message = $"Invalid reporting period. Must be one of: Q1, Q2, Q3, Q4. Received: {model.ReportingPeriod}" });
+            }
+
+            var request = new SubmitReportRequest
+            {
+                ReportingPeriod = period
+            };
+
+            var report = await _reportsService.SubmitReportAsync(currentUserId, model.File, request);
+
+            _logger.LogInformation("Report {ReportNumber} submitted successfully", report.ReportNumber);
+
+            return CreatedAtAction(
+                nameof(GetReport),
+                new { id = report.Id },
+                report);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid report submission");
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error submitting report");
+            return StatusCode(500, new { message = "An error occurred while submitting the report" });
+        }
+    }
+
+    /// <summary>
+    /// Download report file
+    /// </summary>
+    /// <param name="id">Report ID</param>
+    /// <returns>XLSX file</returns>
+    [HttpGet("{id}/download")]
+    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
+    // [RequirePermission("reports.read")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadReport(long id)
+    {
+        try
+        {
+            var fileData = await _reportsService.GetReportFileAsync(id);
+
+            if (fileData == null)
+            {
+                return NotFound(new { message = $"Report file with ID {id} not found" });
+            }
+
+            var (fileContent, fileName) = fileData.Value;
+
+            _logger.LogInformation("Report {ReportId} file downloaded: {FileName}", id, fileName);
+
+            return File(
+                fileContent,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error downloading report {ReportId}", id);
+            return StatusCode(500, new { message = "An error occurred while downloading the report file" });
+        }
+    }
 }
+

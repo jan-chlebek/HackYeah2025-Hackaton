@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Security.Claims;
 using UknfCommunicationPlatform.Api.Controllers.v1;
 using UknfCommunicationPlatform.Core.DTOs.FileLibrary;
 using UknfCommunicationPlatform.Core.Entities;
@@ -27,6 +28,19 @@ public class FileLibraryControllerTests : IDisposable
         _context = new ApplicationDbContext(options);
         _loggerMock = new Mock<ILogger<FileLibraryController>>();
         _controller = new FileLibraryController(_context, _loggerMock.Object);
+
+        // Mock User context for authorization
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "1"),
+            new Claim(ClaimTypes.Email, "test@example.com"),
+            new Claim(ClaimTypes.Role, "InternalUser")
+        }, "mock"));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
 
         SeedTestData();
     }

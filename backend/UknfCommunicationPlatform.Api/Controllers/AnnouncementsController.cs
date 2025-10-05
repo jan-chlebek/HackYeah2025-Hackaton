@@ -11,9 +11,8 @@ namespace UknfCommunicationPlatform.Api.Controllers;
 /// API endpoints for managing announcements
 /// </summary>
 [ApiController]
-[Route("api/v1/[controller]")]
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// [Authorize]
+[Authorize]
+[Route("api/announcements")]
 [Produces("application/json")]
 public class AnnouncementsController : ControllerBase
 {

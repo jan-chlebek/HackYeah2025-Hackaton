@@ -12,8 +12,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 [ApiController]
 [Route("api/v1/users")]
 [Produces("application/json")]
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// [Authorize] // Require authentication for all endpoints
+[Authorize] // Require authentication for all endpoints
 public class UsersController : ControllerBase
 {
     private readonly UserManagementService _userService;

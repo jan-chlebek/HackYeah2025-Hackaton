@@ -38,7 +38,7 @@ export class LibraryListComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
+
     { label: 'Wnioski o dostęp', routerLink: '/wnioski' },
     { label: 'Biblioteka - repozytorium plików' }
   ];
@@ -82,7 +82,6 @@ export class LibraryListComponent implements OnInit {
   ngOnInit(): void {
     // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError in zoneless mode
     setTimeout(() => {
-      this.generateMockData();
       this.loadFiles();
     }, 0);
   }
@@ -91,144 +90,31 @@ export class LibraryListComponent implements OnInit {
     this.loading = true;
     console.log('Loading files with params:', { page: this.page, pageSize: this.pageSize, filters: this.filters });
 
-    // TODO: Replace with actual API call
-    // this.libraryService.getFiles(this.page, this.pageSize, this.filters).subscribe({
-    //   next: (response) => {
-    //     this.files = response.data || [];
-    //     this.totalRecords = response.pagination?.totalCount || 0;
-    //     this.loading = false;
-    //   },
-    //   error: (error) => {
-    //     console.error('Error loading files:', error);
-    //     this.files = [];
-    //     this.totalRecords = 0;
-    //     this.loading = false;
-    //   }
-    // });
-
-    // Mock data for now
-    setTimeout(() => {
-      this.loading = false;
-      this.cdr.markForCheck();
-    }, 500);
-  }
-
-  generateMockData(): void {
-    // Generate mock data matching the screenshot
-    this.files = [
-      {
-        id: 1,
-        fileName: 'Plik_w_repozytorium_01.xlsx',
-        fileSize: 1024000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: 'Kwartal',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_01.xlsx',
-        okresSprawozdawczy: 'Kwartal'
+    this.libraryService.getFiles(this.page, this.pageSize, this.filters).subscribe({
+      next: (response) => {
+        // Map API response to component format
+        this.files = (response.data || []).map(file => ({
+          ...file,
+          dataAktualizacji: file.uploadedAt,
+          nazwaPilku: file.fileName,
+          okresSprawozdawczy: file.category || '',
+          uploadedBy: file.uploadedByName || file.uploadedByEmail || ''
+        }));
+        this.totalRecords = response.pagination?.totalCount || 0;
+        this.loading = false;
+        this.cdr.markForCheck();
       },
-      {
-        id: 2,
-        fileName: 'Plik_w_repozytorium_02.xlsx',
-        fileSize: 2048000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: '',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_02.xlsx'
-      },
-      {
-        id: 3,
-        fileName: 'Plik_w_repozytorium_03.xlsx',
-        fileSize: 1536000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: '',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_03.xlsx'
-      },
-      {
-        id: 4,
-        fileName: 'Plik_w_repozytorium_04.xlsx',
-        fileSize: 3072000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: 'Rok',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_04.xlsx',
-        okresSprawozdawczy: 'Rok'
-      },
-      {
-        id: 5,
-        fileName: 'Plik_w_repozytorium_05.xlsx',
-        fileSize: 2560000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: 'Kwartal',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_05.xlsx',
-        okresSprawozdawczy: 'Kwartal'
-      },
-      {
-        id: 6,
-        fileName: 'Plik_w_repozytorium_06.xlsx',
-        fileSize: 1792000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: 'Kwartal',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_06.xlsx',
-        okresSprawozdawczy: 'Kwartal'
-      },
-      {
-        id: 7,
-        fileName: 'Plik_w_repozytorium_07.xlsx',
-        fileSize: 2304000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: 'Kwartal',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_07.xlsx',
-        okresSprawozdawczy: 'Kwartal'
-      },
-      {
-        id: 8,
-        fileName: 'Plik_w_repozytorium_08.xlsx',
-        fileSize: 1280000,
-        fileType: 'xlsx',
-        uploadDate: '2024-09-14',
-        updateDate: '2024-09-14',
-        reportingPeriod: 'Rok',
-        isArchived: false,
-        uploadedBy: 'Jan Kowalski',
-        dataAktualizacji: '2024-09-14',
-        nazwaPilku: 'Plik_w_repozytorium_08.xlsx',
-        okresSprawozdawczy: 'Rok'
+      error: (error) => {
+        console.error('Error loading files:', error);
+        this.files = [];
+        this.totalRecords = 0;
+        this.loading = false;
+        this.cdr.markForCheck();
       }
-    ];
-    this.totalRecords = 200; // Mock total
+    });
   }
+
+
 
   onPageChange(event: any): void {
     this.page = event.page + 1;
@@ -309,18 +195,27 @@ export class LibraryListComponent implements OnInit {
 
   downloadFile(file: LibraryFile): void {
     console.log('Downloading file:', file);
-    // TODO: Implement actual download
-  }
-
-  viewFileDetails(file: LibraryFile): void {
-    this.router.navigate(['/biblioteka', file.id]);
-  }
-
-  deleteFile(file: LibraryFile): void {
-    if (confirm(`Czy na pewno chcesz usunąć plik "${file.fileName}"?`)) {
-      console.log('Deleting file:', file);
-      // TODO: Implement actual delete
-    }
+    this.libraryService.downloadFile(file.id).subscribe({
+      next: (blob) => {
+        // Create a temporary URL for the blob
+        const url = window.URL.createObjectURL(blob);
+        
+        // Create a temporary anchor element to trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.fileName || `file_${file.id}`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Error downloading file:', error);
+        alert('Nie udało się pobrać pliku. Spróbuj ponownie.');
+      }
+    });
   }
 
   formatDate(date: string | null | undefined): string {

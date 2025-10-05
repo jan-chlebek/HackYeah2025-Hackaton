@@ -1,0 +1,21 @@
+Test run for /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Unit/bin/Debug/net9.0/UknfCommunicationPlatform.Tests.Unit.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.26]     UknfCommunicationPlatform.Tests.Unit.Authorization.AuthorizationHandlerTests.EntityOwnershipHandler_ExternalUserWithDifferentEntity_ShouldFail [FAIL]
+  Failed UknfCommunicationPlatform.Tests.Unit.Authorization.AuthorizationHandlerTests.EntityOwnershipHandler_ExternalUserWithDifferentEntity_ShouldFail [71 ms]
+  Error Message:
+   Expected context.HasSucceeded to be False, but found True.
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.BooleanAssertions`1.BeFalse(String because, Object[] becauseArgs)
+   at UknfCommunicationPlatform.Tests.Unit.Authorization.AuthorizationHandlerTests.EntityOwnershipHandler_ExternalUserWithDifferentEntity_ShouldFail() in /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Unit/Authorization/AuthorizationHandlerTests.cs:line 307
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:   226, Skipped:     0, Total:   227, Duration: 5 s - UknfCommunicationPlatform.Tests.Unit.dll (net9.0)

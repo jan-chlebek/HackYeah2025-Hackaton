@@ -3,6 +3,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 // API Response interfaces matching backend structure
+export interface MessageAttachment {
+  id: number;
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  uploadedAt: string;
+}
+
 export interface MessageUser {
   id: number;
   email: string;
@@ -32,6 +40,7 @@ export interface Message {
   replyCount: number;
   isCancelled: boolean;
   cancelledAt: string | null;
+  attachments?: MessageAttachment[];
   
   // Polish UI fields
   identyfikator?: string;
@@ -151,5 +160,11 @@ export class MessageService {
 
   updateMessage(id: number, updates: Partial<Message>): Observable<Message> {
     return this.http.put<Message>(`${this.apiUrl}/${id}`, updates);
+  }
+
+  downloadAttachment(messageId: number, attachmentId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${messageId}/attachments/${attachmentId}/download`, {
+      responseType: 'blob'
+    });
   }
 }

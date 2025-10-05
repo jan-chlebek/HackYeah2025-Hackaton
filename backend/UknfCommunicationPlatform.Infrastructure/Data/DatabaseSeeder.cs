@@ -84,6 +84,13 @@ public class DatabaseSeeder
     {
         _logger.LogInformation("Seeding roles and permissions...");
 
+        // Check if permissions already exist
+        if (await _context.Permissions.AnyAsync())
+        {
+            _logger.LogInformation("Permissions already exist. Skipping permission seeding.");
+            return;
+        }
+
         var permissions = new List<Permission>
         {
             new Permission { Name = "users.read", Resource = "users", Action = "read", Description = "Can view user information" },
@@ -118,6 +125,37 @@ public class DatabaseSeeder
             RoleId = adminRole.Id,
             PermissionId = p.Id
         }).ToList();
+
+        // Assign permissions to InternalUser role
+        var internalRole = roles.First(r => r.Name == "InternalUser");
+        var internalPermissions = permissions.Where(p => 
+            p.Name == "messages.read" || 
+            p.Name == "messages.write" ||
+            p.Name == "entities.read" ||
+            p.Name == "reports.read"
+        ).Select(p => new RolePermission
+        {
+            RoleId = internalRole.Id,
+            PermissionId = p.Id
+        }).ToList();
+        rolePermissions.AddRange(internalPermissions);
+
+        // Assign permissions to Supervisor role (same as internal + more)
+        var supervisorRole = roles.First(r => r.Name == "Supervisor");
+        var supervisorPermissions = permissions.Where(p => 
+            p.Name == "messages.read" || 
+            p.Name == "messages.write" ||
+            p.Name == "entities.read" ||
+            p.Name == "entities.write" ||
+            p.Name == "reports.read" ||
+            p.Name == "reports.write" ||
+            p.Name == "users.read"
+        ).Select(p => new RolePermission
+        {
+            RoleId = supervisorRole.Id,
+            PermissionId = p.Id
+        }).ToList();
+        rolePermissions.AddRange(supervisorPermissions);
 
         await _context.RolePermissions.AddRangeAsync(rolePermissions);
         await _context.SaveChangesAsync();
@@ -695,6 +733,8 @@ public class DatabaseSeeder
             var sygnaturaSprawyOptions = new[] { "001/2025", "002/2025", "003/2025", "004/2025", "005/2025" };
 
             Message message;
+            MessagePriority priority = i % 5 == 0 ? MessagePriority.High : (i % 3 == 0 ? MessagePriority.Low : MessagePriority.Normal);
+
             if (isFromInternal)
             {
                 message = new Message
@@ -705,6 +745,7 @@ public class DatabaseSeeder
                     RecipientId = externalUser.Id,
                     RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
+                    Priority = priority,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 4 != 0,
                     ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null
@@ -720,6 +761,7 @@ public class DatabaseSeeder
                     RecipientId = internalUser.Id,
                     RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
+                    Priority = priority,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 3 != 0,
                     ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null
@@ -730,6 +772,51 @@ public class DatabaseSeeder
         }
 
         await _context.Messages.AddRangeAsync(messages);
+        await _context.SaveChangesAsync();
+
+        // Add some reply messages to demonstrate threading
+        _logger.LogInformation("Seeding reply messages...");
+        var replyMessages = new List<Message>();
+
+        // Add reply to message 4 (Re: Wyjaśnienie dotyczące raportu ryzyka)
+        if (messages.Count > 4)
+        {
+            replyMessages.Add(new Message
+            {
+                Subject = "Re: Wyjaśnienie dotyczące raportu ryzyka",
+                Body = "Przekazujemy szczegółowe wyjaśnienie rozbieżności. Załączamy poprawiony raport.",
+                SenderId = messages[3].RecipientId.Value, // Reply from recipient of original message
+                RecipientId = messages[3].SenderId,
+                ParentMessageId = messages[3].Id,
+                RelatedEntityId = messages[3].RelatedEntityId,
+                Status = MessageStatus.Sent,
+                Priority = messages[3].Priority, // Inherit priority
+                SentAt = messages[3].SentAt.AddHours(4),
+                IsRead = true,
+                ReadAt = messages[3].SentAt.AddHours(5)
+            });
+        }
+
+        // Add reply to message 9 (Re: Prośba o uzupełnienie danych)
+        if (messages.Count > 9)
+        {
+            replyMessages.Add(new Message
+            {
+                Subject = "Re: Prośba o uzupełnienie danych",
+                Body = "Przekazujemy uzupełnione dane zgodnie z Państwa prośbą.",
+                SenderId = messages[8].RecipientId.Value,
+                RecipientId = messages[8].SenderId,
+                ParentMessageId = messages[8].Id,
+                RelatedEntityId = messages[8].RelatedEntityId,
+                Status = MessageStatus.Sent,
+                Priority = messages[8].Priority,
+                SentAt = messages[8].SentAt.AddHours(24),
+                IsRead = false,
+                ReadAt = null
+            });
+        }
+
+        await _context.Messages.AddRangeAsync(replyMessages);
         await _context.SaveChangesAsync();
 
         // Add attachments to some messages - demonstrating 0, 1, 2, 3 attachments
@@ -932,31 +1019,41 @@ public class DatabaseSeeder
         }
 
         var reports = new List<Report>();
-        var reportStatuses = new[] 
-        { 
-            ReportStatus.Submitted, 
-            ReportStatus.ValidationSuccessful, 
-            ReportStatus.ValidationErrors, 
+        var reportStatuses = new[]
+        {
+            ReportStatus.Submitted,
+            ReportStatus.ValidationSuccessful,
+            ReportStatus.ValidationErrors,
             ReportStatus.QuestionedByUKNF,
-            ReportStatus.Draft 
-        };
-        
-        var periods = new[] 
-        { 
-            ReportingPeriod.Q1, 
-            ReportingPeriod.Q2, 
-            ReportingPeriod.Q3, 
-            ReportingPeriod.Q4 
+            ReportStatus.Draft
         };
 
-        // Generate fake XLSX file content (ZIP header for valid XLSX)
-        var fakeXlsxContent = new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00 };
+        var periods = new[]
+        {
+            ReportingPeriod.Q1,
+            ReportingPeriod.Q2,
+            ReportingPeriod.Q3,
+            ReportingPeriod.Q4
+        };
+
+        // Generate minimal valid XLSX file content (PK ZIP header + minimal structure)
+        // This is a valid but empty XLSX file
+        var fakeXlsxContent = new byte[]
+        {
+            0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x00,
+            0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x13, 0x00, 0x08, 0x02, 0x5B, 0x43, 0x6F, 0x6E, 0x74, 0x65,
+            0x6E, 0x74, 0x5F, 0x54, 0x79, 0x70, 0x65, 0x73, 0x5D, 0x2E, 0x78, 0x6D,
+            0x6C, 0x20, 0xA2, 0x04, 0x02, 0x28, 0xA0, 0x00, 0x01, 0x00, 0x00, 0x00,
+            0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,
+            0x41, 0x00, 0x00, 0x00, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00
+        };
 
         int reportCounter = 1;
-        
+
         // Create 5-7 reports per user to ensure minimum 5 total
         int reportsPerUser = Math.Max(5, (int)Math.Ceiling(25.0 / externalUsers.Count));
-        
+
         foreach (var user in externalUsers.Take(5)) // Take first 5 users to avoid too many reports
         {
             for (int j = 0; j < reportsPerUser; j++)
@@ -986,7 +1083,7 @@ public class DatabaseSeeder
 
         await _context.Reports.AddRangeAsync(reports);
         await _context.SaveChangesAsync();
-        
+
         _logger.LogInformation("Seeded {Count} reports", reports.Count);
     }
 
@@ -1175,6 +1272,7 @@ public class DatabaseSeeder
 
         var files = new List<FileLibrary>();
         var categories = new[] { "Templates", "Guidelines", "LegalDocuments", "Reports", "Training" };
+        var reportingPeriods = new[] { ReportingPeriodType.Quarterly, ReportingPeriodType.Annual, ReportingPeriodType.None, ReportingPeriodType.Quarterly, ReportingPeriodType.None };
 
         for (int i = 0; i < 5; i++)
         {
@@ -1187,6 +1285,7 @@ public class DatabaseSeeder
                 ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 Category = categories[i],
                 FileContent = new byte[] { 0x50, 0x4B, 0x03, 0x04 }, // ZIP header (XLSX is ZIP)
+                ReportingPeriodType = reportingPeriods[i],
                 UploadedByUserId = internalUsers[i % internalUsers.Count].Id,
                 UploadedAt = DateTime.UtcNow.AddDays(-60 + i * 12)
             });

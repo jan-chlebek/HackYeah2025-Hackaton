@@ -1,0 +1,148 @@
+<div class="announcements-list-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Komunikaty</h1>
+    <div class="header-actions">
+      <button 
+        pButton 
+        type="button" 
+        label="Nowy komunikat" 
+        icon="pi pi-plus"
+        class="p-button-primary"
+        (click)="createAnnouncement()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input 
+          pInputText 
+          type="text" 
+          placeholder="Szukaj komunikatów..." 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="applyFilters()"
+          class="search-input">
+      </span>
+      <button 
+        pButton 
+        type="button" 
+        label="Szukaj" 
+        icon="pi pi-search"
+        (click)="applyFilters()"
+        class="search-button">
+      </button>
+      <button 
+        pButton 
+        type="button" 
+        [label]="showFilters ? 'Ukryj filtry' : 'Pokaż filtry'"
+        [icon]="showFilters ? 'pi pi-angle-up' : 'pi pi-angle-down'"
+        class="p-button-outlined"
+        (click)="toggleFilters()">
+      </button>
+    </div>
+
+    <!-- Advanced Filters Panel -->
+    <div class="filters-panel" *ngIf="showFilters">
+      <div class="filter-group">
+        <label class="filter-label">Status przeczytania</label>
+        <div class="filter-checkboxes">
+          <div class="filter-checkbox">
+            <p-checkbox 
+              [(ngModel)]="filters.isRead" 
+              [binary]="true" 
+              inputId="read-filter"
+              label="Tylko przeczytane">
+            </p-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Zastosuj filtry" 
+          icon="pi pi-check"
+          (click)="applyFilters()">
+        </button>
+        <button 
+          pButton 
+          type="button" 
+          label="Wyczyść filtry" 
+          icon="pi pi-times"
+          class="p-button-outlined"
+          (click)="clearFilters()">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcements Table -->
+  <p-table 
+    [value]="announcements"
+    [paginator]="true"
+    [rows]="pageSize"
+    [first]="first"
+    [totalRecords]="totalRecords"
+    [lazy]="true"
+    (onLazyLoad)="onPageChange($event)"
+    [loading]="loading"
+    [rowsPerPageOptions]="pageSizeOptions"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Wyświetlanie {first} do {last} z {totalRecords} komunikatów"
+    styleClass="p-datatable-striped"
+    [tableStyle]="{ 'min-width': '60rem' }">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5%">ID</th>
+        <th style="width: 30%">Tytuł</th>
+        <th style="width: 35%">Podgląd treści</th>
+        <th style="width: 12%">Utworzony przez</th>
+        <th style="width: 10%">Data utworzenia</th>
+        <th style="width: 8%">Status</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-announcement>
+      <tr 
+        class="announcement-row"
+        [class.unread]="!announcement.isReadByCurrentUser"
+        (click)="viewAnnouncementDetails(announcement)"
+        style="cursor: pointer;">
+        <td>{{ announcement.id }}</td>
+        <td>
+          <strong [class.unread-text]="!announcement.isReadByCurrentUser">
+            {{ announcement.title }}
+          </strong>
+        </td>
+        <td>
+          <span class="content-preview">{{ stripHtmlTags(announcement.contentPreview) }}</span>
+        </td>
+        <td>{{ announcement.createdByName }}</td>
+        <td>{{ formatDate(announcement.createdAt) }}</td>
+        <td>
+          <p-tag 
+            [value]="getReadStatusLabel(announcement.isReadByCurrentUser)"
+            [severity]="getReadStatusSeverity(announcement.isReadByCurrentUser)">
+          </p-tag>
+        </td>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="empty-message">
+          <div class="empty-state">
+            <i class="pi pi-megaphone empty-icon"></i>
+            <p>Nie znaleziono komunikatów</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

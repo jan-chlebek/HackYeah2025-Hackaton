@@ -1,12 +1,4 @@
 <div class="library-page">
-  <!-- Breadcrumb Navigation -->
-  <p-breadcrumb 
-    [model]="breadcrumbItems" 
-    [home]="home"
-    class="mb-4"
-    aria-label="Ścieżka nawigacji"
-  ></p-breadcrumb>
-
   <!-- Page Header -->
   <div class="page-header">
     <h1>Biblioteka - repozytorium plików</h1>
@@ -160,41 +152,6 @@
       class="p-button-primary"
       (click)="openAddFileDialog()"
     ></button>
-    <button 
-      pButton 
-      type="button" 
-      label="Modyfikuj" 
-      icon="pi pi-pencil"
-      class="p-button-outlined"
-    ></button>
-    <button 
-      pButton 
-      type="button" 
-      label="Poglądaj" 
-      icon="pi pi-search"
-      class="p-button-outlined"
-    ></button>
-    <button 
-      pButton 
-      type="button" 
-      label="Usuń" 
-      icon="pi pi-trash"
-      class="p-button-outlined p-button-danger"
-    ></button>
-    <button 
-      pButton 
-      type="button" 
-      label="Historia" 
-      icon="pi pi-history"
-      class="p-button-outlined"
-    ></button>
-    <button 
-      pButton 
-      type="button" 
-      label="Eksportuj" 
-      icon="pi pi-download"
-      class="p-button-outlined"
-    ></button>
   </div>
 </div>
 
@@ -281,7 +238,7 @@
             class="p-button-outlined"
           ></button>
         </label>
-        <span class="file-input-name">{{ uploadFileName || 'Testowy_zalacznik.pdf' }}</span>
+        <span class="file-input-name">{{ uploadFileName || 'Wybierz plik...' }}</span>
       </div>
       <div class="file-actions">
         <button 

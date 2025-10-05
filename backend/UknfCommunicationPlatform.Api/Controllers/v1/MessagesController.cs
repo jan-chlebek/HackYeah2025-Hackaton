@@ -13,8 +13,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 [ApiController]
 [Route("api/v1/messages")]
 [Produces("application/json")]
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// [Authorize]
+[Authorize]
 public class MessagesController : ControllerBase
 {
     private readonly MessageService _messageService;
@@ -222,6 +221,121 @@ public class MessagesController : ControllerBase
         }
 
         return File(attachment.FileContent, attachment.ContentType, attachment.FileName);
+    }
+
+    /// <summary>
+    /// Reply to an existing message
+    /// </summary>
+    /// <param name="id">Parent message ID to reply to</param>
+    /// <param name="request">Reply content with optional attachments</param>
+    /// <returns>Created reply message</returns>
+    [HttpPost("{id}/reply")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [RequestSizeLimit(100_000_000)]
+    public async Task<ActionResult<MessageResponse>> ReplyToMessage(long id, [FromForm] ReplyMessageRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        // Validate attachments if provided
+        if (request.Attachments != null && request.Attachments.Any())
+        {
+            const long maxFileSize = 50_000_000; // 50MB per file
+            foreach (var file in request.Attachments)
+            {
+                if (file.Length > maxFileSize)
+                {
+                    return BadRequest(new { error = $"File '{file.FileName}' exceeds maximum size of 50MB" });
+                }
+                if (file.Length == 0)
+                {
+                    return BadRequest(new { error = $"File '{file.FileName}' is empty" });
+                }
+            }
+        }
+
+        try
+        {
+            var replyMessage = await _messageService.ReplyToMessageAsync(id, userId, request);
+
+            return CreatedAtAction(
+                nameof(GetMessage),
+                new { id = replyMessage.Id },
+                replyMessage);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Export messages to CSV format
+    /// </summary>
+    /// <param name="isRead">Filter by read status</param>
+    /// <param name="searchTerm">Search in subject and body</param>
+    /// <param name="relatedEntityId">Filter by related supervised entity</param>
+    /// <param name="dateFrom">Filter by sent date from</param>
+    /// <param name="dateTo">Filter by sent date to</param>
+    /// <returns>CSV file with messages</returns>
+    [HttpGet("export")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ExportMessages(
+        [FromQuery] bool? isRead = null,
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] long? relatedEntityId = null,
+        [FromQuery] DateTime? dateFrom = null,
+        [FromQuery] DateTime? dateTo = null)
+    {
+        var userId = GetCurrentUserId();
+        var messages = await _messageService.ExportMessagesAsync(
+            userId, isRead, searchTerm, relatedEntityId, dateFrom, dateTo);
+
+        // Generate CSV content
+        var csv = new System.Text.StringBuilder();
+        
+        // Header
+        csv.AppendLine("ID,Subject,Sender Name,Sender Email,Recipient Name,Recipient Email,Status,Priority,Is Read,Sent At,Read At,Related Entity,Attachment Count,Is Reply");
+
+        // Data rows
+        foreach (var msg in messages)
+        {
+            csv.AppendLine($"{msg.Id}," +
+                          $"\"{EscapeCsv(msg.Subject)}\"," +
+                          $"\"{EscapeCsv(msg.SenderName)}\"," +
+                          $"\"{EscapeCsv(msg.SenderEmail)}\"," +
+                          $"\"{EscapeCsv(msg.RecipientName ?? "")}\"," +
+                          $"\"{EscapeCsv(msg.RecipientEmail ?? "")}\"," +
+                          $"\"{msg.Status}\"," +
+                          $"\"{msg.Priority}\"," +
+                          $"{msg.IsRead}," +
+                          $"{msg.SentAt:yyyy-MM-dd HH:mm:ss}," +
+                          $"{(msg.ReadAt.HasValue ? msg.ReadAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")}," +
+                          $"\"{EscapeCsv(msg.RelatedEntityName ?? "")}\"," +
+                          $"{msg.AttachmentCount}," +
+                          $"{msg.IsReply}");
+        }
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(csv.ToString());
+        var fileName = $"messages_export_{DateTime.UtcNow:yyyyMMdd_HHmmss}.csv";
+
+        return File(bytes, "text/csv", fileName);
+    }
+
+    /// <summary>
+    /// Escape CSV field value
+    /// </summary>
+    private string EscapeCsv(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return "";
+        return value.Replace("\"", "\"\"");
     }
 
     /// <summary>

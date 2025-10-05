@@ -1,0 +1,187 @@
+<div class="entities-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Kartoteka Podmiotów</h1>
+    <button 
+      pButton 
+      type="button" 
+      label="Dodaj podmiot" 
+      icon="pi pi-plus"
+      (click)="createEntity()"
+      class="p-button-success"
+    ></button>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <h2>Wyszukiwanie i filtrowanie</h2>
+      <button 
+        pButton 
+        type="button" 
+        [label]="showFilters ? 'Zwiń' : 'Rozwiń'" 
+        [icon]="showFilters ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+        (click)="toggleFilters()"
+        class="p-button-text"
+        [attr.aria-expanded]="showFilters"
+        aria-controls="filter-panel"
+      ></button>
+    </div>
+
+    <div id="filter-panel" class="filter-panel" [class.expanded]="showFilters">
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label for="filter-search">Szukaj (nazwa, NIP, REGON, KRS)</label>
+          <input 
+            id="filter-search"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.searchTerm"
+            placeholder="Wpisz frazę do wyszukania"
+            (keyup.enter)="applyFilters()"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-entity-type">Typ podmiotu</label>
+          <p-select
+            id="filter-entity-type"
+            [(ngModel)]="filters.entityType"
+            [options]="entityTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz typ"
+            [showClear]="true"
+          ></p-select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-active">Status</label>
+          <p-select
+            id="filter-active"
+            [(ngModel)]="filters.isActive"
+            [options]="activeStatusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz status"
+            [showClear]="true"
+          ></p-select>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Wyczyść" 
+          icon="pi pi-times"
+          class="p-button-outlined"
+          (click)="clearFilters()"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Szukaj" 
+          icon="pi pi-search"
+          (click)="applyFilters()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entities Table -->
+  <div class="table-container">
+    <p-table 
+      [value]="entities" 
+      [loading]="loading"
+      [rows]="pageSize"
+      [totalRecords]="totalRecords"
+      [paginator]="true"
+      [rowsPerPageOptions]="pageSizeOptions"
+      (onPage)="onPageChange($event)"
+      [lazy]="true"
+      responsiveLayout="scroll"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Wyświetlono {first} do {last} z {totalRecords} podmiotów"
+      styleClass="p-datatable-striped"
+      [first]="first"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">#</th>
+          <th pSortableColumn="name">
+            Nazwa podmiotu
+            <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th pSortableColumn="entityType">
+            Typ
+            <p-sortIcon field="entityType"></p-sortIcon>
+          </th>
+          <th>NIP</th>
+          <th>REGON</th>
+          <th>Miasto</th>
+          <th style="width: 8rem">Liczba użytkowników</th>
+          <th style="width: 8rem" pSortableColumn="isActive">
+            Status
+            <p-sortIcon field="isActive"></p-sortIcon>
+          </th>
+          <th style="width: 10rem" pSortableColumn="createdAt">
+            Data utworzenia
+            <p-sortIcon field="createdAt"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-entity let-rowIndex="rowIndex">
+        <tr>
+          <td>{{ first + rowIndex + 1 }}</td>
+          <td>
+            <strong>{{ entity.name }}</strong>
+          </td>
+          <td>
+            <span class="entity-type-badge" [class]="'entity-type-' + entity.entityType.toLowerCase()">
+              {{ getEntityTypeLabel(entity.entityType) }}
+            </span>
+          </td>
+          <td>{{ entity.nip || '-' }}</td>
+          <td>{{ entity.regon || '-' }}</td>
+          <td>{{ entity.city || '-' }}</td>
+          <td class="text-center">
+            <span class="user-count-badge">{{ entity.userCount }}</span>
+          </td>
+          <td>
+            <span 
+              class="status-badge" 
+              [class.status-active]="entity.isActive"
+              [class.status-inactive]="!entity.isActive"
+            >
+              {{ entity.isActive ? 'Aktywny' : 'Nieaktywny' }}
+            </span>
+          </td>
+          <td>{{ formatDate(entity.createdAt) }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-building" style="font-size: 3rem; color: #ccc;"></i>
+              <p>Nie znaleziono podmiotów</p>
+              <p class="text-muted">Spróbuj zmienić kryteria wyszukiwania</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="9" class="text-center">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+            <p>Ładowanie danych...</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

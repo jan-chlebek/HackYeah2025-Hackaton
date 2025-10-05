@@ -24,6 +24,11 @@ public class CreateMessageRequest
     public string Body { get; set; } = string.Empty;
 
     /// <summary>
+    /// Priority level of the message (default: Normal)
+    /// </summary>
+    public MessagePriority Priority { get; set; } = MessagePriority.Normal;
+
+    /// <summary>
     /// Recipient user ID
     /// </summary>
     public long? RecipientId { get; set; }

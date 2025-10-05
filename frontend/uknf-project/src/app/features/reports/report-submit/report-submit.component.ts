@@ -39,7 +39,7 @@ export class ReportSubmitComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems = [
-    { label: 'Strona główna', routerLink: '/dashboard' },
+
     { label: 'Moduł komunikacyjny' },
     { label: 'Sprawozdawczość', routerLink: '/reports' },
     { label: 'Dodaj sprawozdanie' }

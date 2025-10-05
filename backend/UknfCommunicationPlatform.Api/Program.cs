@@ -120,20 +120,8 @@ builder.Services.AddSwaggerGen(options =>
         Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token."
     });
 
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+    // Use operation filter to respect [AllowAnonymous] attributes
+    options.OperationFilter<UknfCommunicationPlatform.Api.Swagger.AuthorizeCheckOperationFilter>();
 
     // Include XML comments for Swagger
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -142,6 +130,16 @@ builder.Services.AddSwaggerGen(options =>
     {
         options.IncludeXmlComments(xmlPath);
     }
+
+    // Map IFormFile to file upload in Swagger
+    options.MapType<IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+
+    // Add file upload support for Swagger
+    options.OperationFilter<UknfCommunicationPlatform.Api.Filters.FileUploadOperationFilter>();
 });
 
 // Add CORS
@@ -173,9 +171,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

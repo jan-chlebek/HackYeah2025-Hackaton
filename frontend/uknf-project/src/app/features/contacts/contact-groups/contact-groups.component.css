@@ -1,0 +1,295 @@
+.contact-groups-page {
+  padding: 1.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #003366;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Table Container */
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Member Count Badge */
+.member-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  background: #003366;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-state p {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+.empty-state .text-muted {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+/* Form Fields */
+.form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Members Dialog */
+.members-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.members-header h3 {
+  margin: 0;
+  color: #003366;
+  font-size: 1.25rem;
+}
+
+.members-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s;
+}
+
+.member-item:hover {
+  background: #f8f9fa;
+  border-color: #003366;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  font-weight: 600;
+  color: #003366;
+  margin-bottom: 0.25rem;
+}
+
+.member-details {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.member-email {
+  color: #0066cc;
+}
+
+.member-phone,
+.member-entity {
+  color: #666;
+}
+
+.empty-members {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-members p {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+/* Contact Option in MultiSelect */
+.contact-option {
+  padding: 0.25rem 0;
+}
+
+.contact-option div {
+  font-weight: 500;
+}
+
+.contact-option small {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: #999;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-groups-page {
+    padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions button {
+    flex: 1;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .members-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .member-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .page-header h1,
+  .member-name,
+  .members-header h3 {
+    color: #000;
+  }
+
+  .table-container {
+    border: 2px solid #000;
+  }
+
+  .member-item {
+    border: 2px solid #000;
+  }
+
+  .member-count-badge {
+    background: #000;
+    border: 2px solid #fff;
+  }
+}
+
+/* Focus Styles for Accessibility */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
+}
+
+/* Loading State */
+:host ::ng-deep .p-datatable .p-datatable-loading-overlay {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Table Customization */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #003366;
+  color: white;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem 1rem;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background: #f8f9fa;
+}
+
+/* Dialog Customization */
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: #003366;
+  color: white;
+  padding: 1rem 1.5rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* MultiSelect Customization */
+:host ::ng-deep .p-multiselect {
+  width: 100%;
+}
+
+:host ::ng-deep .p-multiselect-panel .p-multiselect-items .p-multiselect-item {
+  padding: 0.75rem 1rem;
+}

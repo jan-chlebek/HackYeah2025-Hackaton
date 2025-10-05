@@ -11,6 +11,7 @@ namespace UknfCommunicationPlatform.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class FaqController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -103,6 +104,68 @@ public class FaqController : ControllerBase
 
         _logger.LogInformation("Retrieved FAQ question with ID {Id}", id);
         return Ok(faq);
+    }
+
+    /// <summary>
+    /// Submit a new FAQ question (without answer)
+    /// </summary>
+    /// <remarks>
+    /// Allows users to submit questions that will be answered later by administrators.
+    /// The answer field will be empty until an admin provides one.
+    /// 
+    /// **Example Request:**
+    /// ```json
+    /// {
+    ///   "question": "Jak mogę zaktualizować dane mojej firmy?"
+    /// }
+    /// ```
+    /// 
+    /// **Use Case:**
+    /// - External users submit questions they need answered
+    /// - System stores question with empty answer
+    /// - UKNF administrators can later update the FAQ with an answer via PUT endpoint
+    /// </remarks>
+    /// <param name="request">Question submission request</param>
+    /// <returns>Created FAQ question (with empty answer)</returns>
+    /// <response code="201">Question submitted successfully</response>
+    /// <response code="400">Invalid request - question cannot be empty</response>
+    [HttpPost("submit-question")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(FaqQuestionDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SubmitQuestion([FromBody] SubmitQuestionRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Question))
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Validation Error",
+                Detail = "Question cannot be empty.",
+                Status = StatusCodes.Status400BadRequest,
+                Instance = HttpContext?.Request?.Path.Value ?? "/api/v1/faq/submit-question"
+            });
+        }
+
+        var faq = new FaqQuestion
+        {
+            Question = request.Question.Trim(),
+            Answer = string.Empty // Empty answer - to be filled later by admin
+        };
+
+        _context.FaqQuestions.Add(faq);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Question submitted with ID {FaqId}: {Question}", 
+            faq.Id, faq.Question);
+
+        var dto = new FaqQuestionDto
+        {
+            Id = faq.Id,
+            Question = faq.Question,
+            Answer = faq.Answer
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = faq.Id }, dto);
     }
 
     /// <summary>
@@ -220,6 +283,18 @@ public class FaqQuestionDto
     public long Id { get; set; }
     public string Question { get; set; } = string.Empty;
     public string Answer { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Request to submit a question without an answer
+/// </summary>
+public class SubmitQuestionRequest
+{
+    /// <summary>
+    /// The question text
+    /// </summary>
+    /// <example>Jak mogę zaktualizować dane mojej firmy?</example>
+    public string Question { get; set; } = string.Empty;
 }
 
 /// <summary>

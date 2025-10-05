@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: () => {
-          this.router.navigate(['/dashboard']).catch(err => console.error('Navigation error:', err));
+          this.router.navigate(['/messages']).catch(err => console.error('Navigation error:', err));
         },
         error: (error: unknown) => {
           console.error('Login error:', error);

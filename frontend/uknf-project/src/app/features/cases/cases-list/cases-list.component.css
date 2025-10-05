@@ -1,0 +1,250 @@
+.cases-list-container {
+  padding: 2rem;
+  background-color: #ffffff;
+  min-height: calc(100vh - 140px);
+}
+
+.breadcrumb {
+  margin-bottom: 1.5rem;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #003366;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Filters Section */
+.filters-section {
+  margin-bottom: 1.5rem;
+}
+
+.search-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-button {
+  min-width: 120px;
+}
+
+.filters-panel {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.filter-select,
+.filter-input {
+  width: 100%;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Table Styles */
+.case-row {
+  transition: background-color 0.2s ease;
+}
+
+.case-row:hover {
+  background-color: #f0f8ff !important;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #e0e0e0;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Empty State */
+.empty-message {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: #ccc;
+}
+
+/* High Contrast Mode */
+:host-context(html.high-contrast) .cases-list-container {
+  background-color: #000000;
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .page-title {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .page-header {
+  border-bottom-color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .filters-panel {
+  background-color: #000000;
+  border-color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .filter-label {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .case-row {
+  background-color: #000000;
+  color: #FFFF00;
+  border: 1px solid #FFFF00;
+}
+
+:host-context(html.high-contrast) .case-row:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+:host-context(html.high-contrast) .type-badge {
+  background-color: #000000;
+  border: 1px solid #FFFF00;
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .empty-state {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .empty-icon {
+  color: #FFFF00;
+}
+
+:host-context(html.high-contrast) .filter-actions {
+  border-top-color: #FFFF00;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cases-list-container {
+    padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .search-bar {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .search-input {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .search-button {
+    width: 100%;
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-actions button {
+    width: 100%;
+  }
+}
+
+/* Accessibility - Focus Indicators */
+.case-row:focus-within {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
+}
+
+/* Keyboard Navigation */
+.case-row {
+  position: relative;
+}
+
+.case-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.case-row:hover::before {
+  background-color: #003366;
+}
+
+:host-context(html.high-contrast) .case-row:hover::before {
+  background-color: #FFFF00;
+}

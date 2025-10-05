@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using UknfCommunicationPlatform.Api;
 using UknfCommunicationPlatform.Infrastructure.Data;
 using UknfCommunicationPlatform.Infrastructure.Services;
@@ -207,5 +211,32 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
                 // Ignore errors - table might not exist yet
             }
         }
+    }
+
+    /// <summary>
+    /// Generate a JWT token for testing with authenticated endpoints
+    /// </summary>
+    public string GenerateJwtToken(long userId, string email, string role = "InternalUser")
+    {
+        var key = "ThisIsAVerySecureSecretKeyForJWTTokenGeneration_ChangeInProduction_MinimumLengthIs32Characters!";
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role)
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: "UKNF-API",
+            audience: "UKNF-Portal",
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(1),
+            signingCredentials: credentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

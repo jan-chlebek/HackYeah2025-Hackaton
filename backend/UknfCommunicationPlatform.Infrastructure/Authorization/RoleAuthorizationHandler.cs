@@ -21,8 +21,8 @@ public class RoleAuthorizationHandler : AuthorizationHandler<RoleRequirement>
             .Select(c => c.Value)
             .ToList();
 
-        // Check if user has the required role
-        if (userRoles.Contains(requirement.Role))
+        // Check if user has the required role (case-insensitive)
+        if (userRoles.Any(role => role.Equals(requirement.Role, StringComparison.OrdinalIgnoreCase)))
         {
             context.Succeed(requirement);
         }

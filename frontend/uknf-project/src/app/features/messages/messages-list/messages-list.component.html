@@ -1,12 +1,4 @@
 <div class="messages-page">
-  <!-- Breadcrumb Navigation -->
-  <p-breadcrumb 
-    [model]="breadcrumbItems" 
-    [home]="home"
-    class="mb-4"
-    aria-label="Ścieżka nawigacji"
-  ></p-breadcrumb>
-
   <!-- Page Header -->
   <div class="page-header">
     <h1>Wiadomości</h1>
@@ -336,23 +328,22 @@
     <div class="detail-section">
       <label class="detail-label">Załączniki</label>
       <div class="attachments-list">
-        <div class="attachment-item">
-          <span>Zalącznik_pierwszy.pdf</span>
-          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
+        <div *ngIf="!selectedMessage?.attachments || selectedMessage?.attachments?.length === 0" class="no-attachments">
+          <span class="text-muted">Brak załączników</span>
         </div>
-        <div class="attachment-item">
-          <span>Zalącznik_drugi.pdf</span>
-          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
-        </div>
-        <div class="attachment-item">
-          <span>Zalącznik_trzeci.txt</span>
-          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
+        <div *ngFor="let attachment of selectedMessage?.attachments" class="attachment-item">
+          <span>{{ attachment.fileName }}</span>
+          <button 
+            pButton 
+            type="button" 
+            icon="pi pi-download" 
+            class="p-button-text p-button-sm"
+            (click)="downloadMessageAttachment(attachment)"
+            [attr.aria-label]="'Pobierz ' + attachment.fileName"
+          ></button>
         </div>
       </div>
       <div class="attachment-actions">
-        <button pButton type="button" label="Pobierz" icon="pi pi-download" class="p-button-outlined"></button>
-        <button pButton type="button" label="Edytuj" icon="pi pi-pencil" class="p-button-outlined"></button>
-        <button pButton type="button" label="Usuń" icon="pi pi-trash" class="p-button-outlined p-button-danger"></button>
         <button pButton type="button" label="Dodaj" icon="pi pi-plus" class="p-button-outlined"></button>
       </div>
     </div>
@@ -393,27 +384,6 @@
         placeholder="Treść odpowiedzi UKNF..."
         required
       ></textarea>
-    </div>
-
-    <!-- UKNF Attachments Section -->
-    <div class="detail-section">
-      <label class="detail-label">Załączniki UKNF</label>
-      <div class="attachments-list">
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="attachment-1"
-            [binary]="true"
-            label="Załącznik_pierwszy.txt"
-          ></p-checkbox>
-        </div>
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="attachment-2"
-            [binary]="true"
-            label="Załącznik_drugi.pdf"
-          ></p-checkbox>
-        </div>
-      </div>
     </div>
   </div>
 
