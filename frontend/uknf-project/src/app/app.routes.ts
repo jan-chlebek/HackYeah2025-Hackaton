@@ -1,57 +1,89 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  // Landing / Home
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
+
+  // Authentication & Authorization Module (No Layout)
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes)
   },
+
+  // Main Application with Layout
   {
-    path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
+    path: '',
+    loadComponent: () => import('./shared/layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+    children: [
+      // Dashboard (Main)
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
+
+      // Communication Module - Messages
+      {
+        path: 'messages',
+        loadChildren: () => import('./features/messages/messages.routes').then(m => m.messagesRoutes)
+      },
+
+      // Communication Module - Reports (Sprawozdania)
+      {
+        path: 'reports',
+        loadChildren: () => import('./features/reports/reports.routes').then(m => m.reportsRoutes)
+      },
+
+      // Communication Module - Library (Biblioteka)
+      {
+        path: 'library',
+        loadChildren: () => import('./features/library/library.routes').then(m => m.libraryRoutes)
+      },
+
+      // Communication Module - Cases (Sprawy)
+      {
+        path: 'cases',
+        loadChildren: () => import('./features/cases/cases.routes').then(m => m.casesRoutes)
+      },
+
+      // Communication Module - Announcements (Komunikaty/Tablica Ogłoszeń)
+      {
+        path: 'announcements',
+        loadChildren: () => import('./features/announcements/announcements.routes').then(m => m.announcementsRoutes)
+      },
+
+      // Communication Module - Contacts (Kartoteka/Adresaci)
+      {
+        path: 'contacts',
+        loadChildren: () => import('./features/contacts/contacts.routes').then(m => m.contactsRoutes)
+      },
+
+      // Communication Module - FAQ
+      {
+        path: 'faq',
+        loadChildren: () => import('./features/faq/faq.routes').then(m => m.faqRoutes)
+      },
+
+      // Communication Module - Entity Registry (Kartoteka Podmiotów)
+      {
+        path: 'entities',
+        loadChildren: () => import('./features/entities/entities.routes').then(m => m.entitiesRoutes)
+      },
+
+      // Admin Module
+      {
+        path: 'admin',
+        loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
+      }
+    ]
   },
-  {
-    path: 'sprawozdania',
-    loadChildren: () => import('./features/sprawozdania/sprawozdania.routes').then(m => m.SPRAWOZDANIA_ROUTES)
-  },
-  {
-    path: 'wiadomosci',
-    loadChildren: () => import('./features/wiadomosci/wiadomosci.routes').then(m => m.WIADOMOSCI_ROUTES)
-  },
-  {
-    path: 'sprawy',
-    loadChildren: () => import('./features/sprawy/sprawy.routes').then(m => m.SPRAWY_ROUTES)
-  },
-  {
-    path: 'biblioteka',
-    loadChildren: () => import('./features/biblioteka/biblioteka.routes').then(m => m.BIBLIOTEKA_ROUTES)
-  },
-  {
-    path: 'komunikaty',
-    loadChildren: () => import('./features/komunikaty/komunikaty.routes').then(m => m.KOMUNIKATY_ROUTES)
-  },
-  {
-    path: 'faq',
-    loadChildren: () => import('./features/faq/faq.routes').then(m => m.FAQ_ROUTES)
-  },
-  {
-    path: 'kartoteka',
-    loadChildren: () => import('./features/kartoteka/kartoteka.routes').then(m => m.KARTOTEKA_ROUTES)
-  },
-  {
-    path: 'wnioski',
-    loadChildren: () => import('./features/wnioski/wnioski.routes').then(m => m.WNIOSKI_ROUTES)
-  },
-  {
-    path: 'admin',
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
-  },
+
+  // 404 Not Found
   {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: 'dashboard'
   }
 ];

@@ -5,9 +5,16 @@ import { CommonModule } from '@angular/common';
   selector: 'app-faq-list',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './faq-list.component.html',
-  styleUrl: './faq-list.component.css'
+  template: `
+    <div class="faq-list-container">
+      <h1>FAQ</h1>
+      <p>Frequently Asked Questions - empty</p>
+    </div>
+  `,
+  styles: [`
+    .faq-list-container {
+      padding: 2rem;
+    }
+  `]
 })
-export class FaqListComponent {
-
-}
+export class FaqListComponent {}

@@ -1,0 +1,185 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+
+interface MenuItem {
+  label: string;
+  icon: string;
+  route: string;
+  active?: boolean;
+}
+
+@Component({
+  selector: 'app-sidebar',
+  standalone: true,
+  imports: [CommonModule, RouterModule, ButtonModule],
+  template: `
+    <aside class="sidebar" [class.sidebar-collapsed]="isCollapsed">
+      <div class="sidebar-header" *ngIf="!isCollapsed">
+        <h2 class="sidebar-title">MENU</h2>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <ul class="menu-list">
+          <li *ngFor="let item of menuItems" class="menu-item">
+            <a [routerLink]="item.route" 
+               routerLinkActive="active"
+               class="menu-link">
+              <i [class]="item.icon + ' menu-icon'"></i>
+              <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <button 
+        pButton 
+        type="button"
+        [icon]="isCollapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'"
+        class="p-button-text collapse-btn"
+        (click)="toggleSidebar()"
+        [title]="isCollapsed ? 'Rozwiń menu' : 'Zwiń menu'">
+      </button>
+    </aside>
+  `,
+  styles: [`
+    .sidebar {
+      width: 280px;
+      background-color: #f5f5f5;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s ease;
+      position: relative;
+      min-height: calc(100vh - 140px);
+      flex-shrink: 0;
+    }
+
+    .sidebar-collapsed {
+      width: 60px;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem 1rem 1rem 1rem;
+      border-bottom: 1px solid #e0e0e0;
+      background-color: #f5f5f5;
+    }
+
+    .sidebar-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #666;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 0.5rem 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .menu-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu-item {
+      margin-bottom: 0;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-left: 0;
+      min-height: 52px;
+      background-color: transparent;
+    }
+
+    .menu-link:hover {
+      background-color: #e8e8e8;
+      color: #003366;
+    }
+
+    .menu-link.active {
+      background-color: #d4e7f7;
+      color: #003366;
+      font-weight: 500;
+    }
+
+    .menu-icon {
+      font-size: 1.5rem;
+      min-width: 1.75rem;
+      flex-shrink: 0;
+      color: #555;
+    }
+
+    .menu-link.active .menu-icon {
+      color: #003366;
+    }
+
+    .menu-label {
+      margin-left: 1rem;
+      white-space: normal;
+      word-wrap: break-word;
+      line-height: 1.4;
+      font-size: 0.95rem;
+    }
+
+    .sidebar-collapsed .menu-label {
+      display: none;
+    }
+
+    .sidebar-collapsed .sidebar-header {
+      display: none;
+    }
+
+    .collapse-btn {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+      }
+
+      .menu-label {
+        display: none;
+      }
+
+      .sidebar-header {
+        display: none;
+      }
+    }
+  `]
+})
+export class SidebarComponent {
+  isCollapsed = false;
+
+  menuItems: MenuItem[] = [
+    { label: 'Biblioteka - repozytorium plików', icon: 'pi pi-folder-open', route: '/library' },
+    { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/auth/access-requests' },
+    { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
+    { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases' },
+    { label: 'Sprawozdawczość', icon: 'pi pi-chart-line', route: '/reports' },
+    { label: 'Moje pytania', icon: 'pi pi-question-circle', route: '/faq' }
+  ];
+
+  toggleSidebar(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
+}
