@@ -176,7 +176,11 @@ public class AuthController : ControllerBase
             email = emailClaim,
             roles,
             permissions,
-            supervisedEntityId
+            supervisedEntityId,
+            // These fields added for UI convenience; access token currently does not embed them explicitly.
+            // If needed, extend JWT generation to include discrete first/last name claims.
+            firstName = User?.FindFirst("given_name")?.Value,
+            lastName = User?.FindFirst("family_name")?.Value
         });
     }
 

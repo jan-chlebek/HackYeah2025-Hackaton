@@ -9,6 +9,7 @@ import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
 import { SelectModule } from 'primeng/select';
 import { AccessibilityService, FontSize } from '../../services/accessibility.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -78,10 +79,15 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
             </button>
 
             <!-- User Info -->
-            <div class="user-info">
-              <span class="user-name">{{ currentUser.name }}</span>
-              <span class="user-role">| {{ currentUser.role }}</span>
+            <div class="user-info" *ngIf="user() as u; else anon">
+              <span class="user-name">{{ displayName(u) }}</span>
+              <span class="user-role" *ngIf="u.roles?.length">| {{ u.roles[0] }}</span>
             </div>
+            <ng-template #anon>
+              <div class="user-info">
+                <span class="user-name">Gość</span>
+              </div>
+            </ng-template>
 
             <!-- Logout -->
             <button pButton type="button" label="Wyloguj" class="p-button-sm logout-btn" (click)="logout()"></button>
@@ -255,10 +261,8 @@ import { AccessibilityService, FontSize } from '../../services/accessibility.ser
   `]
 })
 export class HeaderComponent {
-  currentUser = {
-    name: 'Jan Nowak',
-    role: 'Użytkownik podmiotu'
-  };
+  // Accessor to auth user signal (avoid referencing before constructor)
+  user = () => this.authService.currentUser();
 
   // Computed signals for reactive UI updates
   currentFontSize = computed(() => this.accessibilityService.fontSize);
@@ -266,7 +270,8 @@ export class HeaderComponent {
 
   constructor(
     private router: Router,
-    private accessibilityService: AccessibilityService
+    private accessibilityService: AccessibilityService,
+    private authService: AuthService
   ) {}
 
   setFontSize(size: FontSize): void {
@@ -278,7 +283,15 @@ export class HeaderComponent {
   }
 
   logout(): void {
-    // TODO: Implement logout logic
+    this.authService.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  displayName(u: any): string {
+    if (!u) return '';
+    if (u.firstName || u.lastName) {
+      return `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim();
+    }
+    return u.fullName || u.email || 'Użytkownik';
   }
 }

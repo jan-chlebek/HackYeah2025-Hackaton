@@ -52,6 +52,16 @@ public class UserInfoDto
     public string FullName { get; set; } = string.Empty;
 
     /// <summary>
+    /// User's first name
+    /// </summary>
+    public string FirstName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// User's last name
+    /// </summary>
+    public string LastName { get; set; } = string.Empty;
+
+    /// <summary>
     /// User's roles
     /// </summary>
     public List<string> Roles { get; set; } = new();
