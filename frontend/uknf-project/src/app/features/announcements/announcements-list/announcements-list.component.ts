@@ -10,6 +10,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { TagModule } from 'primeng/tag';
 import { MenuItem } from 'primeng/api';
 import { AnnouncementService, AnnouncementListItem, AnnouncementFilters } from '../../../services/announcement.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-announcements-list',
@@ -29,6 +30,7 @@ import { AnnouncementService, AnnouncementListItem, AnnouncementFilters } from '
 })
 export class AnnouncementsListComponent implements OnInit {
   private announcementService = inject(AnnouncementService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -53,6 +55,34 @@ export class AnnouncementsListComponent implements OnInit {
   showFilters = false;
   filters: AnnouncementFilters = {};
   searchTerm = '';
+
+  // Check if user is internal (UKNF staff) - NOT external user
+  get isInternalUser(): boolean {
+    const user = this.authService.getCurrentUser();
+    console.log('[AnnouncementsList] Checking isInternalUser:', {
+      user,
+      roles: user?.roles,
+      email: user?.email
+    });
+    
+    if (!user || !user.roles || user.roles.length === 0) {
+      console.log('[AnnouncementsList] No user or no roles found, returning false');
+      return false;
+    }
+    
+    // Check if user has ExternalUser role - if yes, they are NOT internal
+    const hasExternalRole = user.roles.some((r: string) => r.toLowerCase() === 'externaluser');
+    if (hasExternalRole) {
+      console.log('[AnnouncementsList] User has ExternalUser role, returning false');
+      return false;
+    }
+    
+    // Check if user has internal roles
+    const internalRoles = ['administrator', 'internaluser', 'supervisor'];
+    const isInternal = user.roles.some((r: string) => internalRoles.includes(r.toLowerCase()));
+    console.log('[AnnouncementsList] isInternalUser result:', isInternal);
+    return isInternal;
+  }
 
   ngOnInit(): void {
     setTimeout(() => {

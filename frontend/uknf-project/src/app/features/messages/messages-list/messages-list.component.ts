@@ -93,6 +93,14 @@ export class MessagesListComponent implements OnInit {
     return user.roles?.some((r: string) => r.toLowerCase() === 'externaluser');
   }
 
+  // Determine if currently authenticated user is an InternalUser (UKNF staff)
+  get isInternalUser(): boolean {
+    const user = this.authService.getCurrentUser?.() || this.authService['currentUserSignal']?.();
+    if (!user) return false;
+    const internalRoles = ['administrator', 'internaluser', 'supervisor'];
+    return user.roles?.some((r: string) => internalRoles.includes(r.toLowerCase()));
+  }
+
   ngOnInit(): void {
     // Build breadcrumb based on permissions
     const items: MenuItem[] = [];

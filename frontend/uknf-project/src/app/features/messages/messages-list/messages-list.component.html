@@ -272,20 +272,8 @@
       </div>
     </div>
 
-    <!-- Status and Dates Section -->
+    <!-- User and Date Section (readonly fields) -->
     <div class="detail-grid">
-      <div class="detail-field">
-        <label for="detail-status">Status wiadomości</label>
-        <p-select 
-          id="detail-status"
-          [options]="statusOptions" 
-          [(ngModel)]="selectedMessage.statusWiadomosci"
-          optionLabel="label"
-          optionValue="value"
-          [style]="{'width': '100%'}"
-        ></p-select>
-      </div>
-
       <div class="detail-field">
         <label for="detail-uzytkownik">Użytkownik</label>
         <input 
@@ -294,23 +282,27 @@
           pInputText 
           [(ngModel)]="selectedMessage.uzytkownik"
           [style]="{'width': '100%'}"
+          readonly
+          [disabled]="true"
         />
       </div>
 
       <div class="detail-field">
-        <label for="detail-data-podmiotu">Data przesłania podmiotu</label>
-        <p-datepicker 
+        <label for="detail-data-podmiotu">Data przesłania dokumentu</label>
+        <input 
           id="detail-data-podmiotu"
-          [(ngModel)]="selectedMessage.dataPrzeslaniaPodmiotu"
-          [showTime]="true"
-          dateFormat="yy-mm-dd"
+          type="text" 
+          pInputText 
+          [value]="formatDate(selectedMessage.dataPrzeslaniaPodmiotu)"
           [style]="{'width': '100%'}"
-        ></p-datepicker>
+          readonly
+          [disabled]="true"
+        />
       </div>
     </div>
 
-    <!-- User Message Section (visible only for ExternalUser, read-only) -->
-    <div class="detail-section" *ngIf="isExternalUser">
+    <!-- User Message Section (editable only by external users) -->
+    <div class="detail-section">
       <label for="detail-wiadomosc-uzytkownika" class="detail-label">Wiadomość użytkownika</label>
       <textarea 
         id="detail-wiadomosc-uzytkownika"
@@ -319,38 +311,16 @@
         rows="5"
         [style]="{'width': '100%'}"
         placeholder="Treść wiadomości użytkownika..."
-        readonly
-        class="user-message-readonly"
-        aria-readonly="true"
+        [readonly]="!isExternalUser"
+        [disabled]="!isExternalUser"
+        [class.user-message-readonly]="!isExternalUser"
+        [attr.aria-readonly]="!isExternalUser"
       ></textarea>
-      <small class="field-hint">Pole dostępne tylko do podglądu dla użytkownika zewnętrznego.</small>
+      <small class="field-hint" *ngIf="!isExternalUser">Pole edytowalne tylko dla użytkowników zewnętrznych.</small>
+      <small class="field-hint" *ngIf="isExternalUser">Możesz edytować treść wiadomości.</small>
     </div>
 
-    <!-- Attachments Section -->
-    <div class="detail-section">
-      <label class="detail-label">Załączniki</label>
-      <div class="attachments-list">
-        <div *ngIf="!selectedMessage?.attachments || selectedMessage?.attachments?.length === 0" class="no-attachments">
-          <span class="text-muted">Brak załączników</span>
-        </div>
-        <div *ngFor="let attachment of selectedMessage?.attachments" class="attachment-item">
-          <span>{{ attachment.fileName }}</span>
-          <button 
-            pButton 
-            type="button" 
-            icon="pi pi-download" 
-            class="p-button-text p-button-sm"
-            (click)="downloadMessageAttachment(attachment)"
-            [attr.aria-label]="'Pobierz ' + attachment.fileName"
-          ></button>
-        </div>
-      </div>
-      <div class="attachment-actions">
-        <button pButton type="button" label="Dodaj" icon="pi pi-plus" class="p-button-outlined"></button>
-      </div>
-    </div>
-
-    <!-- UKNF Response Section -->
+    <!-- UKNF Response Section (readonly fields) -->
     <div class="detail-grid">
       <div class="detail-field">
         <label for="detail-pracownik-uknf">Pracownik UKNF</label>
@@ -360,23 +330,27 @@
           pInputText 
           [(ngModel)]="selectedMessage.pracownikUKNF"
           [style]="{'width': '100%'}"
+          readonly
+          [disabled]="true"
         />
       </div>
 
       <div class="detail-field">
         <label for="detail-data-uknf">Data przesłania UKNF</label>
-        <p-datepicker 
+        <input 
           id="detail-data-uknf"
-          [(ngModel)]="selectedMessage.dataPrzeslaniaUKNF"
-          [showTime]="true"
-          dateFormat="yy-mm-dd"
+          type="text" 
+          pInputText 
+          [value]="formatDate(selectedMessage.dataPrzeslaniaUKNF)"
           [style]="{'width': '100%'}"
-        ></p-datepicker>
+          readonly
+          [disabled]="true"
+        />
       </div>
     </div>
 
     <div class="detail-section">
-      <label for="detail-wiadomosc-uknf" class="detail-label">Wiadomość pracownika UKNF *</label>
+      <label for="detail-wiadomosc-uknf" class="detail-label">Wiadomość pracownika UKNF</label>
       <textarea 
         id="detail-wiadomosc-uknf"
         pInputTextarea
@@ -384,8 +358,12 @@
         rows="5"
         [style]="{'width': '100%'}"
         placeholder="Treść odpowiedzi UKNF..."
-        required
+        [readonly]="!isInternalUser"
+        [disabled]="!isInternalUser"
+        [attr.aria-readonly]="!isInternalUser"
       ></textarea>
+      <small class="field-hint" *ngIf="!isInternalUser">Pole edytowalne tylko dla użytkowników wewnętrznych (pracowników UKNF).</small>
+      <small class="field-hint" *ngIf="isInternalUser">Możesz edytować treść odpowiedzi UKNF.</small>
     </div>
   </div>
 
