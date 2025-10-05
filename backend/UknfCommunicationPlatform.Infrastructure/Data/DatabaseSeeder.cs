@@ -1215,62 +1215,54 @@ public class DatabaseSeeder
     {
         _logger.LogInformation("Seeding FAQ questions...");
 
-        var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
-        var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).Take(5).ToListAsync();
-
-        var questions = new List<FaqQuestion>();
-        var categories = new[] { "Technical", "Reporting", "Access", "General", "Legal" };
-        var statuses = new[] { FaqQuestionStatus.Answered, FaqQuestionStatus.Published, FaqQuestionStatus.Submitted, FaqQuestionStatus.Answered, FaqQuestionStatus.Published };
-
-        for (int i = 0; i < 5; i++)
+        var questions = new List<FaqQuestion>
         {
-            var question = new FaqQuestion
+            new FaqQuestion
             {
-                Title = $"Pytanie {categories[i]} #{i + 1}",
-                Content = $"Treść pytania dotyczącego {categories[i]}. Jak mogę uzyskać więcej informacji na ten temat?",
-                Category = categories[i],
-                Tags = $"tag{i + 1},{categories[i].ToLower()}",
-                Status = statuses[i],
-                SubmittedByUserId = i % 2 == 0 ? externalUsers[i % externalUsers.Count].Id : null,
-                AnonymousName = i % 2 != 0 ? $"Anonim {i + 1}" : null,
-                AnonymousEmail = i % 2 != 0 ? $"anonymous{i + 1}@example.com" : null,
-                SubmittedAt = DateTime.UtcNow.AddDays(-50 + i * 10),
-                AnsweredByUserId = statuses[i] != FaqQuestionStatus.Submitted ? internalUsers[i % internalUsers.Count].Id : null,
-                AnswerContent = statuses[i] != FaqQuestionStatus.Submitted ? $"<p>Odpowiedź na pytanie {i + 1}.</p><p>Szczegółowe wyjaśnienie dotyczące {categories[i]}.</p>" : null,
-                AnsweredAt = statuses[i] != FaqQuestionStatus.Submitted ? DateTime.UtcNow.AddDays(-45 + i * 10) : null,
-                PublishedAt = statuses[i] == FaqQuestionStatus.Published ? DateTime.UtcNow.AddDays(-40 + i * 10) : null,
-                ViewCount = 50 + i * 20,
-                AverageRating = statuses[i] != FaqQuestionStatus.Submitted ? 4.0m + (i * 0.2m) : 0
-            };
-            questions.Add(question);
-        }
+                Question = "Jak mogę zalogować się do systemu?",
+                Answer = "<p>Aby zalogować się do systemu, należy:</p><ol><li>Przejść na stronę logowania</li><li>Wprowadzić swój login i hasło</li><li>Kliknąć przycisk \"Zaloguj\"</li></ol><p>W przypadku problemów z logowaniem, skontaktuj się z administratorem systemu.</p>"
+            },
+            new FaqQuestion
+            {
+                Question = "Jak często należy składać raporty kwartalne?",
+                Answer = "<p>Raporty kwartalne należy składać cztery razy w roku:</p><ul><li>Q1 - do 30 kwietnia</li><li>Q2 - do 31 lipca</li><li>Q3 - do 31 października</li><li>Q4 - do 31 stycznia roku następnego</li></ul><p>Zaleca się składanie raportów z wyprzedzeniem, aby uniknąć problemów technicznych w ostatnim dniu.</p>"
+            },
+            new FaqQuestion
+            {
+                Question = "Jakie formaty plików są akceptowane przy wysyłaniu raportów?",
+                Answer = "<p>System akceptuje wyłącznie pliki w formacie <strong>XLSX</strong> (Microsoft Excel).</p><p>Pliki w innych formatach (XLS, CSV, PDF) nie będą przyjmowane. Upewnij się, że plik został zapisany w odpowiednim formacie przed przesłaniem.</p>"
+            },
+            new FaqQuestion
+            {
+                Question = "Jak mogę zmienić dane mojego podmiotu nadzorowanego?",
+                Answer = "<p>Aby zmienić dane podmiotu nadzorowanego:</p><ol><li>Przejdź do zakładki \"Administracja\"</li><li>Wybierz \"Podmioty nadzorowane\"</li><li>Znajdź swój podmiot na liście i kliknij \"Edytuj\"</li><li>Wprowadź zmiany i zapisz</li></ol><p>Zmiany krytycznych danych (np. NIP, REGON) wymagają zatwierdzenia przez pracownika UKNF.</p>"
+            },
+            new FaqQuestion
+            {
+                Question = "Gdzie mogę znaleźć archiwalne raporty?",
+                Answer = "<p>Archiwalne raporty znajdują się w zakładce <strong>\"Biblioteka plików\"</strong>.</p><p>Możesz filtrować raporty według:</p><ul><li>Okresu sprawozdawczego (kwartał)</li><li>Daty złożenia</li><li>Statusu walidacji</li></ul><p>Każdy raport można pobrać w formacie XLSX.</p>"
+            },
+            new FaqQuestion
+            {
+                Question = "Co zrobić w przypadku problemów technicznych?",
+                Answer = "<p>W przypadku problemów technicznych:</p><ol><li>Sprawdź sekcję FAQ - większość problemów jest tam opisana</li><li>Skontaktuj się z helpdesk: <a href=\"mailto:helpdesk@uknf.gov.pl\">helpdesk@uknf.gov.pl</a></li><li>W pilnych sprawach zadzwoń: +48 22 262 5000</li></ol><p>Helpdesk jest dostępny od poniedziałku do piątku w godzinach 8:00-16:00.</p>"
+            },
+            new FaqQuestion
+            {
+                Question = "Jak długo przechowywane są wiadomości w systemie?",
+                Answer = "<p>Wiadomości w systemie są przechowywane zgodnie z wymogami prawnymi:</p><ul><li>Wiadomości robocze: <strong>5 lat</strong></li><li>Wiadomości urzędowe: <strong>10 lat</strong></li><li>Wiadomości dotyczące postępowań: <strong>do zakończenia postępowania + 10 lat</strong></li></ul><p>Po upływie okresu archiwizacji wiadomości są automatycznie usuwane.</p>"
+            },
+            new FaqQuestion
+            {
+                Question = "Czy mogę dodać załączniki do wiadomości?",
+                Answer = "<p>Tak, do każdej wiadomości możesz dodać załączniki.</p><p>Ograniczenia:</p><ul><li>Maksymalny rozmiar pojedynczego pliku: <strong>25 MB</strong></li><li>Maksymalna liczba załączników: <strong>10</strong></li><li>Dozwolone formaty: PDF, XLSX, DOCX, ZIP, JPG, PNG</li></ul><p>Pliki o innych rozszerzeniach lub przekraczające limity zostaną odrzucone.</p>"
+            }
+        };
 
         await _context.FaqQuestions.AddRangeAsync(questions);
         await _context.SaveChangesAsync();
 
-        // Seed FaqRatings (at least 5 - only for answered questions)
-        var ratings = new List<FaqRating>();
-        var answeredQuestions = questions.Where(q => q.Status != FaqQuestionStatus.Submitted).ToList();
-        for (int i = 0; i < 5 && i < answeredQuestions.Count * 2; i++)
-        {
-            var userIndex = i % externalUsers.Count;
-            var questionIndex = i % answeredQuestions.Count;
-
-            // Skip if this combination already exists
-            var exists = ratings.Any(r => r.FaqQuestionId == answeredQuestions[questionIndex].Id && r.UserId == externalUsers[userIndex].Id);
-            if (!exists)
-            {
-                ratings.Add(new FaqRating
-                {
-                    FaqQuestionId = answeredQuestions[questionIndex].Id,
-                    UserId = externalUsers[userIndex].Id,
-                    Rating = 3 + (i % 3),
-                    RatedAt = DateTime.UtcNow.AddDays(-35 + i * 7)
-                });
-            }
-        }
-        await _context.FaqRatings.AddRangeAsync(ratings);
-        await _context.SaveChangesAsync();
+        _logger.LogInformation($"Seeded {questions.Count} FAQ questions");
     }
 
     private async Task SeedContactsAsync()

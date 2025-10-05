@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  UknfCommunicationPlatform.Core -> C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Core\bin\Debug\net9.0\UknfCommunicationPlatform.Core.dll
+  UknfCommunicationPlatform.Infrastructure -> C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Infrastructure\bin\Debug\net9.0\UknfCommunicationPlatform.Infrastructure.dll
+  UknfCommunicationPlatform.Api -> C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Api\bin\Debug\net9.0\UknfCommunicationPlatform.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.58
