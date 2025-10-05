@@ -191,6 +191,12 @@ interface MenuItem {
 export class SidebarComponent {
   private authService = inject(AuthService);
   
+  constructor() {
+    console.log('[Sidebar] Component initialized');
+    console.log('[Sidebar] Initial user:', this.authService.currentUser());
+    console.log('[Sidebar] Initial hasElevated:', this.authService.hasElevatedPermissionsSignal());
+  }
+  
   // All menu items with permission requirements
   private allMenuItems: MenuItem[] = [
     { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
@@ -205,17 +211,25 @@ export class SidebarComponent {
   ];
 
   // Computed property that filters menu items based on user permissions
+  // Uses the signal-based hasElevatedPermissionsSignal for reactivity
   visibleMenuItems = computed(() => {
-    const hasElevatedPermissions = this.authService.hasElevatedPermissions();
+    const hasElevatedPermissions = this.authService.hasElevatedPermissionsSignal();
     
-    return this.allMenuItems.filter(item => {
+    console.log('[Sidebar] Computing visible menu items, hasElevatedPermissions:', hasElevatedPermissions);
+    
+    const filtered = this.allMenuItems.filter(item => {
       // If item doesn't require elevated permissions, show it
       if (!item.requiresElevatedPermissions) {
         return true;
       }
       
       // If item requires elevated permissions, only show if user has them
-      return hasElevatedPermissions;
+      const shouldShow = hasElevatedPermissions;
+      console.log(`[Sidebar] Item "${item.label}" requires elevated perms:`, shouldShow);
+      return shouldShow;
     });
+    
+    console.log('[Sidebar] Visible items count:', filtered.length, '/', this.allMenuItems.length);
+    return filtered;
   });
 }
