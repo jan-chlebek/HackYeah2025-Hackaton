@@ -24,4 +24,9 @@ public class ReportDto
     /// Name of the entity that submitted the report (from user's associated entity)
     /// </summary>
     public string EntityName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Original uploaded file name (XLSX attachment)
+    /// </summary>
+    public string FileName { get; set; } = string.Empty;
 }

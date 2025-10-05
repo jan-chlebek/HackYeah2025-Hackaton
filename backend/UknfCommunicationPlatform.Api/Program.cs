@@ -142,6 +142,16 @@ builder.Services.AddSwaggerGen(options =>
     {
         options.IncludeXmlComments(xmlPath);
     }
+
+    // Map IFormFile to file upload in Swagger
+    options.MapType<IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+
+    // Add file upload support for Swagger
+    options.OperationFilter<UknfCommunicationPlatform.Api.Filters.FileUploadOperationFilter>();
 });
 
 // Add CORS
