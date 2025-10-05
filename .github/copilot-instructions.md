@@ -61,7 +61,7 @@ When you debug failing tests:
 - after making something to fix the failing tests run only these tests that fail. Don't run other tests - it is a waste of time. You should NOT run the other tests, don't use grep over running all tests for that!
 - only all failing tests passes rerun all tests to check for other regressions.
 
-Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee file` and then grep this file and remove it after it is not needed! Again, don't use tail after `| tee file`, use tail after that on the file itself.
+Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee /tmp/file` and then grep this file and remove it after it is not needed! Again, don't use tail after `| tee /tmp/file`, use tail after that on the file itself.
 
 Never add columns and fields that are not in the requirements and that are not necessary for the implementation of the requirements. If you really need to add something, explain it to me and ask about it.
 
@@ -83,7 +83,7 @@ Try to be considerably faster when:
 - summarizing the conversation history!
 - saving the prompt to file!
 
-After using sed to be quick, quickly review the changes the sed made, then proceed!
+Don't use sed for speed, only use it for speed if doing a simple rename, for all other cases do the work manually, but parallelize it if possible. After using sed to be quick, quickly review the changes the sed made, then proceed!
 
 Don't use `!"` ever - it expands to something tricky in zsh - look out for this.
 

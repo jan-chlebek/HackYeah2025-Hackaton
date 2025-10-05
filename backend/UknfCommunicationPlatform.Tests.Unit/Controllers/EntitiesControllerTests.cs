@@ -156,13 +156,13 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
+
         value.Should().NotBeNull();
         var data = value.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
         var pagination = value.GetType().GetProperty("pagination")?.GetValue(value);
-        
+
         data.Should().HaveCount(5);
-        
+
         var totalCount = pagination?.GetType().GetProperty("totalCount")?.GetValue(pagination);
         totalCount.Should().Be(5);
     }
@@ -176,12 +176,12 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
-        var data = value.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
+
+        var data = value!.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
         var pagination = value.GetType().GetProperty("pagination")?.GetValue(value);
-        
+
         data.Should().HaveCount(2);
-        
+
         var totalPages = pagination?.GetType().GetProperty("totalPages")?.GetValue(pagination);
         totalPages.Should().Be(3); // 5 entities / 2 per page = 3 pages
     }
@@ -195,9 +195,9 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
-        var data = value.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
-        
+
+        var data = value!.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
+
         data.Should().HaveCount(3); // 3 banks in test data
         data.Should().OnlyContain(e => e.EntityType == "Bank");
     }
@@ -211,9 +211,9 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
-        var data = value.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
-        
+
+        var data = value!.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
+
         data.Should().HaveCount(4); // 4 active entities
         data.Should().OnlyContain(e => e.IsActive == true);
     }
@@ -227,11 +227,11 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
-        var data = value.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
-        
+
+        var data = value!.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
+
         data.Should().HaveCount(1);
-        data.First().Name.Should().Contain("Insurance");
+        data!.First().Name.Should().Contain("Insurance");
     }
 
     [Fact]
@@ -243,10 +243,10 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
-        var pagination = value.GetType().GetProperty("pagination")?.GetValue(value);
+
+        var pagination = value!.GetType().GetProperty("pagination")?.GetValue(value);
         var page = pagination?.GetType().GetProperty("page")?.GetValue(pagination);
-        
+
         page.Should().Be(1);
     }
 
@@ -259,10 +259,10 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
-        var pagination = value.GetType().GetProperty("pagination")?.GetValue(value);
+
+        var pagination = value!.GetType().GetProperty("pagination")?.GetValue(value);
         var pageSize = pagination?.GetType().GetProperty("pageSize")?.GetValue(pagination);
-        
+
         pageSize.Should().Be(20); // Default when invalid
     }
 
@@ -279,7 +279,7 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var entity = okResult.Value.Should().BeOfType<EntityResponse>().Subject;
-        
+
         entity.Id.Should().Be(1);
         entity.Name.Should().Be("Test Bank 1");
         entity.EntityType.Should().Be("Bank");
@@ -328,11 +328,11 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
         var entity = createdResult.Value.Should().BeOfType<EntityResponse>().Subject;
-        
+
         entity.Name.Should().Be("New Test Bank");
         entity.EntityType.Should().Be("Bank");
         entity.UknfCode.Should().StartWith("UKNF"); // System generates code
-        
+
         // Verify it was added to database
         var dbEntity = await _context.SupervisedEntities.FindAsync(entity.Id);
         dbEntity.Should().NotBeNull();
@@ -360,7 +360,7 @@ public class EntitiesControllerTests : IDisposable
 
         // Assert
         var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
-        
+
         createdResult.ActionName.Should().Be(nameof(EntitiesController.GetEntity));
         createdResult.RouteValues.Should().ContainKey("id");
     }
@@ -416,10 +416,10 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var entity = okResult.Value.Should().BeOfType<EntityResponse>().Subject;
-        
+
         entity.Name.Should().Be("Updated Bank Name");
         entity.Phone.Should().Be("+48111111111");
-        
+
         // Verify in database
         var dbEntity = await _context.SupervisedEntities.FindAsync(1L);
         dbEntity!.Name.Should().Be("Updated Bank Name");
@@ -459,7 +459,7 @@ public class EntitiesControllerTests : IDisposable
 
         // Assert
         result.Should().BeOfType<NoContentResult>();
-        
+
         // Verify it was soft deleted (IsActive set to false, not actually removed)
         var dbEntity = await _context.SupervisedEntities.FindAsync(1L);
         dbEntity.Should().NotBeNull();
@@ -488,7 +488,7 @@ public class EntitiesControllerTests : IDisposable
         // Assert - Count should be same (soft delete doesn't remove record)
         var countAfter = await _context.SupervisedEntities.CountAsync();
         countAfter.Should().Be(countBefore);
-        
+
         // Verify other entities still exist and are active
         var entity2 = await _context.SupervisedEntities.FindAsync(2L);
         entity2.Should().NotBeNull();
@@ -508,7 +508,7 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var users = okResult.Value.Should().BeAssignableTo<List<UserListItemResponse>>().Subject;
-        
+
         users.Should().BeEmpty();
     }
 
@@ -532,7 +532,7 @@ public class EntitiesControllerTests : IDisposable
             PostalCode = "00-001",
             Email = "workflow@test.pl"
         };
-        
+
         var createResult = await _controller.CreateEntity(createRequest);
         var createdEntity = ((CreatedAtActionResult)createResult.Result!).Value as EntityResponse;
         var entityId = createdEntity!.Id;
@@ -575,13 +575,13 @@ public class EntitiesControllerTests : IDisposable
         // Test with different page sizes
         var result1 = await _controller.GetEntities(pageSize: 2);
         var value1 = ((OkObjectResult)result1.Result!).Value;
-        var pagination1 = value1.GetType().GetProperty("pagination")?.GetValue(value1);
+        var pagination1 = value1!.GetType().GetProperty("pagination")?.GetValue(value1);
         var totalPages1 = pagination1?.GetType().GetProperty("totalPages")?.GetValue(pagination1);
         totalPages1.Should().Be(3); // 5 entities / 2 = 3 pages
 
         var result2 = await _controller.GetEntities(pageSize: 3);
         var value2 = ((OkObjectResult)result2.Result!).Value;
-        var pagination2 = value2.GetType().GetProperty("pagination")?.GetValue(value2);
+        var pagination2 = value2!.GetType().GetProperty("pagination")?.GetValue(value2);
         var totalPages2 = pagination2?.GetType().GetProperty("totalPages")?.GetValue(pagination2);
         totalPages2.Should().Be(2); // 5 entities / 3 = 2 pages
     }
@@ -595,9 +595,9 @@ public class EntitiesControllerTests : IDisposable
         // Assert
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var value = okResult.Value;
-        
-        var data = value.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
-        
+
+        var data = value!.GetType().GetProperty("data")?.GetValue(value) as List<EntityListItemResponse>;
+
         data.Should().HaveCount(2); // 2 active banks (IDs 1 and 5)
         data.Should().OnlyContain(e => e.EntityType == "Bank" && e.IsActive == true);
     }

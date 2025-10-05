@@ -180,12 +180,12 @@ public class ReportsControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        
+
         var tempContext = new ApplicationDbContext(options);
         var tempServiceLogger = new Mock<ILogger<ReportsService>>();
         var tempService = new ReportsService(tempContext, tempServiceLogger.Object);
         var tempController = new ReportsController(tempService, _logger.Object);
-        
+
         // Dispose context to cause exception
         await tempContext.DisposeAsync();
 
@@ -195,7 +195,7 @@ public class ReportsControllerTests : IDisposable
         // Assert
         var statusCodeResult = result.Result.Should().BeOfType<ObjectResult>().Subject;
         statusCodeResult.StatusCode.Should().Be(500);
-        
+
         var errorMessage = statusCodeResult.Value?.GetType().GetProperty("message")?.GetValue(statusCodeResult.Value);
         errorMessage.Should().NotBeNull();
     }
@@ -228,7 +228,7 @@ public class ReportsControllerTests : IDisposable
 
         // Assert
         var notFoundResult = result.Result.Should().BeOfType<NotFoundObjectResult>().Subject;
-        
+
         var errorMessage = notFoundResult.Value?.GetType().GetProperty("message")?.GetValue(notFoundResult.Value);
         errorMessage.Should().NotBeNull();
         errorMessage.ToString().Should().Contain("999");
@@ -241,7 +241,7 @@ public class ReportsControllerTests : IDisposable
         var resultQ2 = await _controller.GetReport(2);
         var okResultQ2 = resultQ2.Result.Should().BeOfType<OkObjectResult>().Subject;
         var reportQ2 = okResultQ2.Value.Should().BeOfType<ReportDto>().Subject;
-        
+
         reportQ2.ReportingPeriod.Should().Be("Q2");
         reportQ2.ReportNumber.Should().Be("RPT-2025-0002");
 
@@ -249,7 +249,7 @@ public class ReportsControllerTests : IDisposable
         var resultQ3 = await _controller.GetReport(4);
         var okResultQ3 = resultQ3.Result.Should().BeOfType<OkObjectResult>().Subject;
         var reportQ3 = okResultQ3.Value.Should().BeOfType<ReportDto>().Subject;
-        
+
         reportQ3.ReportingPeriod.Should().Be("Q3");
         reportQ3.ReportNumber.Should().Be("RPT-2025-0004");
     }
@@ -261,12 +261,12 @@ public class ReportsControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-        
+
         var tempContext = new ApplicationDbContext(options);
         var tempServiceLogger = new Mock<ILogger<ReportsService>>();
         var tempService = new ReportsService(tempContext, tempServiceLogger.Object);
         var tempController = new ReportsController(tempService, _logger.Object);
-        
+
         // Dispose context to cause exception
         await tempContext.DisposeAsync();
 
@@ -288,7 +288,7 @@ public class ReportsControllerTests : IDisposable
         // Get all reports
         var allResult = await _controller.GetReports();
         var allReports = ((OkObjectResult)allResult.Result!).Value as List<ReportDto>;
-        
+
         allReports.Should().NotBeNull();
         allReports!.Should().HaveCount(4);
 

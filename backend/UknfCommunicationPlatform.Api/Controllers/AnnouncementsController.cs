@@ -97,8 +97,9 @@ public class AnnouncementsController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden - UKNF staff only</response>
     [HttpPost]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize(Roles = "UKNF")]
+    // Corrected: original attribute used Roles = "UKNF" which is not a seeded role name.
+    // Restrict creation to Administrator role (represents UKNF staff in seed data).
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(typeof(AnnouncementResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -138,8 +139,8 @@ public class AnnouncementsController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden - UKNF staff only</response>
     [HttpPut("{id}")]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize(Roles = "UKNF")]
+    // Corrected invalid role name
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(typeof(AnnouncementResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
@@ -184,8 +185,8 @@ public class AnnouncementsController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden - UKNF staff only</response>
     [HttpDelete("{id}")]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize(Roles = "UKNF")]
+    // Corrected invalid role name
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -244,8 +245,6 @@ public class AnnouncementsController : ControllerBase
     /// </summary>
     private long GetCurrentUserId()
     {
-        // TODO: RE-ENABLE AUTHORIZATION - Temporarily using hardcoded user ID for testing
-        // When authorization is disabled, return user ID 2 (jan.kowalski@uknf.gov.pl)
         var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim))
         {

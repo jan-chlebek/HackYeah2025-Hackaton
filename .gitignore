@@ -246,3 +246,5 @@ mcp-*.log
 # Keep MCP template file
 !.env.mcp.template
 
+# Tmp files created during AI development
+/*.txt

@@ -28,13 +28,8 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
 
     public async Task InitializeAsync()
     {
-        // Clean up reports before each test
-        using var scope = _factory.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        var reports = context.Reports.ToList();
-        context.Reports.RemoveRange(reports);
-        await context.SaveChangesAsync();
+        // Clean up test-created reports before each test (keep seed data)
+        await _factory.ResetTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -44,7 +39,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var user = context.Users.First(u => u.SupervisedEntityId != null);
-        
+
         var client = _factory.CreateClient();
         var token = _factory.GenerateJwtToken(user.Id, user.Email, "SupervisorUser");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);

@@ -32,14 +32,9 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
     public async Task InitializeAsync()
     {
         await _factory.ResetTestDataAsync();
+        await ClearAnnouncementsAsync(); // Ensure no pre-seeded baseline announcements interfere with deterministic counts
         await SeedTestUsersAsync();
-        
-        // Add JWT token for authenticated requests
-        using var scope = _factory.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var user = context.Users.First(u => u.Email == "admin@uknf.gov.pl");
-        var token = _factory.GenerateJwtToken(user.Id, user.Email, "Administrator");
-        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        await RefreshAdminTokenAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -207,6 +202,35 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateAnnouncement_AsNonAdmin_ShouldReturn403()
+    {
+        // Arrange: switch auth to a non-admin (entity) user
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            _entityUser ??= await context.Users.FirstOrDefaultAsync(u => u.SupervisedEntityId != null)
+                          ?? await context.Users.FirstAsync(u => u.Email != "admin@uknf.gov.pl");
+            var nonAdminToken = _factory.GenerateJwtToken(_entityUser.Id, _entityUser.Email, "InternalUser");
+            _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", nonAdminToken);
+        }
+
+        var request = new CreateAnnouncementRequest
+        {
+            Title = "Should Fail",
+            Content = "Non admin attempt"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/announcements", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+
+        // Restore admin token for subsequent tests
+        await RefreshAdminTokenAsync();
     }
 
     #endregion
@@ -396,7 +420,30 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         }
 
         await context.SaveChangesAsync();
+        // Ensure token still valid with current DB role/permissions (defensive)
+        await RefreshAdminTokenAsync();
         return announcements;
+    }
+
+    private async Task RefreshAdminTokenAsync()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var admin = await context.Users.FirstAsync(u => u.Email == "admin@uknf.gov.pl");
+        var token = _factory.GenerateJwtToken(admin.Id, admin.Email, "Administrator");
+        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+    }
+
+    private async Task ClearAnnouncementsAsync()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        // Remove dependents first to avoid FK issues
+        await context.Database.ExecuteSqlRawAsync("DELETE FROM announcement_reads");
+        await context.Database.ExecuteSqlRawAsync("DELETE FROM announcement_attachments");
+        await context.Database.ExecuteSqlRawAsync("DELETE FROM announcement_histories");
+        await context.Database.ExecuteSqlRawAsync("DELETE FROM announcement_recipients");
+        await context.Database.ExecuteSqlRawAsync("DELETE FROM announcements");
     }
 
     #endregion

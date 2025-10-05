@@ -19,24 +19,24 @@ public class ApplicationDbContext : DbContext
   public DbSet<SupervisedEntity> SupervisedEntities { get; set; }
   public DbSet<User> Users { get; set; }
 
-      // Communication Module entities
-      public DbSet<Report> Reports { get; set; }
-      public DbSet<Message> Messages { get; set; }
-      public DbSet<MessageAttachment> MessageAttachments { get; set; }
-      public DbSet<Case> Cases { get; set; }
-      public DbSet<CaseDocument> CaseDocuments { get; set; }
-      public DbSet<CaseHistory> CaseHistories { get; set; }
-      public DbSet<Announcement> Announcements { get; set; }
-      public DbSet<AnnouncementAttachment> AnnouncementAttachments { get; set; }
-      public DbSet<AnnouncementRead> AnnouncementReads { get; set; }
-      public DbSet<AnnouncementRecipient> AnnouncementRecipients { get; set; }
-      public DbSet<AnnouncementHistory> AnnouncementHistories { get; set; }
-      public DbSet<FileLibrary> FileLibraries { get; set; }
-      public DbSet<FileLibraryPermission> FileLibraryPermissions { get; set; }
-      public DbSet<FaqQuestion> FaqQuestions { get; set; }
-      public DbSet<Contact> Contacts { get; set; }
-      public DbSet<ContactGroup> ContactGroups { get; set; }
-      public DbSet<ContactGroupMember> ContactGroupMembers { get; set; }
+  // Communication Module entities
+  public DbSet<Report> Reports { get; set; }
+  public DbSet<Message> Messages { get; set; }
+  public DbSet<MessageAttachment> MessageAttachments { get; set; }
+  public DbSet<Case> Cases { get; set; }
+  public DbSet<CaseDocument> CaseDocuments { get; set; }
+  public DbSet<CaseHistory> CaseHistories { get; set; }
+  public DbSet<Announcement> Announcements { get; set; }
+  public DbSet<AnnouncementAttachment> AnnouncementAttachments { get; set; }
+  public DbSet<AnnouncementRead> AnnouncementReads { get; set; }
+  public DbSet<AnnouncementRecipient> AnnouncementRecipients { get; set; }
+  public DbSet<AnnouncementHistory> AnnouncementHistories { get; set; }
+  public DbSet<FileLibrary> FileLibraries { get; set; }
+  public DbSet<FileLibraryPermission> FileLibraryPermissions { get; set; }
+  public DbSet<FaqQuestion> FaqQuestions { get; set; }
+  public DbSet<Contact> Contacts { get; set; }
+  public DbSet<ContactGroup> ContactGroups { get; set; }
+  public DbSet<ContactGroupMember> ContactGroupMembers { get; set; }
 
   // Admin module entities
   public DbSet<Role> Roles { get; set; }
@@ -438,14 +438,14 @@ public class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
     });
 
-            // FaqQuestion configuration (simplified: id, question, answer)
-            modelBuilder.Entity<FaqQuestion>(entity =>
-            {
-                  entity.ToTable("faq_questions");
-                  entity.HasKey(e => e.Id);
-                  entity.Property(e => e.Question).IsRequired();
-                  entity.Property(e => e.Answer).IsRequired();
-            });
+    // FaqQuestion configuration (simplified: id, question, answer)
+    modelBuilder.Entity<FaqQuestion>(entity =>
+    {
+      entity.ToTable("faq_questions");
+      entity.HasKey(e => e.Id);
+      entity.Property(e => e.Question).IsRequired();
+      entity.Property(e => e.Answer).IsRequired();
+    });
 
     // Contact configuration
     modelBuilder.Entity<Contact>(entity =>
