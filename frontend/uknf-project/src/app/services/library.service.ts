@@ -1,22 +1,33 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 // File/Document interfaces
 export interface LibraryFile {
   id: number;
+  name: string;
+  description?: string;
   fileName: string;
   fileSize: number;
-  fileType: string;
-  uploadDate: string;
-  updateDate: string;
-  reportingPeriod: string;
-  isArchived: boolean;
-  uploadedBy: string;
+  fileSizeFormatted?: string;
+  contentType: string;
+  category?: string;
+  uploadedAt: string;
+  uploadedByUserId: number;
+  uploadedByName?: string;
+  uploadedByEmail?: string;
+  permissionCount?: number;
+  // Legacy/UI fields for compatibility
+  fileType?: string;
+  uploadDate?: string;
+  updateDate?: string;
+  reportingPeriod?: string;
+  isArchived?: boolean;
+  uploadedBy?: string;
   entityName?: string;
   entityId?: number;
   tags?: string[];
-  description?: string;
   version?: string;
   // Polish UI fields
   dataAktualizacji?: string;
@@ -51,7 +62,7 @@ export interface LibraryFilters {
 })
 export class LibraryService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/v1/library';
+  private apiUrl = 'http://localhost:5000/api/v1/library/files';
 
   getFiles(
     page: number = 1,
@@ -66,36 +77,43 @@ export class LibraryService {
 
     if (filters) {
       if (filters.fileName) {
-        params = params.set('fileName', filters.fileName);
+        params = params.set('search', filters.fileName);
       }
       if (filters.reportingPeriod) {
-        params = params.set('reportingPeriod', filters.reportingPeriod);
-      }
-      if (filters.uploadDateFrom) {
-        params = params.set('uploadDateFrom', filters.uploadDateFrom);
-      }
-      if (filters.uploadDateTo) {
-        params = params.set('uploadDateTo', filters.uploadDateTo);
-      }
-      if (filters.entityName) {
-        params = params.set('entityName', filters.entityName);
-      }
-      if (filters.isArchived !== undefined) {
-        params = params.set('isArchived', filters.isArchived.toString());
-      }
-      if (filters.fileType) {
-        params = params.set('fileType', filters.fileType);
+        params = params.set('category', filters.reportingPeriod);
       }
     }
 
-    if (sortField) {
-      params = params.set('sortField', sortField);
-    }
-    if (sortOrder) {
-      params = params.set('sortOrder', sortOrder);
-    }
+    return this.http.get<LibraryFile[]>(this.apiUrl, { params, observe: 'response' }).pipe(
+      map(response => {
+        const paginationHeader = response.headers.get('X-Pagination');
+        let pagination: LibraryPagination = {
+          page,
+          pageSize,
+          totalCount: 0,
+          totalPages: 0
+        };
 
-    return this.http.get<LibraryResponse>(this.apiUrl, { params });
+        if (paginationHeader) {
+          try {
+            const paginationData = JSON.parse(paginationHeader);
+            pagination = {
+              page: paginationData.currentPage || page,
+              pageSize: paginationData.pageSize || pageSize,
+              totalCount: paginationData.totalCount || 0,
+              totalPages: paginationData.totalPages || 0
+            };
+          } catch (e) {
+            console.error('Error parsing pagination header:', e);
+          }
+        }
+
+        return {
+          data: response.body || [],
+          pagination
+        };
+      })
+    );
   }
 
   getFileById(id: number): Observable<LibraryFile> {
