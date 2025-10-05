@@ -70,3 +70,16 @@ When you run `psql` remember to disable paging!!!
 Cases can be cancelled, cases are not messages but request of registration. There are no draft messages and threads - ignore those. No bulk-sending of messages.
 
 Before `dotnet build` always use `cd` to ensure correct working directory.
+
+Do many things in parallel - read / edit many files (like 8) in parallel if possible - assume that everything you do takes a couple of seconds and it is preferred to finish in considerably more time without sacrificing accuracy and correctness. For example, try editing many files at once. Write one file and execute some commands in parallel (up to 8). We need to speed up. Also save files (e.g. prompt summary) in parallel with other tasks like providing the summary in the chat.
+
+If a command does not respond in 60s with anything cancel it and fix it or try with something different.
+
+After modifying anything except documentation, make sure that the code builds correctly, tests pass and data seeding is correct and up to date with the changes. Fix issues you encounter along the way.
+
+Write less, do more. I do not need such long and verbose messages you provide, be more efficient and faster, improve speed as if your life depended on it, but still be accurate and correct. Always strive to do more in less time without sacrificing accuracy and correctness.
+
+Try to be considerably faster when:
+- summarizing the conversation history!
+- saving the prompt to file!
+
