@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { AccessibilityControlsComponent } from '../../components/accessibility-controls/accessibility-controls.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -11,9 +12,10 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
   imports: [
     CommonModule,
     RouterModule,
-    HeaderComponent,
-    BreadcrumbComponent,
-    SidebarComponent
+  HeaderComponent,
+  BreadcrumbComponent,
+  SidebarComponent,
+  AccessibilityControlsComponent
   ],
   template: `
     <div class="main-layout">
@@ -26,6 +28,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
           <router-outlet></router-outlet>
         </main>
       </div>
+      <app-accessibility-controls></app-accessibility-controls>
     </div>
   `,
   styles: [`
