@@ -125,10 +125,40 @@ PrimeNG v20 components automatically use the Aura theme configured in `app.confi
 
 #### Configuration in app.config.ts:
 
+The UKNF project uses a **custom preset** that overrides PrimeNG Aura's default green colors with UKNF blue colors:
+
 ```typescript
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { definePreset } from '@primeng/themes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
+// UKNF Custom Color Preset - Override PrimeNG Aura's default green with UKNF blues
+const UknfPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      50: '{sky.50}',
+      100: '{sky.100}',
+      // ... sky color references for blue tones
+    },
+    colorScheme: {
+      light: {
+        primary: {
+          color: '#003366',  // UKNF Primary Blue
+          contrastColor: '#ffffff',
+          hoverColor: '#0073E6',  // UKNF Accent Blue
+          activeColor: '#002952'
+        },
+        highlight: {
+          background: '#E6F3FF',  // UKNF Light Blue
+          focusBackground: '#0073E6',
+          color: '#003366',
+          focusColor: '#ffffff'
+        }
+      }
+    }
+  }
+});
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -136,7 +166,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),  // Required for PrimeNG animations
     providePrimeNG({
       theme: {
-        preset: Aura,  // Using Aura theme preset
+        preset: UknfPreset,  // Using UKNF custom preset (not default Aura)
         options: {
           darkModeSelector: false,
           cssLayer: false
@@ -146,6 +176,8 @@ export const appConfig: ApplicationConfig = {
   ]
 };
 ```
+
+**Important Note**: The default PrimeNG Aura theme uses green as the primary color. Our custom `UknfPreset` overrides all primary colors to use UKNF blue (#003366) and accent blue (#0073E6) instead.
 
 #### Required Package:
 

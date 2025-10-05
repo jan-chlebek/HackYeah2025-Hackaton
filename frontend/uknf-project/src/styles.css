@@ -59,11 +59,88 @@
   box-sizing: border-box;
 }
 
+:root {
+  --base-font-size: 16px; /* Default medium size */
+}
+
 body {
   font-family: 'Inter', Arial, sans-serif;
   color: var(--color-text-primary);
   background-color: var(--color-background);
   line-height: 1.6;
+  font-size: var(--base-font-size);
+}
+
+/* Font Size Accessibility Classes */
+html.font-size-small {
+  --base-font-size: 14px;
+}
+
+html.font-size-small body {
+  font-size: 14px;
+}
+
+html.font-size-medium {
+  --base-font-size: 16px;
+}
+
+html.font-size-medium body {
+  font-size: 16px;
+}
+
+html.font-size-large {
+  --base-font-size: 18px;
+}
+
+html.font-size-large body {
+  font-size: 18px;
+}
+
+/* Scale headings proportionally */
+html.font-size-small h1 { font-size: 1.75rem; }
+html.font-size-small h2 { font-size: 1.5rem; }
+html.font-size-small h3 { font-size: 1.25rem; }
+html.font-size-small h4 { font-size: 1.1rem; }
+
+html.font-size-medium h1 { font-size: 2rem; }
+html.font-size-medium h2 { font-size: 1.75rem; }
+html.font-size-medium h3 { font-size: 1.5rem; }
+html.font-size-medium h4 { font-size: 1.25rem; }
+
+html.font-size-large h1 { font-size: 2.25rem; }
+html.font-size-large h2 { font-size: 2rem; }
+html.font-size-large h3 { font-size: 1.75rem; }
+html.font-size-large h4 { font-size: 1.5rem; }
+
+/* High Contrast Mode */
+html.high-contrast {
+  --uknf-primary-blue: #000080;
+  --uknf-accent-blue: #0000FF;
+  --uknf-light-blue: #E6F0FF;
+  --uknf-white: #FFFFFF;
+  --uknf-light-gray: #F0F0F0;
+  --uknf-medium-gray: #404040;
+  --uknf-dark-gray: #000000;
+}
+
+html.high-contrast body {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+html.high-contrast a {
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+html.high-contrast button,
+html.high-contrast .p-button {
+  border: 2px solid #000000 !important;
+}
+
+html.high-contrast *:focus-visible {
+  outline: 3px solid #000000 !important;
+  outline-offset: 2px;
 }
 
 /* Custom PrimeNG Component Overrides */
@@ -71,7 +148,7 @@ body {
   font-family: 'Inter', Arial, sans-serif;
 }
 
-/* Primary Button Styling */
+/* Primary Button Styling - Override any green with UKNF blue */
 .p-button {
   background-color: var(--uknf-primary-blue);
   border-color: var(--uknf-primary-blue);
@@ -90,6 +167,152 @@ body {
 .p-button-secondary {
   background-color: var(--uknf-accent-blue);
   border-color: var(--uknf-accent-blue);
+}
+
+/* Override PrimeNG success/primary colors to use UKNF blue instead of green */
+.p-button-success,
+.p-button.p-button-success {
+  background-color: var(--uknf-primary-blue) !important;
+  border-color: var(--uknf-primary-blue) !important;
+}
+
+.p-button-success:enabled:hover,
+.p-button.p-button-success:enabled:hover {
+  background-color: var(--uknf-accent-blue) !important;
+  border-color: var(--uknf-accent-blue) !important;
+}
+
+/* Override any checkbox, radio, or toggle green colors */
+.p-checkbox-box.p-highlight,
+.p-radiobutton-box.p-highlight,
+.p-togglebutton.p-highlight {
+  background-color: var(--uknf-primary-blue) !important;
+  border-color: var(--uknf-primary-blue) !important;
+}
+
+/* Override progress bar, badge, and tag colors */
+.p-progressbar-value,
+.p-badge-success,
+.p-tag-success {
+  background-color: var(--uknf-primary-blue) !important;
+}
+
+/* Override any message/notification success colors */
+.p-message-success,
+.p-toast-message-success {
+  background-color: var(--uknf-light-blue) !important;
+  border-color: var(--uknf-primary-blue) !important;
+  color: var(--uknf-dark-gray) !important;
+}
+
+.p-message-success .p-message-icon,
+.p-toast-message-success .p-toast-message-icon {
+  color: var(--uknf-primary-blue) !important;
+}
+
+/* Override link/anchor colors */
+.p-link,
+.p-menuitem-link,
+.p-tabmenu-nav-link {
+  color: var(--uknf-accent-blue) !important;
+}
+
+.p-link:hover,
+.p-menuitem-link:hover,
+.p-tabmenu-nav-link:hover {
+  color: var(--uknf-primary-blue) !important;
+}
+
+/* Override table row selection and hover colors */
+.p-datatable .p-datatable-tbody > tr.p-highlight {
+  background-color: var(--uknf-light-blue) !important;
+  color: var(--uknf-dark-gray) !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: rgba(0, 115, 230, 0.05) !important;
+}
+
+/* Override paginator active page */
+.p-paginator .p-paginator-page.p-highlight {
+  background-color: var(--uknf-primary-blue) !important;
+  border-color: var(--uknf-primary-blue) !important;
+  color: white !important;
+}
+
+/* Override dropdown and select highlight colors */
+.p-select-option.p-highlight,
+.p-dropdown-item.p-highlight,
+.p-listbox-option.p-highlight {
+  background-color: var(--uknf-light-blue) !important;
+  color: var(--uknf-dark-gray) !important;
+}
+
+/* Override calendar selected date */
+.p-datepicker .p-datepicker-calendar td.p-datepicker-today > span {
+  background-color: var(--uknf-light-blue) !important;
+  color: var(--uknf-primary-blue) !important;
+}
+
+.p-datepicker .p-datepicker-calendar td > span.p-highlight {
+  background-color: var(--uknf-primary-blue) !important;
+  color: white !important;
+}
+
+/* Override slider and input range */
+.p-slider .p-slider-range {
+  background-color: var(--uknf-primary-blue) !important;
+}
+
+.p-slider .p-slider-handle {
+  border-color: var(--uknf-primary-blue) !important;
+  background-color: var(--uknf-primary-blue) !important;
+}
+
+/* Override input focus borders */
+.p-inputtext:enabled:focus,
+.p-select:focus,
+.p-dropdown:focus {
+  border-color: var(--uknf-accent-blue) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 115, 230, 0.25) !important;
+}
+
+/* Override menu active item */
+.p-menu .p-menuitem-link:focus,
+.p-menubar .p-menuitem-link:focus {
+  box-shadow: inset 0 0 0 0.15rem var(--uknf-accent-blue) !important;
+}
+
+.p-menu .p-menuitem.p-highlight,
+.p-menubar .p-menuitem.p-highlight {
+  background-color: var(--uknf-light-blue) !important;
+}
+
+/* Override panel/accordion header */
+.p-accordion .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link {
+  background-color: var(--uknf-light-blue) !important;
+  border-color: var(--uknf-primary-blue) !important;
+  color: var(--uknf-primary-blue) !important;
+}
+
+/* Override tabs active state */
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background-color: white !important;
+  border-color: var(--uknf-primary-blue) !important;
+  color: var(--uknf-primary-blue) !important;
+}
+
+/* Override any remaining green tones from PrimeNG Aura theme */
+[class*="p-"][class*="success"],
+[class*="p-"][class*="green"] {
+  background-color: var(--uknf-primary-blue) !important;
+  border-color: var(--uknf-primary-blue) !important;
+}
+
+[class*="p-"][class*="success"]:hover,
+[class*="p-"][class*="green"]:hover {
+  background-color: var(--uknf-accent-blue) !important;
+  border-color: var(--uknf-accent-blue) !important;
 }
 
 /* Link Colors */

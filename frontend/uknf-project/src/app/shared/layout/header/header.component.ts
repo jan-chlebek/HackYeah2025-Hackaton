@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -8,6 +8,7 @@ import { MenuItem } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
 import { SelectModule } from 'primeng/select';
+import { AccessibilityService, FontSize } from '../../services/accessibility.service';
 
 @Component({
   selector: 'app-header',
@@ -31,7 +32,6 @@ import { SelectModule } from 'primeng/select';
             <div class="logo-box">
               <span class="logo-text">UKNF</span>
             </div>
-            <button pButton type="button" icon="pi pi-bars" class="p-button-text menu-toggle" (click)="toggleMenu()"></button>
             <h1 class="header-title m-0">System Komunikacji z Podmiotami</h1>
           </div>
 
@@ -45,13 +45,45 @@ import { SelectModule } from 'primeng/select';
 
             <!-- Font Size Controls -->
             <div class="flex align-items-center gap-1">
-              <button pButton type="button" label="A" class="p-button-text font-size-btn small" (click)="setFontSize('small')"></button>
-              <button pButton type="button" label="A" class="p-button-text font-size-btn medium" (click)="setFontSize('medium')"></button>
-              <button pButton type="button" label="A" class="p-button-text font-size-btn large" (click)="setFontSize('large')"></button>
+              <button 
+                pButton 
+                type="button" 
+                label="A" 
+                class="p-button-text font-size-btn small" 
+                [class.active]="currentFontSize() === 'small'"
+                (click)="setFontSize('small')"
+                title="Mała czcionka">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="A" 
+                class="p-button-text font-size-btn medium" 
+                [class.active]="currentFontSize() === 'medium'"
+                (click)="setFontSize('medium')"
+                title="Średnia czcionka">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="A" 
+                class="p-button-text font-size-btn large" 
+                [class.active]="currentFontSize() === 'large'"
+                (click)="setFontSize('large')"
+                title="Duża czcionka">
+              </button>
             </div>
 
             <!-- High Contrast Toggle -->
-            <button pButton type="button" icon="pi pi-eye" class="p-button-text" (click)="toggleHighContrast()" title="Wysoki kontrast"></button>
+            <button 
+              pButton 
+              type="button" 
+              [icon]="highContrastEnabled() ? 'pi pi-eye-slash' : 'pi pi-eye'" 
+              class="p-button-text" 
+              [class.active]="highContrastEnabled()"
+              (click)="toggleHighContrast()" 
+              [title]="highContrastEnabled() ? 'Wyłącz wysoki kontrast' : 'Włącz wysoki kontrast'">
+            </button>
 
             <!-- User Info -->
             <div class="user-info">
@@ -105,10 +137,6 @@ import { SelectModule } from 'primeng/select';
       letter-spacing: 2px;
     }
 
-    .menu-toggle {
-      color: #6b7280;
-    }
-
     .header-title {
       font-size: 1.125rem;
       color: #1f2937;
@@ -119,6 +147,7 @@ import { SelectModule } from 'primeng/select';
       padding: 0.25rem 0.5rem;
       color: #6b7280;
       min-width: 2rem;
+      transition: all 0.2s ease;
     }
 
     .font-size-btn.small {
@@ -131,6 +160,17 @@ import { SelectModule } from 'primeng/select';
 
     .font-size-btn.large {
       font-size: 1.25rem;
+    }
+
+    .font-size-btn.active,
+    .p-button-text.active {
+      color: #003366 !important;
+      background-color: #E6F3FF !important;
+      font-weight: 600;
+    }
+
+    .font-size-btn:hover {
+      background-color: #f3f4f6;
     }
 
     .user-info {
@@ -184,26 +224,24 @@ export class HeaderComponent {
 
   selectedPodmiot: any = { name: 'Instytucja Testowa', code: 'TEST001' };
   sessionTime = '12:46';
-  currentFontSize = 'medium';
 
-  constructor(private router: Router) {
+  // Computed signals for reactive UI updates
+  currentFontSize = computed(() => this.accessibilityService.fontSize);
+  highContrastEnabled = computed(() => this.accessibilityService.highContrast);
+
+  constructor(
+    private router: Router,
+    private accessibilityService: AccessibilityService
+  ) {
     this.startSessionTimer();
   }
 
-  toggleMenu(): void {
-    // TODO: Implement mobile menu toggle
-    console.log('Toggle menu');
-  }
-
-  setFontSize(size: 'small' | 'medium' | 'large'): void {
-    this.currentFontSize = size;
-    // TODO: Implement font size change logic
-    console.log('Font size changed to:', size);
+  setFontSize(size: FontSize): void {
+    this.accessibilityService.setFontSize(size);
   }
 
   toggleHighContrast(): void {
-    // TODO: Implement high contrast toggle
-    console.log('Toggle high contrast');
+    this.accessibilityService.toggleHighContrast();
   }
 
   changePodmiot(): void {
