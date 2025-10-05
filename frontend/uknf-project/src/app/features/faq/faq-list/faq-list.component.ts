@@ -1,8 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FaqService } from '../../../services/faq.service';
-import { FaqQuestion } from '../../../models/faq.model';
+import { FaqQuestion, FaqListResponse } from '../../../models/faq.model';
 
 @Component({
   selector: 'app-faq-list',
@@ -464,8 +466,14 @@ export class FaqListComponent implements OnInit, OnDestroy {
   submitSuccess = false;
 
   private successTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private readonly destroyRef: DestroyRef = inject(DestroyRef);
+  private isDestroyed = false;
 
-  constructor(private faqService: FaqService) {}
+  constructor(private faqService: FaqService, private readonly cdr: ChangeDetectorRef) {
+    this.destroyRef.onDestroy(() => {
+      this.isDestroyed = true;
+    });
+  }
 
   ngOnInit(): void {
     this.loadQuestions();
@@ -483,6 +491,7 @@ export class FaqListComponent implements OnInit, OnDestroy {
     if (!this.showForm) {
       this.cancelNewQuestion();
     }
+    this.detectChangesSafe();
   }
 
   submitNewQuestion(): void {
@@ -495,7 +504,10 @@ export class FaqListComponent implements OnInit, OnDestroy {
     this.submitError = null;
     this.submitSuccess = false;
 
-    this.faqService.submitQuestion(trimmedQuestion).subscribe({
+    this.faqService
+      .submitQuestion(trimmedQuestion)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.submitting = false;
         this.submitSuccess = true;
@@ -510,12 +522,15 @@ export class FaqListComponent implements OnInit, OnDestroy {
           this.submitSuccess = false;
           this.showForm = false;
           this.successTimeoutId = null;
+            this.detectChangesSafe();
         }, 2000);
+          this.detectChangesSafe();
       },
       error: (err) => {
         console.error('Error submitting FAQ question:', err);
         this.submitting = false;
         this.submitError = 'Nie udało się wysłać pytania. Spróbuj ponownie później.';
+          this.detectChangesSafe();
       }
     });
   }
@@ -532,22 +547,39 @@ export class FaqListComponent implements OnInit, OnDestroy {
       clearTimeout(this.successTimeoutId);
       this.successTimeoutId = null;
     }
+    this.detectChangesSafe();
   }
 
   private loadQuestions(): void {
     this.loading = true;
     this.error = null;
+    this.detectChangesSafe();
 
-    this.faqService.getAllQuestions().subscribe({
-      next: (response) => {
-        this.questions = response.items;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading FAQ questions:', err);
-        this.error = 'Nie udało się załadować pytań. Spróbuj ponownie później.';
-        this.loading = false;
-      }
-    });
+    this.faqService
+      .getAllQuestions()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.loading = false;
+          this.detectChangesSafe();
+        })
+      )
+      .subscribe({
+        next: (response: FaqListResponse) => {
+          this.questions = response?.items ?? [];
+          this.detectChangesSafe();
+        },
+        error: (err) => {
+          console.error('Error loading FAQ questions:', err);
+          this.error = 'Nie udało się załadować pytań. Spróbuj ponownie później.';
+          this.detectChangesSafe();
+        }
+      });
+  }
+
+  private detectChangesSafe(): void {
+    if (!this.isDestroyed) {
+      this.cdr.detectChanges();
+    }
   }
 }
