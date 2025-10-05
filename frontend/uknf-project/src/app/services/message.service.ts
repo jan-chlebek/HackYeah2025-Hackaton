@@ -103,49 +103,76 @@ export class MessageService {
       .set('pageSize', pageSize.toString());
     
     if (filters) {
-      if (filters.identyfikator) {
-        params = params.set('identyfikator', filters.identyfikator);
+      // Normalize empty strings to undefined to avoid sending blank params
+      const normalized: Record<string, any> = { ...filters };
+      Object.keys(normalized).forEach(k => {
+        if (normalized[k] === '' || normalized[k] === null) delete normalized[k];
+      });
+
+      // Date normalization (ensure ISO date only if picker returns Date object)
+      const normDate = (v: any) => {
+        if (!v) return undefined;
+        if (v instanceof Date) return v.toISOString();
+        return v;
+      };
+
+      // Mapping: UI field -> API expected param (adjust if backend uses different naming)
+      const map: Record<string, string> = {
+        identyfikator: 'identifier',
+        sygnaturaSprawy: 'caseSignature',
+        podmiot: 'entityName',
+        statusWiadomosci: 'status',
+        priorytet: 'priority',
+        dataPrzeslaniaPodmiotuFrom: 'entitySentFrom',
+        dataPrzeslaniaPodmiotuTo: 'entitySentTo',
+        uzytkownik: 'userName',
+        dataPrzeslaniaUKNFFrom: 'uknfSentFrom',
+        dataPrzeslaniaUKNFTo: 'uknfSentTo',
+        pracownikUKNF: 'uknfEmployee'
+      };
+
+      for (const key of Object.keys(map)) {
+        const value = (normalized as any)[key];
+        if (value) {
+          const finalVal = key.includes('data') ? normDate(value) : value;
+          if (finalVal) {
+            params = params.set(map[key], finalVal);
+          }
+        }
       }
-      if (filters.sygnaturaSprawy) {
-        params = params.set('sygnaturaSprawy', filters.sygnaturaSprawy);
+
+      if ((normalized as any)['mojePodmioty'] !== undefined) {
+        params = params.set('myEntities', String((normalized as any)['mojePodmioty']));
       }
-      if (filters.podmiot) {
-        params = params.set('podmiot', filters.podmiot);
-      }
-      if (filters.statusWiadomosci) {
-        params = params.set('statusWiadomosci', filters.statusWiadomosci);
-      }
-      if (filters.priorytet) {
-        params = params.set('priorytet', filters.priorytet);
-      }
-      if (filters.dataPrzeslaniaPodmiotuFrom) {
-        params = params.set('dataPrzeslaniaPodmiotuFrom', filters.dataPrzeslaniaPodmiotuFrom);
-      }
-      if (filters.dataPrzeslaniaPodmiotuTo) {
-        params = params.set('dataPrzeslaniaPodmiotuTo', filters.dataPrzeslaniaPodmiotuTo);
-      }
-      if (filters.uzytkownik) {
-        params = params.set('uzytkownik', filters.uzytkownik);
-      }
-      if (filters.dataPrzeslaniaUKNFFrom) {
-        params = params.set('dataPrzeslaniaUKNFFrom', filters.dataPrzeslaniaUKNFFrom);
-      }
-      if (filters.dataPrzeslaniaUKNFTo) {
-        params = params.set('dataPrzeslaniaUKNFTo', filters.dataPrzeslaniaUKNFTo);
-      }
-      if (filters.pracownikUKNF) {
-        params = params.set('pracownikUKNF', filters.pracownikUKNF);
-      }
-      if (filters.mojePodmioty !== undefined) {
-        params = params.set('mojePodmioty', filters.mojePodmioty.toString());
-      }
-      if (filters.wymaganaOdpowiedzUKNF !== undefined) {
-        params = params.set('wymaganaOdpowiedzUKNF', filters.wymaganaOdpowiedzUKNF.toString());
+      if ((normalized as any)['wymaganaOdpowiedzUKNF'] !== undefined) {
+        params = params.set('requiresUknfResponse', String((normalized as any)['wymaganaOdpowiedzUKNF']));
       }
     }
 
+    // Debug log (remove in production)
+    console.log('[MessageService] getMessages params:', params.toString());
+
     if (sortField) {
-      params = params.set('sortField', sortField);
+      // Map UI (Polish / view) field names to backend sortable field names
+      const sortMap: Record<string, string> = {
+        identyfikator: 'id',
+        sygnaturaSprawy: 'caseSignature',
+        podmiot: 'entityName',
+        statusWiadomosci: 'status',
+        priorytet: 'priority',
+        dataPrzeslaniaPodmiotu: 'sentAt',
+        uzytkownik: 'senderName',
+        wiadomoscUzytkownika: 'body',
+        dataPrzeslaniaUKNF: 'uknfSentAt',
+        pracownikUKNF: 'uknfEmployee',
+        wiadomoscPracownikaUKNF: 'uknfBody'
+      };
+      const mapped = sortMap[sortField];
+      if (mapped) {
+        params = params.set('sortField', mapped);
+      } else {
+        console.warn('[MessageService] Unsupported sort field (not sending to backend):', sortField);
+      }
     }
     if (sortOrder) {
       params = params.set('sortOrder', sortOrder);

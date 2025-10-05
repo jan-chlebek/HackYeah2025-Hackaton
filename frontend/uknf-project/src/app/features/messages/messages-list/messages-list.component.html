@@ -131,25 +131,7 @@
         </div>
       </div>
 
-      <div class="filter-checkboxes">
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="filter-moje-podmioty"
-            [(ngModel)]="filters.mojePodmioty"
-            [binary]="true"
-            label="Moje podmioty"
-          ></p-checkbox>
-        </div>
-
-        <div class="checkbox-field">
-          <p-checkbox 
-            inputId="filter-wymagana-odpowiedz"
-            [(ngModel)]="filters.wymaganaOdpowiedzUKNF"
-            [binary]="true"
-            label="Wymagana odpowiedź UKNF"
-          ></p-checkbox>
-        </div>
-      </div>
+      <!-- Removed unused checkbox filters (Moje podmioty, Wymagana odpowiedź UKNF) -->
 
       <div class="filter-actions">
         <button 
@@ -173,6 +155,9 @@
 
   <!-- Messages Table -->
   <div class="table-container">
+    <div *ngIf="errorMessage" class="error-banner" role="alert">{{ errorMessage }}</div>
+    <!-- Avoid rendering PrimeNG table on the server to prevent SSR theming (isNaN) errors -->
+    <ng-container *ngIf="isBrowser; else ssrTableFallback">
     <p-table 
       [value]="messages" 
       [loading]="loading"
@@ -182,6 +167,10 @@
       [rowsPerPageOptions]="pageSizeOptions"
       (onPage)="onPageChange($event)"
       [lazy]="true"
+      [customSort]="true"
+      (sortFunction)="onSort($event)"
+      [sortField]="sortField"
+      [sortOrder]="sortOrder"
       responsiveLayout="scroll"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
@@ -189,17 +178,17 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th>Identyfikator</th>
-          <th>Sygnatura sprawy</th>
-          <th>Podmiot</th>
-          <th>Status wiadomości</th>
-          <th>Priorytet</th>
-          <th>Data przesłania podmiotu</th>
-          <th>Użytkownik</th>
-          <th>Wiadomość użytkownika</th>
-          <th>Data przesłania UKNF</th>
-          <th>Pracownik UKNF</th>
-          <th>Wiadomość pracownika UKNF</th>
+          <th pSortableColumn="identyfikator">Identyfikator <p-sortIcon field="identyfikator"></p-sortIcon></th>
+          <th pSortableColumn="sygnaturaSprawy">Sygnatura sprawy <p-sortIcon field="sygnaturaSprawy"></p-sortIcon></th>
+          <th pSortableColumn="podmiot">Podmiot <p-sortIcon field="podmiot"></p-sortIcon></th>
+          <th pSortableColumn="statusWiadomosci">Status wiadomości <p-sortIcon field="statusWiadomosci"></p-sortIcon></th>
+          <th pSortableColumn="priorytet">Priorytet <p-sortIcon field="priorytet"></p-sortIcon></th>
+          <th pSortableColumn="dataPrzeslaniaPodmiotu">Data przesłania podmiotu <p-sortIcon field="dataPrzeslaniaPodmiotu"></p-sortIcon></th>
+          <th pSortableColumn="uzytkownik">Użytkownik <p-sortIcon field="uzytkownik"></p-sortIcon></th>
+          <th pSortableColumn="wiadomoscUzytkownika">Wiadomość użytkownika <p-sortIcon field="wiadomoscUzytkownika"></p-sortIcon></th>
+          <th pSortableColumn="dataPrzeslaniaUKNF">Data przesłania UKNF <p-sortIcon field="dataPrzeslaniaUKNF"></p-sortIcon></th>
+          <th pSortableColumn="pracownikUKNF">Pracownik UKNF <p-sortIcon field="pracownikUKNF"></p-sortIcon></th>
+          <th pSortableColumn="wiadomoscPracownikaUKNF">Wiadomość pracownika UKNF <p-sortIcon field="wiadomoscPracownikaUKNF"></p-sortIcon></th>
           <th>Akcje</th>
         </tr>
       </ng-template>
@@ -247,6 +236,10 @@
         </tr>
       </ng-template>
     </p-table>
+    </ng-container>
+    <ng-template #ssrTableFallback>
+      <div class="ssr-fallback" aria-busy="true">Ładowanie wiadomości...</div>
+    </ng-template>
   </div>
 </div>
 
