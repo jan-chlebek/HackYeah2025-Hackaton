@@ -2,8 +2,8 @@
 
 Zachęcamy do
 - Przejrzenia fragmentów dokumentacji
-    - [Przygotowanie dokumentacji projektowej do programowania z AI]("AIDevelopment_Documentation/3.1 Working with AI - Planning.md")
-    - [Przykłady dobrego promptowania]("AIDevelopment_Documentation/2.1 Good practise - prompt structure.md")
+    - [Przygotowanie dokumentacji projektowej do programowania z AI](AIDevelopment_Documentation/3.1%20Working%20with%20AI%20-%20Planning.md)
+    - [Przykłady dobrego promptowania](AIDevelopment_Documentation/2.1%20Good%20practise%20-%20prompt%20structure.md)
 - Wejścia na stronę demo (opublikowania na Azure przy pomocy skryptów z folderu *azure-deploy*) - [Kliknij mnie - wykorzystaj dane logowania wylistowane powyżej!](https://hackyeah2025chlebkiknffrontend.azurewebsites.net/auth/login):
       - admin@uknf.gov.pl | Admin123!
       - Zachęcamy do zobaczenia - **funkcjonalności związane z dostępnością (kontrast w PrimeNG)**, **Moje Pytania**, **Biblioteka - repozytorium plików**, i wielu innych - czy to bardziej czy mniej funkcjonalnych :)
