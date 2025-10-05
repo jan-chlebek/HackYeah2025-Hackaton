@@ -412,7 +412,245 @@
 /* High Contrast Mode Support */
 html.high-contrast .filter-section,
 html.high-contrast .table-container {
-  border: 2px solid #000000;
+  border: 2px solid #FFFF00;
+  background-color: #000000;
+  color: #FFFF00;
+}
+
+html.high-contrast .filter-field,
+html.high-contrast .form-field,
+html.high-contrast .page-header,
+html.high-contrast .actions-bar {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+/* High Contrast - Table Headers */
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-bottom: 2px solid #FFFF00 !important;
+  border-right: 1px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-bottom: 1px solid #FFFF00 !important;
+  border-right: 1px solid #FFFF00 !important;
+}
+
+/* High Contrast - Table Row Hover */
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background: #FFFF00 !important;
+  background-color: #FFFF00 !important;
+  transform: none;
+  box-shadow: none;
+}
+
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover > td {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover .file-name,
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover * {
+  color: #000000 !important;
+}
+
+/* High Contrast - Keep buttons visible on row hover */
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover button,
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover .p-button {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #000000 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover button *,
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover .p-button * {
+  color: #FFFF00 !important;
+}
+
+/* High Contrast - Button hover within row hover - invert colors for distinction */
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover button:hover,
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover .p-button:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px #000000 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover button:hover *,
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover .p-button:hover * {
+  color: #000000 !important;
+}
+
+/* High Contrast - Even Rows */
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #000000 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-datatable .p-datatable-tbody > tr:nth-child(even):hover {
+  background: #FFFF00 !important;
+  background-color: #FFFF00 !important;
+}
+
+/* High Contrast - Paginator */
+html.high-contrast :host ::ng-deep .p-paginator {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+  border-top: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-current {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-pages {
+  background-color: #000000 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-first,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-prev,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-next,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-last {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+/* High Contrast - Paginator Hover Effects */
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-first:hover,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-prev:hover,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-next:hover,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-last:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+  transform: none;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-first:hover *,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-prev:hover *,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-next:hover *,
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-last:hover * {
+  color: #000000 !important;
+}
+
+/* High Contrast - Page Number Buttons */
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+  transform: none;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+/* Keep highlighted page yellow when hovering */
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+/* High Contrast - Rows Per Page Dropdown */
+html.high-contrast :host ::ng-deep .p-paginator .p-paginator-rpp-options {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-dropdown {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-dropdown:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-dropdown:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-dropdown .p-dropdown-trigger {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-dropdown .p-dropdown-label {
+  color: inherit !important;
+}
+
+/* High Contrast - p-select in Paginator */
+html.high-contrast :host ::ng-deep .p-paginator .p-select {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-select:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-select:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-select .p-select-trigger {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-select .p-select-label {
+  color: inherit !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-select-dropdown {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-select-dropdown:hover {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+html.high-contrast :host ::ng-deep .p-paginator .p-select-dropdown:hover * {
+  color: #000000 !important;
+}
+
+/* Note: p-select Panel styles are in global styles.css since panel renders outside component */
+
+html.high-contrast ::ng-deep .p-datatable-emptymessage td {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+html.high-contrast ::ng-deep .p-datatable-loading-overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
 }
 
 /* Accessibility - Focus States */
