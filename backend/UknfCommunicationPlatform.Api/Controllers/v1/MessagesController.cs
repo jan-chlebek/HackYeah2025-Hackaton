@@ -13,8 +13,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 [ApiController]
 [Route("api/v1/messages")]
 [Produces("application/json")]
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// [Authorize]
+[Authorize]
 public class MessagesController : ControllerBase
 {
     private readonly MessageService _messageService;

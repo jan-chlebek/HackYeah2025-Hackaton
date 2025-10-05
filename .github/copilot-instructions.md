@@ -83,3 +83,8 @@ Try to be considerably faster when:
 - summarizing the conversation history!
 - saving the prompt to file!
 
+After using sed to be quick, quickly review the changes the sed made, then proceed!
+
+Don't use `!"` ever - it expands to something tricky in zsh - look out for this.
+
+Use less `head` and `tail` - you retry finding the errors because of them because these commands trim them. Also use greater values (like 100) for `-A` and `-B`, and `-C` in grep - you need more context to see why error or fail happens without needing to run another commands. Do something analogous on windows if applicable.

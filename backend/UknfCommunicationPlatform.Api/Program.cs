@@ -171,9 +171,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

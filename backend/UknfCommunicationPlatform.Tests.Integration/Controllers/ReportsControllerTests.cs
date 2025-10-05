@@ -39,15 +39,23 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
 
     public Task DisposeAsync() => Task.CompletedTask;
 
+    private HttpClient GetAuthenticatedClient()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var user = context.Users.First(u => u.SupervisedEntityId != null);
+        
+        var client = _factory.CreateClient();
+        var token = _factory.GenerateJwtToken(user.Id, user.Email, "SupervisorUser");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return client;
+    }
+
     [Fact]
     public async Task SubmitReport_WithValidXlsxFile_CreatesReport()
     {
         // Arrange
-        using var scope = _factory.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        var user = context.Users.First(u => u.SupervisedEntityId != null);
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent("Q1"), "reportingPeriod");
@@ -80,6 +88,8 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
         result.FileName.Should().Be("test_report_Q1_2025.xlsx");
 
         // Verify in database
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var savedReport = context.Reports.FirstOrDefault(r => r.Id == result.Id);
         savedReport.Should().NotBeNull();
         savedReport!.FileName.Should().Be("test_report_Q1_2025.xlsx");
@@ -90,7 +100,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
     public async Task SubmitReport_WithNonXlsxFile_ReturnsBadRequest()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent("Q1"), "reportingPeriod");
@@ -112,7 +122,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
     public async Task SubmitReport_WithInvalidMimeType_ReturnsBadRequest()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent("Q2"), "reportingPeriod");
@@ -134,7 +144,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
     public async Task SubmitReport_WithNoFile_ReturnsBadRequest()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent("Q1"), "reportingPeriod");
@@ -150,7 +160,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
     public async Task SubmitReport_WithInvalidReportingPeriod_ReturnsBadRequest()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent("Q5"), "reportingPeriod"); // Invalid
@@ -173,7 +183,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
     public async Task SubmitReport_GeneratesUniqueReportNumbers()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         var xlsxContent = new byte[]
         {
@@ -233,7 +243,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
         context.Reports.Add(report);
         await context.SaveChangesAsync();
 
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync($"/api/v1/reports/{report.Id}/download");
@@ -250,7 +260,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
     public async Task DownloadReport_WithInvalidId_ReturnsNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/reports/999999/download");
@@ -284,7 +294,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
 
         await context.SaveChangesAsync();
 
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/reports");
@@ -336,7 +346,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
 
         await context.SaveChangesAsync();
 
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/reports?reportingPeriod=Q1");
@@ -356,7 +366,7 @@ public class ReportsControllerTests : IClassFixture<TestDatabaseFixture>, IAsync
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         var formData = new MultipartFormDataContent();
         formData.Add(new StringContent("Q3"), "reportingPeriod");
