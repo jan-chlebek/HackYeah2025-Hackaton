@@ -190,7 +190,7 @@ if (app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Testing")
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         dbContext.Database.Migrate();
-        
+
         // Seed database with sample data
         var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHashingService>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<DatabaseSeeder>>();

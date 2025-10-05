@@ -26,11 +26,6 @@ public class FileLibrary
     public string FileName { get; set; } = string.Empty;
 
     /// <summary>
-    /// File path on storage
-    /// </summary>
-    public string FilePath { get; set; } = string.Empty;
-
-    /// <summary>
     /// File size in bytes
     /// </summary>
     public long FileSize { get; set; }
@@ -46,39 +41,9 @@ public class FileLibrary
     public string Category { get; set; } = string.Empty;
 
     /// <summary>
-    /// Tags for search
+    /// Binary content of the file stored as BLOB
     /// </summary>
-    public string Tags { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Version number
-    /// </summary>
-    public string Version { get; set; } = "1.0";
-
-    /// <summary>
-    /// Is this the current version
-    /// </summary>
-    public bool IsCurrentVersion { get; set; } = true;
-
-    /// <summary>
-    /// Parent file ID (for versioning)
-    /// </summary>
-    public long? ParentFileId { get; set; }
-
-    /// <summary>
-    /// Navigation property - Parent file
-    /// </summary>
-    public FileLibrary? ParentFile { get; set; }
-
-    /// <summary>
-    /// Navigation property - File versions
-    /// </summary>
-    public ICollection<FileLibrary> Versions { get; set; } = new List<FileLibrary>();
-
-    /// <summary>
-    /// Is file public (visible to all)
-    /// </summary>
-    public bool IsPublic { get; set; }
+    public byte[] FileContent { get; set; } = Array.Empty<byte>();
 
     /// <summary>
     /// Uploaded by user ID
@@ -94,11 +59,6 @@ public class FileLibrary
     /// Upload date
     /// </summary>
     public DateTime UploadedAt { get; set; }
-
-    /// <summary>
-    /// Download count
-    /// </summary>
-    public int DownloadCount { get; set; }
 
     /// <summary>
     /// Navigation property - Access permissions

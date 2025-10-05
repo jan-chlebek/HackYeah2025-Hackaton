@@ -6,11 +6,6 @@ namespace UknfCommunicationPlatform.Core.Enums;
 public enum MessageStatus
 {
     /// <summary>
-    /// Draft - Not yet sent
-    /// </summary>
-    Draft = 0,
-
-    /// <summary>
     /// Sent - Delivered to recipient
     /// </summary>
     Sent = 1,
@@ -33,10 +28,5 @@ public enum MessageStatus
     /// <summary>
     /// Closed - Conversation complete
     /// </summary>
-    Closed = 5,
-
-    /// <summary>
-    /// Cancelled - Message was cancelled before being read
-    /// </summary>
-    Cancelled = 6
+    Closed = 5
 }

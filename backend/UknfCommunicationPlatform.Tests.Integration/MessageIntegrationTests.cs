@@ -9,6 +9,7 @@ namespace UknfCommunicationPlatform.Tests.Integration;
 /// <summary>
 /// Integration tests for Message entity and related operations
 /// </summary>
+[Collection(nameof(DatabaseCollection))]
 public class MessageIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsyncLifetime
 {
     private readonly TestDatabaseFixture _factory;
@@ -20,7 +21,8 @@ public class MessageIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsyn
 
     public async Task InitializeAsync()
     {
-        await _factory.ResetDatabaseAsync();
+        // Use lightweight reset - only clean test-created data, keep seed data
+        await _factory.ResetTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -32,39 +34,24 @@ public class MessageIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsyn
         using var scope = _factory.CreateDbContextScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var senderEmail = $"sender{Guid.NewGuid().ToString().Substring(0, 8)}@uknf.gov.pl";
-        var recipientEmail = $"recipient{Guid.NewGuid().ToString().Substring(0, 8)}@bank.com";
+        // Get user IDs without tracking
+        var senderId = await context.Users
+            .Where(u => u.Email == "jan.kowalski@uknf.gov.pl")
+            .Select(u => u.Id)
+            .FirstAsync();
+        var recipientId = await context.Users
+            .Where(u => u.Email.Contains("@bank"))
+            .Select(u => u.Id)
+            .FirstAsync();
 
-        var sender = new User
-        {
-            Email = senderEmail,
-            FirstName = "John",
-            LastName = "Sender",
-            PasswordHash = "hash",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var recipient = new User
-        {
-            Email = recipientEmail,
-            FirstName = "Jane",
-            LastName = "Recipient",
-            PasswordHash = "hash",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        context.Users.AddRange(sender, recipient);
-        await context.SaveChangesAsync();
-
+        var testSubject = $"Test Message {Guid.NewGuid().ToString().Substring(0, 8)}";
         var message = new Message
         {
-            Subject = "Test Message",
+            Subject = testSubject,
             Body = "This is a test message body",
             SentAt = DateTime.UtcNow,
-            SenderId = sender.Id,
-            RecipientId = recipient.Id,
+            SenderId = senderId,
+            RecipientId = recipientId,
             IsRead = false
         };
 
@@ -75,15 +62,15 @@ public class MessageIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsyn
         var retrieved = await context.Messages
             .Include(m => m.Sender)
             .Include(m => m.Recipient)
-            .FirstOrDefaultAsync(m => m.Subject == "Test Message" && m.SenderId == sender.Id);
+            .FirstOrDefaultAsync(m => m.Subject == testSubject && m.SenderId == senderId);
 
         // Assert
         retrieved.Should().NotBeNull();
-        retrieved!.Subject.Should().Be("Test Message");
+        retrieved!.Subject.Should().Be(testSubject);
         retrieved.Sender.Should().NotBeNull();
-        retrieved.Sender!.Email.Should().Be(senderEmail);
+        retrieved.Sender!.Email.Should().Be("jan.kowalski@uknf.gov.pl");
         retrieved.Recipient.Should().NotBeNull();
-        retrieved.Recipient!.Email.Should().Be(recipientEmail);
+        retrieved.Recipient!.Email.Should().Contain("@bank");
         retrieved.IsRead.Should().BeFalse();
     }
 
@@ -94,39 +81,23 @@ public class MessageIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsyn
         using var scope = _factory.CreateDbContextScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var senderEmail = $"sender{Guid.NewGuid().ToString().Substring(0, 8)}@uknf.gov.pl";
-        var recipientEmail = $"recipient{Guid.NewGuid().ToString().Substring(0, 8)}@bank.com";
-
-        var sender = new User
-        {
-            Email = senderEmail,
-            FirstName = "Alice",
-            LastName = "Sender",
-            PasswordHash = "hash",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var recipient = new User
-        {
-            Email = recipientEmail,
-            FirstName = "Bob",
-            LastName = "Recipient",
-            PasswordHash = "hash",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        context.Users.AddRange(sender, recipient);
-        await context.SaveChangesAsync();
+        // Get user IDs without tracking to avoid EF Core attaching related entities
+        var senderId = await context.Users
+            .Where(u => u.Email == "jan.kowalski@uknf.gov.pl")
+            .Select(u => u.Id)
+            .FirstAsync();
+        var recipientId = await context.Users
+            .Where(u => u.Email.Contains("@bank"))
+            .Select(u => u.Id)
+            .FirstAsync();
 
         var message = new Message
         {
             Subject = "Unread Message",
             Body = "This message should be marked as read",
             SentAt = DateTime.UtcNow,
-            SenderId = sender.Id,
-            RecipientId = recipient.Id,
+            SenderId = senderId,
+            RecipientId = recipientId,
             IsRead = false
         };
 

@@ -1,0 +1,56 @@
+                                                 Table "public.users"
+           Column            |            Type             | Collation | Nullable |              Default              
+-----------------------------+-----------------------------+-----------+----------+-----------------------------------
+ id                          | bigint                      |           | not null | nextval('users_id_seq'::regclass)
+ first_name                  | character varying(250)      |           | not null | 
+ last_name                   | character varying(250)      |           | not null | 
+ email                       | character varying(500)      |           | not null | 
+ phone                       | character varying(250)      |           |          | 
+ pesel_masked                | character varying(250)      |           |          | 
+ password_hash               | character varying(500)      |           |          | 
+ role                        | user_role                   |           | not null | 
+ status                      | user_status                 |           | not null | 'pending_activation'::user_status
+ is_internal                 | boolean                     |           | not null | false
+ last_login_at               | timestamp without time zone |           |          | 
+ password_changed_at         | timestamp without time zone |           |          | 
+ activation_token            | character varying(500)      |           |          | 
+ activation_token_expires_at | timestamp without time zone |           |          | 
+ created_at                  | timestamp without time zone |           | not null | CURRENT_TIMESTAMP
+ updated_at                  | timestamp without time zone |           | not null | CURRENT_TIMESTAMP
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "idx_users_email" btree (email)
+    "idx_users_role" btree (role)
+    "idx_users_status" btree (status)
+    "users_email_key" UNIQUE CONSTRAINT, btree (email)
+Referenced by:
+    TABLE "access_request_lines" CONSTRAINT "access_request_lines_approved_by_user_id_fkey" FOREIGN KEY (approved_by_user_id) REFERENCES users(id)
+    TABLE "access_requests" CONSTRAINT "access_requests_reviewed_by_user_id_fkey" FOREIGN KEY (reviewed_by_user_id) REFERENCES users(id)
+    TABLE "access_requests" CONSTRAINT "access_requests_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "announcement_confirmations" CONSTRAINT "announcement_confirmations_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "announcement_recipients" CONSTRAINT "announcement_recipients_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "announcements" CONSTRAINT "announcements_published_by_user_id_fkey" FOREIGN KEY (published_by_user_id) REFERENCES users(id)
+    TABLE "audit_log" CONSTRAINT "audit_log_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "case_attachments" CONSTRAINT "case_attachments_uploaded_by_user_id_fkey" FOREIGN KEY (uploaded_by_user_id) REFERENCES users(id)
+    TABLE "case_history" CONSTRAINT "case_history_performed_by_user_id_fkey" FOREIGN KEY (performed_by_user_id) REFERENCES users(id)
+    TABLE "cases" CONSTRAINT "cases_assigned_to_user_id_fkey" FOREIGN KEY (assigned_to_user_id) REFERENCES users(id)
+    TABLE "cases" CONSTRAINT "cases_created_by_user_id_fkey" FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+    TABLE "contact_groups" CONSTRAINT "contact_groups_created_by_user_id_fkey" FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+    TABLE "contacts" CONSTRAINT "contacts_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "faq_answers" CONSTRAINT "faq_answers_answered_by_user_id_fkey" FOREIGN KEY (answered_by_user_id) REFERENCES users(id)
+    TABLE "faq_questions" CONSTRAINT "faq_questions_asked_by_user_id_fkey" FOREIGN KEY (asked_by_user_id) REFERENCES users(id)
+    TABLE "faq_ratings" CONSTRAINT "faq_ratings_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "library_file_history" CONSTRAINT "library_file_history_changed_by_user_id_fkey" FOREIGN KEY (changed_by_user_id) REFERENCES users(id)
+    TABLE "library_file_permissions" CONSTRAINT "library_file_permissions_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "library_files" CONSTRAINT "library_files_uploaded_by_user_id_fkey" FOREIGN KEY (uploaded_by_user_id) REFERENCES users(id)
+    TABLE "message_threads" CONSTRAINT "message_threads_sent_by_user_id_fkey" FOREIGN KEY (sent_by_user_id) REFERENCES users(id)
+    TABLE "messages" CONSTRAINT "messages_created_by_user_id_fkey" FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+    TABLE "notifications" CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "reports" CONSTRAINT "reports_submitted_by_user_id_fkey" FOREIGN KEY (submitted_by_user_id) REFERENCES users(id)
+    TABLE "uknf_employee_entities" CONSTRAINT "uknf_employee_entities_uknf_employee_id_fkey" FOREIGN KEY (uknf_employee_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "user_entity_permissions" CONSTRAINT "user_entity_permissions_granted_by_user_id_fkey" FOREIGN KEY (granted_by_user_id) REFERENCES users(id)
+    TABLE "user_entity_permissions" CONSTRAINT "user_entity_permissions_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "user_password_history" CONSTRAINT "user_password_history_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+Triggers:
+    update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+

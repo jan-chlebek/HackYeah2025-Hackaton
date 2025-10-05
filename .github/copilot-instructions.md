@@ -33,26 +33,19 @@
 - ✅ Security, accessibility, and performance considerations from the requirements are addressed or explicitly deferred.
 - ✅ `.documentation/prompts.md` updated with the latest prompting steps and lessons learned.
 
-Always take into consideration the contents of and all:
-- .requirements/UX&UI Recomendations/KNF (Komisja Nadzoru Finansowego) UI_UX Design.md
-- .requirements/DETAILS_UKNF_Prompt2Code2.md
-- .requirements/RULES_UKNF_Prompt2Code2.md
-- .requirements/UX&UI Recomendations/knf_color_palette_recommendations.csv
-- .requirements/Prompt2Code2/ENG_attachments/F. test data of supervised entities.html
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/00 - Pulpit.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/01 - Pulpit.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/02 - wniosek o dostęp podgląd.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/03 - Biblioteka - repozytorium plików.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/04 - Biblioteka - repozytorium plików - dodaj.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/05 - wiadomości.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/06 - wiadomości filtrowanie.png
-- .requirements/Prompt2Code2/ENG_attachments/E. prototypes of selected low-detailed screens/07 - wiadomości szczegoly.png
+Primary sources of requirements you need to take into account:
+- primary: `.requirements/UI_SCREENS_SUMMARY.md` and `.requirements/UX&UI Recomendations/KNF (Komisja Nadzoru Finansowego) UI_UX Design.md`
+- secondary: `.requirements/DETAILS_UKNF_Prompt2Code2.md`
+- others:
+  - `.requirements/RULES_UKNF_Prompt2Code2.md`
+  - `.requirements/UX&UI Recomendations/knf_color_palette_recommendations.csv`
+  - `.requirements/Prompt2Code2/ENG_attachments/F. test data of supervised entities.html`
 
 Also prefer the solutions that you are more proficient with.
 
 Also always write and update the Swagger documentation for the backend API endpoints!
 
-From now on, after you finish responding and modifying files, always write the user provided prompt (that you respond to) to prompts/ directory saved with filename `<branch_name>-<timestamp>.md` where `<branch_name>` is the name of the current git branch and `<timestamp>` is the current timestamp in `YYYY-MM-DD_HHMMSS` (always use command `date +"%Y-%m-%d_%H%M%S"` for that) + also paste to the file the full response to the prompt. Do not use `:` in filenames! All filenames should work on both Linux and Windows - ensure that!
+From now on, after you finish responding and modifying files, always write the user provided prompt (that you respond to) to prompts/ directory saved with filename `<branch_name>-<timestamp>.md` where `<branch_name>` is the name of the current git branch and `<timestamp>` is the current timestamp in `YYYY-MM-DD_HHMMSS` (always use command `date +"%Y-%m-%d_%H%M%S"` for that or analogous command on windows) + also paste to the file the full response to the prompt. Do not use `:` in filenames! All filenames should work on both Linux and Windows - ensure that!
 
 Prefer polling with 0.3s to sleeping for more than 0.3s.
 
@@ -63,3 +56,13 @@ Along the way, always implement basic and update the unit and integration tests 
 At the end each change ensure here are proper basic tests as written above + run all backend tests and fix any issues.
 
 Update the script to run all backend tests at all times.
+
+When you debug failing tests:
+- after making something to fix the failing tests run only these tests that fail. Don't run other tests - it is a waste of time. You should NOT run the other tests, don't use grep over running all tests for that!
+- only all failing tests passes rerun all tests to check for other regressions.
+
+Don't use grep while running any command! Especially tests! If you want to use grep, do it like this: run the command with capturing the output to a file using `| tee file` and then grep this file and remove it after it is not needed! Again, don't use tail after `| tee file`, use tail after that on the file itself.
+
+Never add columns and fields that are not in the requirements and that are not necessary for the implementation of the requirements. If you really need to add something, explain it to me and ask about it.
+
+When you run `psql` remember to disable paging!!!

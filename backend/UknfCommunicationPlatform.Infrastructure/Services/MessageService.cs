@@ -150,10 +150,11 @@ public class MessageService
     }
 
     /// <summary>
-    /// Create a new message
+    /// Create a new message with optional attachments
     /// </summary>
     public async Task<MessageResponse> CreateMessageAsync(long senderId, CreateMessageRequest request)
     {
+        // Create the message entity
         var message = new Message
         {
             Subject = request.Subject,
@@ -166,14 +167,40 @@ public class MessageService
             RelatedEntityId = request.RelatedEntityId,
             RelatedReportId = request.RelatedReportId,
             RelatedCaseId = request.RelatedCaseId,
-            Status = request.SendImmediately ? MessageStatus.Sent : MessageStatus.Draft,
+            Status = MessageStatus.Sent,
             IsRead = false,
-            SentAt = request.SendImmediately ? DateTime.UtcNow : default,
+            SentAt = DateTime.UtcNow,
             IsCancelled = false
         };
 
         _context.Messages.Add(message);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Save to get the message ID
+
+        // Process attachments if any - attachments are created atomically with the message
+        if (request.Attachments != null && request.Attachments.Any())
+        {
+            foreach (var file in request.Attachments)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+
+                var attachment = new MessageAttachment
+                {
+                    MessageId = message.Id, // Foreign key - attachment belongs to this message
+                    FileName = file.FileName,
+                    FileSize = file.Length,
+                    ContentType = file.ContentType,
+                    FileContent = memoryStream.ToArray(),
+                    UploadedAt = DateTime.UtcNow,
+                    UploadedByUserId = senderId
+                };
+
+                _context.MessageAttachments.Add(attachment);
+            }
+
+            await _context.SaveChangesAsync(); // Save attachments in the same transaction context
+            _logger.LogInformation("Created {Count} attachments for message {MessageId}", request.Attachments.Count, message.Id);
+        }
 
         // Reload with navigation properties
         await _context.Entry(message).Reference(m => m.Sender).LoadAsync();
@@ -185,40 +212,10 @@ public class MessageService
         {
             await _context.Entry(message).Reference(m => m.RelatedEntity).LoadAsync();
         }
+        await _context.Entry(message).Collection(m => m.Attachments).LoadAsync();
 
-        _logger.LogInformation("Message {MessageId} created by user {UserId}", message.Id, senderId);
-
-        return MapToResponse(message);
-    }
-
-    /// <summary>
-    /// Update a message (typically drafts only)
-    /// </summary>
-    public async Task<MessageResponse?> UpdateMessageAsync(long messageId, long userId, UpdateMessageRequest request)
-    {
-        var message = await _context.Messages
-            .Include(m => m.Sender)
-            .Include(m => m.Recipient)
-            .Include(m => m.RelatedEntity)
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return null;
-
-        if (!string.IsNullOrWhiteSpace(request.Subject))
-            message.Subject = request.Subject;
-
-        if (!string.IsNullOrWhiteSpace(request.Body))
-            message.Body = request.Body;
-
-        if (request.RecipientId.HasValue)
-            message.RecipientId = request.RecipientId.Value;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Message {MessageId} updated by user {UserId}", messageId, userId);
+        _logger.LogInformation("Message {MessageId} created by user {UserId} with {AttachmentCount} attachments",
+            message.Id, senderId, message.Attachments.Count);
 
         return MapToResponse(message);
     }
@@ -274,78 +271,6 @@ public class MessageService
     }
 
     /// <summary>
-    /// Send a draft message
-    /// </summary>
-    public async Task<MessageResponse?> SendDraftAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .Include(m => m.Sender)
-            .Include(m => m.Recipient)
-            .Include(m => m.RelatedEntity)
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return null;
-
-        message.Status = MessageStatus.Sent;
-        message.SentAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Draft message {MessageId} sent by user {UserId}", messageId, userId);
-
-        return MapToResponse(message);
-    }
-
-    /// <summary>
-    /// Cancel a sent message (before it's read)
-    /// </summary>
-    public async Task<bool> CancelMessageAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                !m.IsRead &&
-                !m.IsCancelled);
-
-        if (message == null) return false;
-
-        message.IsCancelled = true;
-        message.CancelledAt = DateTime.UtcNow;
-        message.Status = MessageStatus.Cancelled;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Message {MessageId} cancelled by user {UserId}", messageId, userId);
-
-        return true;
-    }
-
-    /// <summary>
-    /// Delete a draft message
-    /// </summary>
-    public async Task<bool> DeleteDraftAsync(long messageId, long userId)
-    {
-        var message = await _context.Messages
-            .FirstOrDefaultAsync(m =>
-                m.Id == messageId &&
-                m.SenderId == userId &&
-                m.Status == MessageStatus.Draft);
-
-        if (message == null) return false;
-
-        _context.Messages.Remove(message);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("Draft message {MessageId} deleted by user {UserId}", messageId, userId);
-
-        return true;
-    }
-
-    /// <summary>
     /// Get unread message count for a user
     /// </summary>
     public async Task<int> GetUnreadCountAsync(long userId)
@@ -368,8 +293,6 @@ public class MessageService
                 m.RecipientId == userId && m.Folder == MessageFolder.Inbox && !m.IsCancelled),
             TotalSent = await _context.Messages.CountAsync(m =>
                 m.SenderId == userId && m.Folder == MessageFolder.Sent && !m.IsCancelled),
-            TotalDrafts = await _context.Messages.CountAsync(m =>
-                m.SenderId == userId && m.Status == MessageStatus.Draft),
             UnreadCount = await GetUnreadCountAsync(userId)
         };
 
@@ -415,20 +338,63 @@ public class MessageService
             ReplyCount = message.Replies?.Count ?? 0,
             IsCancelled = message.IsCancelled,
             CancelledAt = message.CancelledAt,
-            
-            // Polish UI fields
-            Identyfikator = message.Identyfikator,
-            SygnaturaSprawy = message.SygnaturaSprawy,
-            Podmiot = message.Podmiot,
-            StatusWiadomosci = message.StatusWiadomosci,
-            Priorytet = message.Priorytet,
-            DataPrzeslaniaPodmiotu = message.DataPrzeslaniaPodmiotu,
-            Uzytkownik = message.Uzytkownik,
-            WiadomoscUzytkownika = message.WiadomoscUzytkownika,
-            DataPrzeslaniaUKNF = message.DataPrzeslaniaUKNF,
-            PracownikUKNF = message.PracownikUKNF,
-            WiadomoscPracownikaUKNF = message.WiadomoscPracownikaUKNF
+
+            // Polish UI fields - computed from entity data
+            Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
+            SygnaturaSprawy = message.RelatedCase?.CaseNumber,
+            Podmiot = message.RelatedEntity?.Name,
+            StatusWiadomosci = message.Status switch
+            {
+                MessageStatus.Sent => "Wysłana",
+                MessageStatus.Closed => "Zamknięta",
+                MessageStatus.Read => "Przeczytana",
+                MessageStatus.AwaitingUknfResponse => "Oczekuje na odpowiedź UKNF",
+                MessageStatus.AwaitingUserResponse => "Oczekuje na odpowiedź użytkownika",
+                _ => message.Status.ToString()
+            },
+            Priorytet = null, // Priority not tracked in current model
+            DataPrzeslaniaPodmiotu = message.SenderId != message.RelatedEntity?.Id ? null : message.SentAt,
+            Uzytkownik = $"{message.Sender.FirstName} {message.Sender.LastName}",
+            WiadomoscUzytkownika = message.Body,
+            DataPrzeslaniaUKNF = message.Sender.SupervisedEntityId == null ? message.SentAt : null,
+            PracownikUKNF = message.Sender.SupervisedEntityId == null ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
+            WiadomoscPracownikaUKNF = message.Sender.SupervisedEntityId == null ? message.Body : null
         };
+    }
+
+    /// <summary>
+    /// Get attachment by ID for download
+    /// Verifies that the user has access to the message that owns the attachment
+    /// </summary>
+    public async Task<MessageAttachment?> GetAttachmentAsync(long messageId, long attachmentId, long userId)
+    {
+        // First verify that the user has access to the message
+        var message = await _context.Messages
+            .FirstOrDefaultAsync(m =>
+                m.Id == messageId &&
+                (m.SenderId == userId || m.RecipientId == userId) &&
+                !m.IsCancelled);
+
+        if (message == null)
+        {
+            _logger.LogWarning("User {UserId} attempted to access attachment {AttachmentId} for message {MessageId} - access denied",
+                userId, attachmentId, messageId);
+            return null;
+        }
+
+        // Get the attachment - ensure it belongs to the specified message
+        var attachment = await _context.MessageAttachments
+            .FirstOrDefaultAsync(a =>
+                a.Id == attachmentId &&
+                a.MessageId == messageId);
+
+        if (attachment != null)
+        {
+            _logger.LogInformation("User {UserId} downloading attachment {AttachmentId} ({FileName}) from message {MessageId}",
+                userId, attachmentId, attachment.FileName, messageId);
+        }
+
+        return attachment;
     }
 }
 
@@ -439,6 +405,5 @@ public class MessageStatsResponse
 {
     public int TotalInbox { get; set; }
     public int TotalSent { get; set; }
-    public int TotalDrafts { get; set; }
     public int UnreadCount { get; set; }
 }

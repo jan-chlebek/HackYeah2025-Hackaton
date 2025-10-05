@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\UknfCommunicationPlatform.Api\UknfCommunicationPlatform.Api.csproj" />
     <ProjectReference Include="..\UknfCommunicationPlatform.Core\UknfCommunicationPlatform.Core.csproj" />
     <ProjectReference Include="..\UknfCommunicationPlatform.Infrastructure\UknfCommunicationPlatform.Infrastructure.csproj" />
   </ItemGroup>

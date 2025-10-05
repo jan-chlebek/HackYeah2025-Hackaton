@@ -873,9 +873,10 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("DownloadCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("download_count");
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("file_content");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -883,37 +884,15 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("file_name");
 
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("file_path");
-
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint")
                         .HasColumnName("file_size");
-
-                    b.Property<bool>("IsCurrentVersion")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_current_version");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_public");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("name");
-
-                    b.Property<long?>("ParentFileId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("parent_file_id");
-
-                    b.Property<string>("Tags")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tags");
 
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("timestamp with time zone")
@@ -923,26 +902,17 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("uploaded_by_user_id");
 
-                    b.Property<string>("Version")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("version");
-
                     b.HasKey("Id")
                         .HasName("p_k_file_libraries");
 
-                    b.HasIndex("ParentFileId")
-                        .HasDatabaseName("i_x_file_libraries_parent_file_id");
+                    b.HasIndex("Category")
+                        .HasDatabaseName("i_x_file_libraries_category");
 
                     b.HasIndex("UploadedAt")
                         .HasDatabaseName("i_x_file_libraries_uploaded_at");
 
                     b.HasIndex("UploadedByUserId")
                         .HasDatabaseName("i_x_file_libraries_uploaded_by_user_id");
-
-                    b.HasIndex("Category", "IsCurrentVersion")
-                        .HasDatabaseName("i_x_file_libraries_category_is_current_version");
 
                     b.ToTable("file_libraries", (string)null);
                 });
@@ -1131,16 +1101,16 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("content_type");
 
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("file_content");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("file_name");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("file_path");
 
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint")
@@ -1775,19 +1745,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("assigned_at");
 
-                    b.Property<long?>("UserId1")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id1");
-
                     b.HasKey("UserId", "RoleId")
                         .HasName("p_k_user_roles");
 
                     b.HasIndex("RoleId")
                         .HasDatabaseName("i_x_user_roles_role_id");
-
-                    b.HasIndex("UserId1")
-                        .IsUnique()
-                        .HasDatabaseName("i_x_user_roles_user_id1");
 
                     b.ToTable("user_roles", (string)null);
                 });
@@ -2063,20 +2025,12 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FileLibrary", b =>
                 {
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.FileLibrary", "ParentFile")
-                        .WithMany("Versions")
-                        .HasForeignKey("ParentFileId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("f_k_file_libraries_file_libraries_parent_file_id");
-
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "UploadedBy")
                         .WithMany()
                         .HasForeignKey("UploadedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("f_k_file_libraries_users_uploaded_by_user_id");
-
-                    b.Navigation("ParentFile");
 
                     b.Navigation("UploadedBy");
                 });
@@ -2294,11 +2248,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("f_k_user_roles_users_user_id");
 
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.User", null)
-                        .WithOne("Role")
-                        .HasForeignKey("UknfCommunicationPlatform.Core.Entities.UserRole", "UserId1")
-                        .HasConstraintName("f_k_user_roles_users_user_id1");
-
                     b.Navigation("Role");
 
                     b.Navigation("User");
@@ -2342,8 +2291,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FileLibrary", b =>
                 {
                     b.Navigation("Permissions");
-
-                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Message", b =>
@@ -2386,9 +2333,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.Navigation("ReceivedMessages");
 
                     b.Navigation("Reports");
-
-                    b.Navigation("Role")
-                        .IsRequired();
 
                     b.Navigation("SentMessages");
 

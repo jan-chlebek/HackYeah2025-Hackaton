@@ -16,11 +16,6 @@ public enum MessageFolder
     Sent = 1,
 
     /// <summary>
-    /// Drafts - Unsent messages
-    /// </summary>
-    Drafts = 2,
-
-    /// <summary>
     /// Reports - Messages related to reports (Sprawozdania)
     /// </summary>
     Reports = 3,

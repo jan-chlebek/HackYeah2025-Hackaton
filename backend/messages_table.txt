@@ -1,0 +1,30 @@
+                                                  Table "public.messages"
+          Column           |            Type             | Collation | Nullable |                 Default                  
+---------------------------+-----------------------------+-----------+----------+------------------------------------------
+ id                        | bigint                      |           | not null | nextval('messages_id_seq'::regclass)
+ subject                   | character varying(500)      |           | not null | 
+ context                   | message_context             |           |          | 'general'::message_context
+ status                    | message_status              |           |          | 'awaiting_uknf_response'::message_status
+ entity_id                 | bigint                      |           |          | 
+ related_report_id         | bigint                      |           |          | 
+ related_case_id           | bigint                      |           |          | 
+ related_access_request_id | bigint                      |           |          | 
+ created_by_user_id        | bigint                      |           | not null | 
+ created_at                | timestamp without time zone |           | not null | CURRENT_TIMESTAMP
+ updated_at                | timestamp without time zone |           | not null | CURRENT_TIMESTAMP
+Indexes:
+    "messages_pkey" PRIMARY KEY, btree (id)
+    "idx_messages_created_by" btree (created_by_user_id)
+    "idx_messages_entity" btree (entity_id)
+    "idx_messages_status" btree (status)
+Foreign-key constraints:
+    "fk_messages_case" FOREIGN KEY (related_case_id) REFERENCES cases(id)
+    "messages_created_by_user_id_fkey" FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+    "messages_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id)
+    "messages_related_access_request_id_fkey" FOREIGN KEY (related_access_request_id) REFERENCES access_requests(id)
+    "messages_related_report_id_fkey" FOREIGN KEY (related_report_id) REFERENCES reports(id)
+Referenced by:
+    TABLE "message_threads" CONSTRAINT "message_threads_message_id_fkey" FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+Triggers:
+    update_messages_updated_at BEFORE UPDATE ON messages FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using UknfCommunicationPlatform.Core.Enums;
 
 namespace UknfCommunicationPlatform.Core.DTOs.Messages;
@@ -23,7 +24,7 @@ public class CreateMessageRequest
     public string Body { get; set; } = string.Empty;
 
     /// <summary>
-    /// Recipient user ID (optional for drafts)
+    /// Recipient user ID
     /// </summary>
     public long? RecipientId { get; set; }
 
@@ -58,7 +59,7 @@ public class CreateMessageRequest
     public long? RelatedCaseId { get; set; }
 
     /// <summary>
-    /// Whether to send immediately (true) or save as draft (false)
+    /// Optional file attachments (multiple files allowed, can be empty)
     /// </summary>
-    public bool SendImmediately { get; set; } = true;
+    public List<IFormFile>? Attachments { get; set; }
 }

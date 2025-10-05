@@ -9,6 +9,7 @@ namespace UknfCommunicationPlatform.Tests.Integration;
 /// <summary>
 /// Integration tests for SupervisedEntity operations and relationships
 /// </summary>
+[Collection(nameof(DatabaseCollection))]
 public class SupervisedEntityIntegrationTests : IClassFixture<TestDatabaseFixture>, IAsyncLifetime
 {
     private readonly TestDatabaseFixture _factory;
@@ -20,7 +21,8 @@ public class SupervisedEntityIntegrationTests : IClassFixture<TestDatabaseFixtur
 
     public async Task InitializeAsync()
     {
-        await _factory.ResetDatabaseAsync();
+        // Use lightweight reset - only clean test-created data, keep seed data
+        await _factory.ResetTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

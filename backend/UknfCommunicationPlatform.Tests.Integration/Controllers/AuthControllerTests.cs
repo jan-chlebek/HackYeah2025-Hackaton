@@ -19,6 +19,7 @@ namespace UknfCommunicationPlatform.Tests.Integration.Controllers;
 ///
 /// TODO: Refactor to use TestServer or separate HTTP client setup
 /// </summary>
+[Collection(nameof(DatabaseCollection))]
 public class AuthControllerTests : IClassFixture<TestDatabaseFixture>, IAsyncLifetime
 {
     private readonly TestDatabaseFixture _factory;
@@ -35,7 +36,8 @@ public class AuthControllerTests : IClassFixture<TestDatabaseFixture>, IAsyncLif
     /// </summary>
     public async Task InitializeAsync()
     {
-        await _factory.ResetDatabaseAsync();
+        // Use lightweight reset - only clean test-created data, keep seed data
+        await _factory.ResetTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
