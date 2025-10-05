@@ -65,7 +65,7 @@ public class ReportsController : ControllerBase
         try
         {
             var report = await _reportsService.GetReportByIdAsync(id);
-            
+
             if (report == null)
             {
                 return NotFound(new { message = $"Report with ID {id} not found" });
