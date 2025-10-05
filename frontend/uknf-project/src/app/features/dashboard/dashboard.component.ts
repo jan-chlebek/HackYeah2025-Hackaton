@@ -236,9 +236,9 @@ export class DashboardComponent {
   
   selectedTab = 2; // Default to "Biblioteka - repozytorium plików" tab
   
-  // Example: Check if user has elevated permissions
-  hasElevatedPermissions = computed(() => this.authService.hasElevatedPermissions());
-  currentUser = computed(() => this.authService.getCurrentUser());
+  // Use the signal directly for elevated permissions check
+  hasElevatedPermissions = this.authService.hasElevatedPermissionsSignal;
+  currentUser = this.authService.currentUser;
   
   private allTabs = [
     { label: 'Pulpit użytkownika', requiresElevatedPermissions: false },
@@ -246,9 +246,9 @@ export class DashboardComponent {
     { label: 'Biblioteka - repozytorium plików', requiresElevatedPermissions: false }
   ];
 
-  // Filter tabs based on permissions
+  // Filter tabs based on permissions (using signal for reactivity)
   tabs = computed(() => {
-    const hasElevatedPermissions = this.authService.hasElevatedPermissions();
+    const hasElevatedPermissions = this.authService.hasElevatedPermissionsSignal();
     return this.allTabs.filter(tab => 
       !tab.requiresElevatedPermissions || hasElevatedPermissions
     );
