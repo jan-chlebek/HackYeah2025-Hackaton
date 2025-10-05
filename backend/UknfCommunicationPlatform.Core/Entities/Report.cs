@@ -3,7 +3,7 @@ using UknfCommunicationPlatform.Core.Enums;
 namespace UknfCommunicationPlatform.Core.Entities;
 
 /// <summary>
-/// Represents a report submitted by a supervised entity
+/// Represents a quarterly report submission
 /// </summary>
 public class Report
 {
@@ -13,74 +13,34 @@ public class Report
     public long Id { get; set; }
 
     /// <summary>
-    /// Unique report identifier assigned after submission
+    /// Auto-generated unique report number (e.g., RPT-2025-0001)
     /// </summary>
     public string ReportNumber { get; set; } = string.Empty;
 
     /// <summary>
-    /// Report file name
+    /// Original uploaded file name
     /// </summary>
     public string FileName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Report file path
+    /// Quarterly reporting period
     /// </summary>
-    public string FilePath { get; set; } = string.Empty;
+    public ReportingPeriod ReportingPeriod { get; set; }
 
     /// <summary>
-    /// Reporting period (e.g., Q1 2025)
+    /// Current report validation/processing status
     /// </summary>
-    public string ReportingPeriod { get; set; } = string.Empty;
+    public ReportStatus Status { get; set; } = ReportStatus.Draft;
 
     /// <summary>
-    /// Report type/category
+    /// Binary file content stored in database (XLSX format)
     /// </summary>
-    public string ReportType { get; set; } = string.Empty;
+    public byte[] FileContent { get; set; } = Array.Empty<byte>();
 
     /// <summary>
-    /// Current validation status
-    /// </summary>
-    public ReportStatus Status { get; set; }
-
-    /// <summary>
-    /// Validation result file path
-    /// </summary>
-    public string? ValidationResultPath { get; set; }
-
-    /// <summary>
-    /// Error description (if any)
-    /// </summary>
-    public string? ErrorDescription { get; set; }
-
-    /// <summary>
-    /// Submission date
+    /// When the report was submitted/uploaded
     /// </summary>
     public DateTime SubmittedAt { get; set; }
-
-    /// <summary>
-    /// Validation completion date
-    /// </summary>
-    public DateTime? ValidatedAt { get; set; }
-
-    /// <summary>
-    /// Is this a correction of another report
-    /// </summary>
-    public bool IsCorrection { get; set; }
-
-    /// <summary>
-    /// Original report ID (if this is a correction)
-    /// </summary>
-    public long? OriginalReportId { get; set; }
-
-    /// <summary>
-    /// Supervised entity that submitted the report
-    /// </summary>
-    public long SupervisedEntityId { get; set; }
-
-    /// <summary>
-    /// Navigation property - Supervised entity
-    /// </summary>
-    public SupervisedEntity SupervisedEntity { get; set; } = null!;
 
     /// <summary>
     /// User who submitted the report
@@ -92,13 +52,7 @@ public class Report
     /// </summary>
     public User SubmittedBy { get; set; } = null!;
 
-    /// <summary>
-    /// Navigation property - Original report (if this is a correction)
-    /// </summary>
-    public Report? OriginalReport { get; set; }
-
-    /// <summary>
-    /// Navigation property - Corrections to this report
-    /// </summary>
-    public ICollection<Report> Corrections { get; set; } = new List<Report>();
+    // Audit fields
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -108,11 +108,6 @@ public class Case
     public string? CancellationReason { get; set; }
 
     /// <summary>
-    /// Navigation property - Related messages
-    /// </summary>
-    public ICollection<Message> Messages { get; set; } = new List<Message>();
-
-    /// <summary>
     /// Navigation property - Case documents
     /// </summary>
     public ICollection<CaseDocument> Documents { get; set; } = new List<CaseDocument>();

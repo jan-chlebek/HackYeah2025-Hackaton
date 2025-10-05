@@ -38,21 +38,6 @@ public class MessageResponse
     public MessageStatus Status { get; set; }
 
     /// <summary>
-    /// Message folder classification
-    /// </summary>
-    public MessageFolder Folder { get; set; }
-
-    /// <summary>
-    /// Thread ID for conversation grouping
-    /// </summary>
-    public long? ThreadId { get; set; }
-
-    /// <summary>
-    /// Parent message ID (if this is a reply)
-    /// </summary>
-    public long? ParentMessageId { get; set; }
-
-    /// <summary>
     /// Has the message been read
     /// </summary>
     public bool IsRead { get; set; }
@@ -78,34 +63,14 @@ public class MessageResponse
     public string? RelatedEntityName { get; set; }
 
     /// <summary>
-    /// Related report ID
-    /// </summary>
-    public long? RelatedReportId { get; set; }
-
-    /// <summary>
-    /// Related case ID
-    /// </summary>
-    public long? RelatedCaseId { get; set; }
-
-    /// <summary>
     /// Number of attachments
     /// </summary>
     public int AttachmentCount { get; set; }
 
     /// <summary>
-    /// Number of replies
-    /// </summary>
-    public int ReplyCount { get; set; }
-
-    /// <summary>
     /// Is this message cancelled
     /// </summary>
     public bool IsCancelled { get; set; }
-
-    /// <summary>
-    /// Cancellation date
-    /// </summary>
-    public DateTime? CancelledAt { get; set; }
 
     // Polish UI fields
     /// <summary>
@@ -127,21 +92,6 @@ public class MessageResponse
     /// Status wiadomości w języku polskim
     /// </summary>
     public string? StatusWiadomosci { get; set; }
-
-    /// <summary>
-    /// Priorytet wiadomości (Wysoki, Średni, Niski)
-    /// </summary>
-    public string? Priorytet { get; set; }
-
-    /// <summary>
-    /// Data przesłania przez podmiot
-    /// </summary>
-    public DateTime? DataPrzeslaniaPodmiotu { get; set; }
-
-    /// <summary>
-    /// Nazwa użytkownika (podmiotu)
-    /// </summary>
-    public string? Uzytkownik { get; set; }
 
     /// <summary>
     /// Wiadomość od użytkownika

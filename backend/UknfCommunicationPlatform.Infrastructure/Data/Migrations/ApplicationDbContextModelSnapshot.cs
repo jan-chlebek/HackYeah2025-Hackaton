@@ -713,140 +713,20 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("AnonymousEmail")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("anonymous_email");
-
-                    b.Property<string>("AnonymousName")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("anonymous_name");
-
-                    b.Property<string>("AnswerContent")
-                        .HasColumnType("text")
-                        .HasColumnName("answer_content");
-
-                    b.Property<DateTime?>("AnsweredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("answered_at");
-
-                    b.Property<long?>("AnsweredByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("answered_by_user_id");
-
-                    b.Property<decimal?>("AverageRating")
-                        .HasColumnType("numeric")
-                        .HasColumnName("average_rating");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("category");
-
-                    b.Property<string>("Content")
+                    b.Property<string>("Answer")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("content");
+                        .HasColumnName("answer");
 
-                    b.Property<DateTime?>("PublishedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("published_at");
-
-                    b.Property<int>("RatingCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("rating_count");
-
-                    b.Property<string>("Status")
+                    b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("submitted_at");
-
-                    b.Property<long?>("SubmittedByUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("submitted_by_user_id");
-
-                    b.Property<string>("Tags")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tags");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("title");
-
-                    b.Property<int>("ViewCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("view_count");
+                        .HasColumnName("question");
 
                     b.HasKey("Id")
                         .HasName("p_k_faq_questions");
 
-                    b.HasIndex("AnsweredByUserId")
-                        .HasDatabaseName("i_x_faq_questions_answered_by_user_id");
-
-                    b.HasIndex("PublishedAt")
-                        .HasDatabaseName("i_x_faq_questions_published_at");
-
-                    b.HasIndex("SubmittedAt")
-                        .HasDatabaseName("i_x_faq_questions_submitted_at");
-
-                    b.HasIndex("SubmittedByUserId")
-                        .HasDatabaseName("i_x_faq_questions_submitted_by_user_id");
-
-                    b.HasIndex("Status", "Category")
-                        .HasDatabaseName("i_x_faq_questions_status_category");
-
                     b.ToTable("faq_questions", (string)null);
-                });
-
-            modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FaqRating", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("text")
-                        .HasColumnName("comment");
-
-                    b.Property<long>("FaqQuestionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("faq_question_id");
-
-                    b.Property<DateTime>("RatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("rated_at");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer")
-                        .HasColumnName("rating");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_faq_ratings");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("i_x_faq_ratings_user_id");
-
-                    b.HasIndex("FaqQuestionId", "UserId")
-                        .IsUnique()
-                        .HasDatabaseName("i_x_faq_ratings_faq_question_id_user_id");
-
-                    b.ToTable("faq_ratings", (string)null);
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FileLibrary", b =>
@@ -995,15 +875,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("body");
 
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cancelled_at");
-
-                    b.Property<string>("Folder")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("folder");
-
                     b.Property<bool>("IsCancelled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_cancelled");
@@ -1011,10 +882,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean")
                         .HasColumnName("is_read");
-
-                    b.Property<long?>("ParentMessageId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("parent_message_id");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone")
@@ -1024,17 +891,9 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("recipient_id");
 
-                    b.Property<long?>("RelatedCaseId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("related_case_id");
-
                     b.Property<long?>("RelatedEntityId")
                         .HasColumnType("bigint")
                         .HasColumnName("related_entity_id");
-
-                    b.Property<long?>("RelatedReportId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("related_report_id");
 
                     b.Property<long>("SenderId")
                         .HasColumnType("bigint")
@@ -1055,27 +914,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("subject");
 
-                    b.Property<long?>("ThreadId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("thread_id");
-
                     b.HasKey("Id")
                         .HasName("p_k_messages");
 
-                    b.HasIndex("ParentMessageId")
-                        .HasDatabaseName("i_x_messages_parent_message_id");
-
-                    b.HasIndex("RelatedCaseId")
-                        .HasDatabaseName("i_x_messages_related_case_id");
-
                     b.HasIndex("RelatedEntityId")
                         .HasDatabaseName("i_x_messages_related_entity_id");
-
-                    b.HasIndex("RelatedReportId")
-                        .HasDatabaseName("i_x_messages_related_report_id");
-
-                    b.HasIndex("ThreadId")
-                        .HasDatabaseName("i_x_messages_thread_id");
 
                     b.HasIndex("RecipientId", "IsRead")
                         .HasDatabaseName("i_x_messages_recipient_id_is_read");
@@ -1354,9 +1197,14 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ErrorDescription")
-                        .HasColumnType("text")
-                        .HasColumnName("error_description");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("file_content");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -1364,29 +1212,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("file_name");
 
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("file_path");
-
-                    b.Property<bool>("IsCorrection")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_correction");
-
-                    b.Property<long?>("OriginalReportId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("original_report_id");
-
                     b.Property<string>("ReportNumber")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("report_number");
-
-                    b.Property<string>("ReportType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("report_type");
 
                     b.Property<string>("ReportingPeriod")
                         .IsRequired()
@@ -1406,27 +1236,26 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("submitted_by_user_id");
 
-                    b.Property<long>("SupervisedEntityId")
+                    b.Property<long?>("SupervisedEntityId")
                         .HasColumnType("bigint")
                         .HasColumnName("supervised_entity_id");
 
-                    b.Property<DateTime?>("ValidatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("validated_at");
-
-                    b.Property<string>("ValidationResultPath")
-                        .HasColumnType("text")
-                        .HasColumnName("validation_result_path");
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("p_k_reports");
 
-                    b.HasIndex("OriginalReportId")
-                        .HasDatabaseName("i_x_reports_original_report_id");
-
                     b.HasIndex("ReportNumber")
                         .IsUnique()
                         .HasDatabaseName("i_x_reports_report_number");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("i_x_reports_status");
+
+                    b.HasIndex("SubmittedAt")
+                        .HasDatabaseName("i_x_reports_submitted_at");
 
                     b.HasIndex("SubmittedByUserId")
                         .HasDatabaseName("i_x_reports_submitted_by_user_id");
@@ -1983,46 +1812,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.Navigation("ContactGroup");
                 });
 
-            modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FaqQuestion", b =>
-                {
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "AnsweredBy")
-                        .WithMany()
-                        .HasForeignKey("AnsweredByUserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_faq_questions_users_answered_by_user_id");
-
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "SubmittedBy")
-                        .WithMany()
-                        .HasForeignKey("SubmittedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_faq_questions_users_submitted_by_user_id");
-
-                    b.Navigation("AnsweredBy");
-
-                    b.Navigation("SubmittedBy");
-                });
-
-            modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FaqRating", b =>
-                {
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.FaqQuestion", "FaqQuestion")
-                        .WithMany("Ratings")
-                        .HasForeignKey("FaqQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_faq_ratings_faq_questions_faq_question_id");
-
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_faq_ratings_users_user_id");
-
-                    b.Navigation("FaqQuestion");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FileLibrary", b =>
                 {
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "UploadedBy")
@@ -2065,35 +1854,17 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Message", b =>
                 {
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Message", "ParentMessage")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentMessageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("f_k_messages_messages_parent_message_id");
-
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "Recipient")
                         .WithMany("ReceivedMessages")
                         .HasForeignKey("RecipientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("f_k_messages_users_recipient_id");
 
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Case", "RelatedCase")
-                        .WithMany("Messages")
-                        .HasForeignKey("RelatedCaseId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_messages_cases_related_case_id");
-
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.SupervisedEntity", "RelatedEntity")
                         .WithMany()
                         .HasForeignKey("RelatedEntityId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("f_k_messages_entities_related_entity_id");
-
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Report", "RelatedReport")
-                        .WithMany()
-                        .HasForeignKey("RelatedReportId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_messages_reports_related_report_id");
 
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "Sender")
                         .WithMany("SentMessages")
@@ -2102,15 +1873,9 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("f_k_messages_users_sender_id");
 
-                    b.Navigation("ParentMessage");
-
                     b.Navigation("Recipient");
 
-                    b.Navigation("RelatedCase");
-
                     b.Navigation("RelatedEntity");
-
-                    b.Navigation("RelatedReport");
 
                     b.Navigation("Sender");
                 });
@@ -2173,12 +1938,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Report", b =>
                 {
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Report", "OriginalReport")
-                        .WithMany("Corrections")
-                        .HasForeignKey("OriginalReportId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_reports_reports_original_report_id");
-
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "SubmittedBy")
                         .WithMany("Reports")
                         .HasForeignKey("SubmittedByUserId")
@@ -2186,18 +1945,12 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("f_k_reports_users_submitted_by_user_id");
 
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.SupervisedEntity", "SupervisedEntity")
+                    b.HasOne("UknfCommunicationPlatform.Core.Entities.SupervisedEntity", null)
                         .WithMany("Reports")
                         .HasForeignKey("SupervisedEntityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("f_k_reports_entities_supervised_entity_id");
 
-                    b.Navigation("OriginalReport");
-
                     b.Navigation("SubmittedBy");
-
-                    b.Navigation("SupervisedEntity");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.RolePermission", b =>
@@ -2239,14 +1992,14 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("f_k_user_roles_roles_role_id");
+                        .HasConstraintName("fk_user_roles_role");
 
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("f_k_user_roles_users_user_id");
+                        .HasConstraintName("fk_user_roles_user");
 
                     b.Navigation("Role");
 
@@ -2269,8 +2022,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("History");
-
-                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Contact", b =>
@@ -2283,11 +2034,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.Navigation("Members");
                 });
 
-            modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FaqQuestion", b =>
-                {
-                    b.Navigation("Ratings");
-                });
-
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.FileLibrary", b =>
                 {
                     b.Navigation("Permissions");
@@ -2296,18 +2042,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Message", b =>
                 {
                     b.Navigation("Attachments");
-
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Report", b =>
-                {
-                    b.Navigation("Corrections");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Role", b =>
