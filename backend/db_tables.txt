@@ -1,0 +1,41 @@
+                    List of relations
+ Schema |            Name            | Type  |   Owner   
+--------+----------------------------+-------+-----------
+ public | __EFMigrationsHistory      | table | uknf_user
+ public | access_request_lines       | table | uknf_user
+ public | access_requests            | table | uknf_user
+ public | announcement_attachments   | table | uknf_user
+ public | announcement_confirmations | table | uknf_user
+ public | announcement_recipients    | table | uknf_user
+ public | announcements              | table | uknf_user
+ public | audit_log                  | table | uknf_user
+ public | case_attachments           | table | uknf_user
+ public | case_history               | table | uknf_user
+ public | cases                      | table | uknf_user
+ public | contact_group_members      | table | uknf_user
+ public | contact_groups             | table | uknf_user
+ public | contacts                   | table | uknf_user
+ public | entities                   | table | uknf_user
+ public | entity_history             | table | uknf_user
+ public | faq_answers                | table | uknf_user
+ public | faq_question_tags          | table | uknf_user
+ public | faq_questions              | table | uknf_user
+ public | faq_ratings                | table | uknf_user
+ public | faq_tags                   | table | uknf_user
+ public | library_file_history       | table | uknf_user
+ public | library_file_permissions   | table | uknf_user
+ public | library_files              | table | uknf_user
+ public | message_attachments        | table | uknf_user
+ public | message_threads            | table | uknf_user
+ public | messages                   | table | uknf_user
+ public | notifications              | table | uknf_user
+ public | password_policy            | table | uknf_user
+ public | report_registries          | table | uknf_user
+ public | report_schedule            | table | uknf_user
+ public | reports                    | table | uknf_user
+ public | uknf_employee_entities     | table | uknf_user
+ public | user_entity_permissions    | table | uknf_user
+ public | user_password_history      | table | uknf_user
+ public | users                      | table | uknf_user
+(36 rows)
+

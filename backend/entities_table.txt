@@ -1,0 +1,46 @@
+                                             Table "public.entities"
+        Column        |            Type             | Collation | Nullable |               Default                
+----------------------+-----------------------------+-----------+----------+--------------------------------------
+ id                   | bigint                      |           | not null | nextval('entities_id_seq'::regclass)
+ entity_type          | character varying(250)      |           | not null | 
+ uknf_code            | character varying(250)      |           | not null | 
+ entity_name          | character varying(500)      |           | not null | 
+ lei                  | character varying(20)       |           |          | 
+ nip                  | character varying(10)       |           |          | 
+ krs                  | character varying(10)       |           |          | 
+ street               | character varying(250)      |           |          | 
+ building_number      | character varying(250)      |           |          | 
+ apartment_number     | character varying(250)      |           |          | 
+ postal_code          | character varying(250)      |           |          | 
+ city                 | character varying(250)      |           |          | 
+ phone                | character varying(250)      |           |          | 
+ email                | character varying(500)      |           |          | 
+ uknf_registry_number | character varying(100)      |           |          | 
+ entity_status        | character varying(250)      |           |          | 
+ entity_category      | character varying(500)      |           |          | 
+ entity_sector        | character varying(500)      |           |          | 
+ entity_subsector     | character varying(500)      |           |          | 
+ is_cross_border      | boolean                     |           |          | false
+ created_at           | timestamp without time zone |           | not null | CURRENT_TIMESTAMP
+ updated_at           | timestamp without time zone |           | not null | CURRENT_TIMESTAMP
+Indexes:
+    "entities_pkey" PRIMARY KEY, btree (id)
+    "entities_uknf_code_key" UNIQUE CONSTRAINT, btree (uknf_code)
+    "idx_entities_entity_type" btree (entity_type)
+    "idx_entities_status" btree (entity_status)
+    "idx_entities_uknf_code" btree (uknf_code)
+Referenced by:
+    TABLE "access_request_lines" CONSTRAINT "access_request_lines_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id) ON DELETE CASCADE
+    TABLE "announcement_confirmations" CONSTRAINT "announcement_confirmations_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id)
+    TABLE "announcement_recipients" CONSTRAINT "announcement_recipients_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id)
+    TABLE "cases" CONSTRAINT "cases_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id) ON DELETE CASCADE
+    TABLE "contacts" CONSTRAINT "contacts_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id)
+    TABLE "entity_history" CONSTRAINT "entity_history_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id) ON DELETE CASCADE
+    TABLE "library_file_permissions" CONSTRAINT "library_file_permissions_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id)
+    TABLE "messages" CONSTRAINT "messages_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id)
+    TABLE "reports" CONSTRAINT "reports_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id) ON DELETE CASCADE
+    TABLE "uknf_employee_entities" CONSTRAINT "uknf_employee_entities_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id) ON DELETE CASCADE
+    TABLE "user_entity_permissions" CONSTRAINT "user_entity_permissions_entity_id_fkey" FOREIGN KEY (entity_id) REFERENCES entities(id) ON DELETE CASCADE
+Triggers:
+    update_entities_updated_at BEFORE UPDATE ON entities FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+
