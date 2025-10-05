@@ -170,22 +170,17 @@ public class ApplicationDbContext : DbContext
                   entity.HasKey(e => e.Id);
                   entity.Property(e => e.ReportNumber).IsRequired().HasMaxLength(100);
                   entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
+                  entity.Property(e => e.FileContent).IsRequired();
+                  entity.Property(e => e.Status).IsRequired();
+                  entity.Property(e => e.ReportingPeriod).IsRequired();
                   entity.HasIndex(e => e.ReportNumber).IsUnique();
-
-                  entity.HasOne(e => e.SupervisedEntity)
-                    .WithMany(s => s.Reports)
-                    .HasForeignKey(e => e.SupervisedEntityId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                  entity.HasIndex(e => e.Status);
+                  entity.HasIndex(e => e.SubmittedAt);
 
                   entity.HasOne(e => e.SubmittedBy)
                     .WithMany(u => u.Reports)
                     .HasForeignKey(e => e.SubmittedByUserId)
                     .OnDelete(DeleteBehavior.Restrict);
-
-                  entity.HasOne(e => e.OriginalReport)
-                    .WithMany(r => r.Corrections)
-                    .HasForeignKey(e => e.OriginalReportId)
-                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // Message configuration
