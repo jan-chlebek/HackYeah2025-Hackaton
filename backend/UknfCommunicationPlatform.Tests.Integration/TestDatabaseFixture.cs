@@ -135,7 +135,7 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM message_attachments WHERE message_id > 20");
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM messages WHERE id > 20");
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM reports WHERE id > 63");
-            
+
             // Delete all test-created announcements (announcements are not part of seed data)
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM announcement_reads");
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM announcement_attachments");
