@@ -1152,6 +1152,12 @@ public class DatabaseSeeder
 
     private async Task SeedFileLibrariesAsync()
     {
+        if (await _context.FileLibraries.AnyAsync())
+        {
+            _logger.LogInformation("File libraries already seeded");
+            return;
+        }
+
         _logger.LogInformation("Seeding file libraries...");
 
         var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
@@ -1239,7 +1245,7 @@ public class DatabaseSeeder
         {
             var userIndex = i % externalUsers.Count;
             var questionIndex = i % answeredQuestions.Count;
-            
+
             // Skip if this combination already exists
             var exists = ratings.Any(r => r.FaqQuestionId == answeredQuestions[questionIndex].Id && r.UserId == externalUsers[userIndex].Id);
             if (!exists)
