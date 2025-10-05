@@ -39,13 +39,13 @@ public class FaqController : ControllerBase
 
         var query = _context.FaqQuestions.AsQueryable();
 
-        // Apply search filter
+        // Apply search filter (case-insensitive)
         if (!string.IsNullOrWhiteSpace(search))
         {
             var searchLower = search.ToLower();
             query = query.Where(f => 
-                EF.Functions.ILike(f.Question, $"%{searchLower}%") || 
-                EF.Functions.ILike(f.Answer, $"%{searchLower}%"));
+                f.Question.ToLower().Contains(searchLower) || 
+                f.Answer.ToLower().Contains(searchLower));
         }
 
         var totalCount = await query.CountAsync();
