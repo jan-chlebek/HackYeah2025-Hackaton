@@ -1,3 +1,5 @@
+using UknfCommunicationPlatform.Core.Enums;
+
 namespace UknfCommunicationPlatform.Core.DTOs.FileLibrary;
 
 /// <summary>
@@ -44,6 +46,11 @@ public class FileLibraryResponse
     /// File category
     /// </summary>
     public string Category { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Reporting period type: None, Annual (Roczne), or Quarterly (Kwartalne)
+    /// </summary>
+    public ReportingPeriodType ReportingPeriodType { get; set; }
 
     /// <summary>
     /// Upload date

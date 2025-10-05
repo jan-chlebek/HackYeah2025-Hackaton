@@ -1,0 +1,113 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  UknfCommunicationPlatform.Core -> C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Core\bin\Debug\net9.0\UknfCommunicationPlatform.Core.dll
+  UknfCommunicationPlatform.Infrastructure -> C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Infrastructure\bin\Debug\net9.0\UknfCommunicationPlatform.Infrastructure.dll
+  UknfCommunicationPlatform.Api -> C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Api\bin\Debug\net9.0\UknfCommunicationPlatform.Api.dll
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(180,20): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(199,20): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(215,20): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(231,20): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(247,26): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(263,26): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(578,27): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(584,27): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\EntitiesControllerTests.cs(599,20): warning CS8602: Dereference of a possibly null reference. [C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\UknfCommunicationPlatform.Tests.Unit.csproj]
+  UknfCommunicationPlatform.Tests.Unit -> C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\bin\Debug\net9.0\UknfCommunicationPlatform.Tests.Unit.dll
+Test run for C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\bin\Debug\net9.0\UknfCommunicationPlatform.Tests.Unit.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Failed UknfCommunicationPlatform.Tests.Unit.Controllers.ReportsControllerTests.GetReports_HandlesException_ReturnsInternalServerError [25 ms]
+  Error Message:
+   System.ObjectDisposedException : Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
+Object name: 'ApplicationDbContext'.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.DbContext.CheckDisposed()
+   at Microsoft.EntityFrameworkCore.DbContext.get_Database()
+   at UknfCommunicationPlatform.Tests.Unit.Controllers.ReportsControllerTests.Dispose() in C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\ReportsControllerTests.cs:line 39
+   at ReflectionAbstractionExtensions.DisposeTestClass(ITest test, Object testClass, IMessageBus messageBus, ExecutionTimer timer, CancellationTokenSource cancellationTokenSource) in /_/src/xunit.execution/Extensions/ReflectionAbstractionExtensions.cs:line 79
+  Failed UknfCommunicationPlatform.Tests.Unit.Controllers.ReportsControllerTests.GetReports_ReturnsAllReports_WhenNoFilterProvided [84 ms]
+  Error Message:
+   Expected reports {
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 4L,
+        ReportNumber = "RPT-2025-0004",
+        ReportingPeriod = "Q3"
+    },
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 2L,
+        ReportNumber = "RPT-2025-0002",
+        ReportingPeriod = "Q2"
+    },
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 3L,
+        ReportNumber = "RPT-2025-0003",
+        ReportingPeriod = "Q1"
+    },
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 1L,
+        ReportNumber = "RPT-2025-0001",
+        ReportingPeriod = "Q1"
+    }
+} to be ordered "by Id" and result in {
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 4L,
+        ReportNumber = "RPT-2025-0004",
+        ReportingPeriod = "Q3"
+    },
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 3L,
+        ReportNumber = "RPT-2025-0003",
+        ReportingPeriod = "Q1"
+    },
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 2L,
+        ReportNumber = "RPT-2025-0002",
+        ReportingPeriod = "Q2"
+    },
+    UknfCommunicationPlatform.Core.DTOs.Reports.ReportDto
+    {
+        EntityName = "Jan Kowalski",
+        Id = 1L,
+        ReportNumber = "RPT-2025-0001",
+        ReportingPeriod = "Q1"
+    }
+}.
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Func`1[] argProviders)
+   at FluentAssertions.Collections.GenericCollectionAssertions`3.BeOrderedBy[TSelector](Expression`1 propertyExpression, IComparer`1 comparer, SortOrder direction, String because, Object[] becauseArgs)
+   at FluentAssertions.Collections.GenericCollectionAssertions`3.BeInDescendingOrder[TSelector](Expression`1 propertyExpression, IComparer`1 comparer, String because, Object[] becauseArgs)
+   at FluentAssertions.Collections.GenericCollectionAssertions`3.BeInDescendingOrder[TSelector](Expression`1 propertyExpression, String because, Object[] becauseArgs)
+   at UknfCommunicationPlatform.Tests.Unit.Controllers.ReportsControllerTests.GetReports_ReturnsAllReports_WhenNoFilterProvided() in C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\ReportsControllerTests.cs:line 125
+--- End of stack trace from previous location ---
+  Failed UknfCommunicationPlatform.Tests.Unit.Controllers.ReportsControllerTests.GetReport_HandlesException_ReturnsInternalServerError [2 ms]
+  Error Message:
+   System.ObjectDisposedException : Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
+Object name: 'ApplicationDbContext'.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.DbContext.CheckDisposed()
+   at Microsoft.EntityFrameworkCore.DbContext.get_Database()
+   at UknfCommunicationPlatform.Tests.Unit.Controllers.ReportsControllerTests.Dispose() in C:\Users\JanChlebek\OneDrive - Clouds On Mars\Documents\HackYeah2025-Hackaton\backend\UknfCommunicationPlatform.Tests.Unit\Controllers\ReportsControllerTests.cs:line 39
+   at ReflectionAbstractionExtensions.DisposeTestClass(ITest test, Object testClass, IMessageBus messageBus, ExecutionTimer timer, CancellationTokenSource cancellationTokenSource) in /_/src/xunit.execution/Extensions/ReflectionAbstractionExtensions.cs:line 79
+
+Failed!  - Failed:     3, Passed:     8, Skipped:     0, Total:    11, Duration: 1 s - UknfCommunicationPlatform.Tests.Unit.dll (net9.0)

@@ -1265,6 +1265,7 @@ public class DatabaseSeeder
 
         var files = new List<FileLibrary>();
         var categories = new[] { "Templates", "Guidelines", "LegalDocuments", "Reports", "Training" };
+        var reportingPeriods = new[] { ReportingPeriodType.Quarterly, ReportingPeriodType.Annual, ReportingPeriodType.None, ReportingPeriodType.Quarterly, ReportingPeriodType.None };
 
         for (int i = 0; i < 5; i++)
         {
@@ -1277,6 +1278,7 @@ public class DatabaseSeeder
                 ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 Category = categories[i],
                 FileContent = new byte[] { 0x50, 0x4B, 0x03, 0x04 }, // ZIP header (XLSX is ZIP)
+                ReportingPeriodType = reportingPeriods[i],
                 UploadedByUserId = internalUsers[i % internalUsers.Count].Id,
                 UploadedAt = DateTime.UtcNow.AddDays(-60 + i * 12)
             });
