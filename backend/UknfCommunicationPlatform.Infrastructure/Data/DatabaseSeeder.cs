@@ -703,8 +703,8 @@ public class DatabaseSeeder
                     Body = messageBodies[i],
                     SenderId = internalUser.Id,
                     RecipientId = externalUser.Id,
+                    RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
-                    Folder = MessageFolder.Sent,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 4 != 0,
                     ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null
@@ -718,8 +718,8 @@ public class DatabaseSeeder
                     Body = messageBodies[i],
                     SenderId = externalUser.Id,
                     RecipientId = internalUser.Id,
+                    RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
-                    Folder = MessageFolder.Inbox,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 3 != 0,
                     ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null
