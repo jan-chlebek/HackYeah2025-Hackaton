@@ -1,0 +1,181 @@
+<div class="cases-list-container">
+  <!-- Breadcrumb -->
+  <p-breadcrumb [model]="breadcrumbItems" [home]="home" class="breadcrumb"></p-breadcrumb>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Sprawy</h1>
+    <div class="header-actions">
+      <button 
+        pButton 
+        type="button" 
+        label="Nowa sprawa" 
+        icon="pi pi-plus"
+        class="p-button-primary"
+        (click)="createCase()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input 
+          pInputText 
+          type="text" 
+          placeholder="Szukaj spraw..." 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="applyFilters()"
+          class="search-input">
+      </span>
+      <button 
+        pButton 
+        type="button" 
+        label="Szukaj" 
+        icon="pi pi-search"
+        (click)="applyFilters()"
+        class="search-button">
+      </button>
+      <button 
+        pButton 
+        type="button" 
+        [label]="showFilters ? 'Ukryj filtry' : 'Pokaż filtry'"
+        [icon]="showFilters ? 'pi pi-angle-up' : 'pi pi-angle-down'"
+        class="p-button-outlined"
+        (click)="toggleFilters()">
+      </button>
+    </div>
+
+    <!-- Advanced Filters Panel -->
+    <div class="filters-panel" *ngIf="showFilters">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Typ sprawy</label>
+          <p-select 
+            [(ngModel)]="filters.type" 
+            [options]="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz typ"
+            class="filter-select">
+          </p-select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Status</label>
+          <p-select 
+            [(ngModel)]="filters.status" 
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz status"
+            class="filter-select">
+          </p-select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Kategoria</label>
+          <input 
+            pInputText 
+            type="text"
+            [(ngModel)]="filters.category"
+            placeholder="Wprowadź kategorię"
+            class="filter-input">
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Zastosuj filtry" 
+          icon="pi pi-check"
+          (click)="applyFilters()">
+        </button>
+        <button 
+          pButton 
+          type="button" 
+          label="Wyczyść filtry" 
+          icon="pi pi-times"
+          class="p-button-outlined"
+          (click)="clearFilters()">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cases Table -->
+  <p-table 
+    [value]="cases"
+    [paginator]="true"
+    [rows]="pageSize"
+    [first]="first"
+    [totalRecords]="totalRecords"
+    [lazy]="true"
+    (onLazyLoad)="onPageChange($event)"
+    [loading]="loading"
+    [rowsPerPageOptions]="pageSizeOptions"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Wyświetlanie {first} do {last} z {totalRecords} spraw"
+    styleClass="p-datatable-striped"
+    [tableStyle]="{ 'min-width': '70rem' }">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 10%">Numer sprawy</th>
+        <th style="width: 12%">Typ</th>
+        <th style="width: 22%">Tytuł</th>
+        <th style="width: 15%">Podmiot nadzorowany</th>
+        <th style="width: 10%">Status</th>
+        <th style="width: 8%">Priorytet</th>
+        <th style="width: 12%">Utworzył</th>
+        <th style="width: 11%">Data utworzenia</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-case>
+      <tr 
+        class="case-row"
+        (click)="viewCaseDetails(case)"
+        style="cursor: pointer;">
+        <td>
+          <strong>{{ case.caseNumber }}</strong>
+        </td>
+        <td>
+          <span class="type-badge">{{ case.typePolish || case.type }}</span>
+        </td>
+        <td>
+          <strong>{{ case.title }}</strong>
+        </td>
+        <td>{{ case.supervisedEntityName }}</td>
+        <td>
+          <p-tag 
+            [value]="case.statusPolish || case.status"
+            [severity]="getStatusSeverity(case.status)">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag 
+            [value]="getPriorityLabel(case.priority)"
+            [severity]="getPrioritySeverity(case.priority)">
+          </p-tag>
+        </td>
+        <td>{{ case.createdByName }}</td>
+        <td>{{ formatDate(case.createdAt) }}</td>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="empty-message">
+          <div class="empty-state">
+            <i class="pi pi-clipboard empty-icon"></i>
+            <p>Nie znaleziono spraw</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
