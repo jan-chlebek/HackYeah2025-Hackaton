@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +25,7 @@ export class AnnouncementDetailsComponent implements OnInit {
   private announcementService = inject(AnnouncementService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   announcement: Announcement | null = null;
   loading = false;
@@ -51,6 +52,16 @@ export class AnnouncementDetailsComponent implements OnInit {
   loadAnnouncement(id: number): void {
     this.loading = true;
     this.error = false;
+    // Safety timeout to avoid indefinite spinner if HTTP never resolves
+    const safety = setTimeout(() => {
+      if (this.loading) {
+        console.warn('[AnnouncementDetails] Safety timeout triggered, forcing loading=false');
+        this.loading = false;
+        this.error = true;
+        this.errorMessage = 'Przekroczenie czasu ładowania komunikatu.';
+        this.cdr.markForCheck();
+      }
+    }, 15000);
 
     console.log('[AnnouncementDetails] Loading announcement ID:', id);
     console.log('[AnnouncementDetails] API URL will be: http://localhost:5000/api/v1/announcements/' + id);
@@ -60,6 +71,8 @@ export class AnnouncementDetailsComponent implements OnInit {
         console.log('[AnnouncementDetails] Announcement loaded successfully:', announcement);
         this.announcement = announcement;
         this.loading = false;
+        clearTimeout(safety);
+        this.cdr.markForCheck();
 
         // Mark as read if not already read
         if (!announcement.isReadByCurrentUser) {
@@ -90,6 +103,8 @@ export class AnnouncementDetailsComponent implements OnInit {
         
         this.error = true;
         this.loading = false;
+        clearTimeout(safety);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -101,6 +116,7 @@ export class AnnouncementDetailsComponent implements OnInit {
         if (this.announcement) {
           this.announcement.isReadByCurrentUser = true;
           this.announcement.readAt = new Date().toISOString();
+          this.cdr.markForCheck();
         }
       },
       error: (error) => {
