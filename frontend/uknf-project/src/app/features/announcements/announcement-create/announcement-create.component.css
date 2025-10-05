@@ -149,6 +149,9 @@ textarea:focus {
 }
 
 :host-context(html.high-contrast) .page-header {
+  background: #000000 !important;
+  background-image: none !important;
+  border: 2px solid #FFFF00 !important;
   border-bottom-color: #FFFF00;
 }
 
