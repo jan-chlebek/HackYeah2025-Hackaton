@@ -11,6 +11,7 @@ namespace UknfCommunicationPlatform.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class FaqController : ControllerBase
 {
     private readonly ApplicationDbContext _context;

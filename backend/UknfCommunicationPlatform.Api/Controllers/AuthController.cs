@@ -86,18 +86,15 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <returns>Success message</returns>
     [HttpPost("logout")]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Logout()
     {
-        // TODO: RE-ENABLE AUTHORIZATION - Temporarily using hardcoded user ID for testing
         var userIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var userId))
         {
-            _logger.LogWarning("Authorization disabled - logout endpoint called without authentication");
-            return Ok(new { message = "Logout successful (auth disabled)" });
+            return Unauthorized(new { message = "Invalid user authentication" });
         }
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -118,8 +115,7 @@ public class AuthController : ControllerBase
     /// <param name="request">Password change request</param>
     /// <returns>Success message</returns>
     [HttpPost("change-password")]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -130,12 +126,10 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        // TODO: RE-ENABLE AUTHORIZATION - Temporarily using hardcoded user ID for testing
         var userIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var userId))
         {
-            _logger.LogWarning("Authorization disabled - using default user ID 1 for password change");
-            userId = 1; // Default to admin user when auth is disabled
+            return Unauthorized(new { message = "Invalid user authentication" });
         }
 
         var result = await _authService.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
@@ -154,13 +148,11 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <returns>Current user information</returns>
     [HttpGet("me")]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize]
+    [Authorize]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult GetCurrentUser()
     {
-        // TODO: RE-ENABLE AUTHORIZATION - Temporarily return mock data when auth is disabled
         var userIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         var emailClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
         var roles = User?.FindAll(System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList() ?? new List<string>();
@@ -169,15 +161,7 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var userId))
         {
-            _logger.LogWarning("Authorization disabled - returning mock user data");
-            return Ok(new
-            {
-                userId = 1,
-                email = "admin@uknf.gov.pl",
-                roles = new[] { "Administrator" },
-                permissions = new[] { "users.read", "users.write", "users.delete", "entities.read", "entities.write", "messages.read", "messages.write", "reports.read", "reports.write" },
-                supervisedEntityId = (long?)null
-            });
+            return Unauthorized(new { message = "Invalid user authentication" });
         }
 
         long? supervisedEntityId = null;
@@ -219,8 +203,7 @@ public class AuthController : ControllerBase
     /// <param name="userId">User ID to unlock</param>
     /// <returns>Success message</returns>
     [HttpPost("users/{userId}/unlock")]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -234,9 +217,11 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = "Failed to unlock account" });
         }
 
-        // TODO: RE-ENABLE AUTHORIZATION - Temporarily log without admin ID
-        _logger.LogInformation("Account unlocked for user {UserId} by admin (auth disabled)",
-            userId);
+        var adminIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var adminId = long.TryParse(adminIdClaim, out var id) ? id : (long?)null;
+        
+        _logger.LogInformation("Account unlocked for user {UserId} by admin {AdminId}",
+            userId, adminId);
 
         return Ok(new { message = "Account unlocked successfully" });
     }

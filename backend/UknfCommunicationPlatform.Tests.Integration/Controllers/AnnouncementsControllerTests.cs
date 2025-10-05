@@ -33,11 +33,18 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
     {
         await _factory.ResetTestDataAsync();
         await SeedTestUsersAsync();
+        
+        // Add JWT token for authenticated requests
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var user = context.Users.First(u => u.Email == "admin@uknf.gov.pl");
+        var token = _factory.GenerateJwtToken(user.Id, user.Email, "Administrator");
+        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
 
-    #region GET /api/v1/announcements
+    #region GET /api/announcements
 
     [Fact]
     public async Task GetAnnouncements_ShouldReturnPaginatedList()
@@ -46,7 +53,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         await SeedAnnouncementsAsync(5);
 
         // Act
-        var response = await _client.GetAsync("/api/v1/announcements?page=1&pageSize=3");
+        var response = await _client.GetAsync("/api/announcements?page=1&pageSize=3");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -66,19 +73,20 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         // Arrange
         var announcements = await SeedAnnouncementsAsync(3);
 
-        // Mark first announcement as read by user ID 2 (the hardcoded user when auth is disabled)
+        // Mark first announcement as read by current authenticated user (admin)
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var admin = context.Users.First(u => u.Email == "admin@uknf.gov.pl");
         context.AnnouncementReads.Add(new AnnouncementRead
         {
             AnnouncementId = announcements[0].Id,
-            UserId = 2, // Hardcoded user ID used when authorization is disabled
+            UserId = admin.Id,
             ReadAt = DateTime.UtcNow
         });
         await context.SaveChangesAsync();
 
         // Act
-        var response = await _client.GetAsync("/api/v1/announcements?unreadOnly=true");
+        var response = await _client.GetAsync("/api/announcements?unreadOnly=true");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -94,19 +102,20 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         // Arrange
         var announcements = await SeedAnnouncementsAsync(2);
 
-        // Mark first announcement as read by user ID 2 (the hardcoded user when auth is disabled)
+        // Mark first announcement as read by current authenticated user (admin)
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var admin = context.Users.First(u => u.Email == "admin@uknf.gov.pl");
         context.AnnouncementReads.Add(new AnnouncementRead
         {
             AnnouncementId = announcements[0].Id,
-            UserId = 2, // Hardcoded user ID used when authorization is disabled
+            UserId = admin.Id,
             ReadAt = DateTime.UtcNow
         });
         await context.SaveChangesAsync();
 
         // Act
-        var response = await _client.GetAsync("/api/v1/announcements");
+        var response = await _client.GetAsync("/api/announcements");
 
         // Assert
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<AnnouncementListItemResponse>>();
@@ -120,7 +129,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
 
     #endregion
 
-    #region GET /api/v1/announcements/{id}
+    #region GET /api/announcements/{id}
 
     [Fact]
     public async Task GetAnnouncementById_WithValidId_ShouldReturnDetails()
@@ -130,7 +139,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         var announcementId = announcements[0].Id;
 
         // Act
-        var response = await _client.GetAsync($"/api/v1/announcements/{announcementId}");
+        var response = await _client.GetAsync($"/api/announcements/{announcementId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -146,7 +155,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
     public async Task GetAnnouncementById_WithNonExistentId_ShouldReturn404()
     {
         // Act
-        var response = await _client.GetAsync("/api/v1/announcements/99999");
+        var response = await _client.GetAsync("/api/announcements/99999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -154,7 +163,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
 
     #endregion
 
-    #region POST /api/v1/announcements
+    #region POST /api/announcements
 
     [Fact]
     public async Task CreateAnnouncement_WithValidData_ShouldCreate()
@@ -167,7 +176,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/v1/announcements", request);
+        var response = await _client.PostAsJsonAsync("/api/announcements", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -180,7 +189,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
 
         response.Headers.Location.Should().NotBeNull();
         // Case-insensitive check for location header (controller uses "Announcements" with capital A)
-        response.Headers.Location!.ToString().ToLowerInvariant().Should().Contain($"/api/v1/announcements/{result.Id}".ToLowerInvariant());
+        response.Headers.Location!.ToString().ToLowerInvariant().Should().Contain($"/api/announcements/{result.Id}".ToLowerInvariant());
     }
 
     [Fact]
@@ -194,7 +203,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/v1/announcements", request);
+        var response = await _client.PostAsJsonAsync("/api/announcements", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -202,7 +211,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
 
     #endregion
 
-    #region PUT /api/v1/announcements/{id}
+    #region PUT /api/announcements/{id}
 
     [Fact]
     public async Task UpdateAnnouncement_WithValidData_ShouldUpdate()
@@ -218,7 +227,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         };
 
         // Act
-        var response = await _client.PutAsJsonAsync($"/api/v1/announcements/{announcementId}", request);
+        var response = await _client.PutAsJsonAsync($"/api/announcements/{announcementId}", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -239,7 +248,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/api/v1/announcements/99999", request);
+        var response = await _client.PutAsJsonAsync("/api/announcements/99999", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -247,7 +256,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
 
     #endregion
 
-    #region DELETE /api/v1/announcements/{id}
+    #region DELETE /api/announcements/{id}
 
     [Fact]
     public async Task DeleteAnnouncement_WithValidId_ShouldDelete()
@@ -257,13 +266,13 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         var announcementId = announcements[0].Id;
 
         // Act
-        var response = await _client.DeleteAsync($"/api/v1/announcements/{announcementId}");
+        var response = await _client.DeleteAsync($"/api/announcements/{announcementId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Verify it's deleted
-        var getResponse = await _client.GetAsync($"/api/v1/announcements/{announcementId}");
+        var getResponse = await _client.GetAsync($"/api/announcements/{announcementId}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -271,7 +280,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
     public async Task DeleteAnnouncement_WithNonExistentId_ShouldReturn404()
     {
         // Act
-        var response = await _client.DeleteAsync("/api/v1/announcements/99999");
+        var response = await _client.DeleteAsync("/api/announcements/99999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -279,7 +288,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
 
     #endregion
 
-    #region POST /api/v1/announcements/{id}/read
+    #region POST /api/announcements/{id}/read
 
     [Fact]
     public async Task MarkAnnouncementAsRead_FirstTime_ShouldSucceed()
@@ -289,13 +298,13 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         var announcementId = announcements[0].Id;
 
         // Act
-        var response = await _client.PostAsync($"/api/v1/announcements/{announcementId}/read", null);
+        var response = await _client.PostAsync($"/api/announcements/{announcementId}/read", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         // Verify read status
-        var getResponse = await _client.GetAsync($"/api/v1/announcements/{announcementId}");
+        var getResponse = await _client.GetAsync($"/api/announcements/{announcementId}");
         var announcement = await getResponse.Content.ReadFromJsonAsync<AnnouncementResponse>();
 
         announcement!.IsReadByCurrentUser.Should().BeTrue();
@@ -310,10 +319,10 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
         var announcementId = announcements[0].Id;
 
         // Mark as read first time
-        await _client.PostAsync($"/api/v1/announcements/{announcementId}/read", null);
+        await _client.PostAsync($"/api/announcements/{announcementId}/read", null);
 
         // Act - Try to mark as read again
-        var response = await _client.PostAsync($"/api/v1/announcements/{announcementId}/read", null);
+        var response = await _client.PostAsync($"/api/announcements/{announcementId}/read", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -323,7 +332,7 @@ public class AnnouncementsControllerTests : IClassFixture<TestDatabaseFixture>, 
     public async Task MarkAnnouncementAsRead_WithNonExistentId_ShouldReturn404()
     {
         // Act
-        var response = await _client.PostAsync("/api/v1/announcements/99999/read", null);
+        var response = await _client.PostAsync("/api/announcements/99999/read", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

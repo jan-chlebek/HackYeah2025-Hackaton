@@ -70,7 +70,7 @@ public class SwaggerConfigurationTests : IClassFixture<WebApplicationFactory<Pro
         var client = _factory.CreateClient();
         var expectedPaths = new[]
         {
-            "/api/v1/Announcements",
+            "/api/announcements",  // Changed route
             "/api/v1/messages",  // lowercase 'm'
             "/api/v1/Faq",
             "/api/v1/library/files"

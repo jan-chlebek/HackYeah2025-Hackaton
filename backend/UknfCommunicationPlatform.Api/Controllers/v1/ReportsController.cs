@@ -10,8 +10,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 /// Reports management operations
 /// </summary>
 [ApiController]
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// [Authorize]
+[Authorize]
 [Route("api/v1/reports")]
 [Produces("application/json")]
 public class ReportsController : ControllerBase
@@ -98,8 +97,12 @@ public class ReportsController : ControllerBase
     {
         try
         {
-            // TODO: Get actual user ID from authentication context
-            const long currentUserId = 2; // Hardcoded for testing
+            // Get user ID from authentication context
+            var userIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid user authentication" });
+            }
 
             // Parse reporting period
             if (!Enum.TryParse<Core.Enums.ReportingPeriod>(model.ReportingPeriod, out var period))

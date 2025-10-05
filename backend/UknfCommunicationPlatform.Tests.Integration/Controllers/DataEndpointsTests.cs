@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
 using UknfCommunicationPlatform.Infrastructure.Data;
 using FluentAssertions;
@@ -29,11 +30,22 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
 
     public Task DisposeAsync() => Task.CompletedTask;
 
+    private HttpClient GetAuthenticatedClient(string role = "Administrator")
+    {
+        var client = _factory.CreateClient();
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var user = context.Users.First();
+        var token = _factory.GenerateJwtToken(user.Id, user.Email, role);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return client;
+    }
+
     [Fact]
     public async Task UsersEndpoint_ReturnsUsers_WithPagination()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/users");
@@ -55,7 +67,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task UsersEndpoint_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/users?page=1&pageSize=5");
@@ -73,7 +85,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task UserById_ReturnsUserDetails()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // First get a user to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/users");
@@ -96,7 +108,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task EntitiesEndpoint_ReturnsEntities_WithPagination()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/entities");
@@ -116,7 +128,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task EntitiesEndpoint_WithSearch_ReturnsFilteredResults()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/entities?searchTerm=Bank");
@@ -137,7 +149,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task EntityById_ReturnsEntityDetails()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // First get an entity to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/entities");
@@ -160,7 +172,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task MessagesEndpoint_ReturnsMessages_WithPagination()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/messages");
@@ -179,7 +191,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task MessagesEndpoint_WithFilters_ReturnsFilteredResults()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act - filter by unread messages
         var response = await client.GetAsync("/api/v1/messages?isRead=false");
@@ -200,7 +212,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task MessageById_ReturnsMessageDetails()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // First get a message to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/messages");
@@ -230,7 +242,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task ReportsEndpoint_ReturnsReports()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act
         var response = await client.GetAsync("/api/v1/reports");
@@ -248,7 +260,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task ReportsEndpoint_WithFilters_ReturnsFilteredResults()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // Act - Get first report to find an entity ID
         var allResponse = await client.GetAsync("/api/v1/reports");
@@ -276,7 +288,7 @@ public class DataEndpointsTests : IClassFixture<TestDatabaseFixture>, IAsyncLife
     public async Task ReportById_ReturnsReportDetails()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        var client = GetAuthenticatedClient();
 
         // First get a report to get a valid ID
         var listResponse = await client.GetAsync("/api/v1/reports");

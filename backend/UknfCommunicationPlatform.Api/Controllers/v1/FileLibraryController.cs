@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UknfCommunicationPlatform.Core.DTOs.FileLibrary;
@@ -13,6 +14,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 [ApiController]
 [Route("api/v1/library/files")]
 [Produces("application/json")]
+[Authorize]
 public class FileLibraryController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -234,10 +236,12 @@ public class FileLibraryController : ControllerBase
             fileContent = memoryStream.ToArray();
         }
 
-        // TODO: Authorization - get current user ID from JWT claims
-        // For now, using a default user ID (this will be replaced with actual auth)
-        long currentUserId = 2; // jan.kowalski@uknf.gov.pl (UKNF staff)
-        _logger.LogWarning("Authorization disabled - using default user ID {UserId}", currentUserId);
+        // Get current user ID from JWT claims
+        var userIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var currentUserId))
+        {
+            return Unauthorized(new { message = "Invalid user authentication" });
+        }
 
         // Create file library entry
         var fileLibrary = new FileLibrary

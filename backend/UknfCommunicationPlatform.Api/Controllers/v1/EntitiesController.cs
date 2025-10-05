@@ -11,8 +11,7 @@ namespace UknfCommunicationPlatform.Api.Controllers.v1;
 /// Supervised entity management operations (for system administrators)
 /// </summary>
 [ApiController]
-// TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-// [Authorize]
+[Authorize]
 [Route("api/v1/entities")]
 [Produces("application/json")]
 public class EntitiesController : ControllerBase
