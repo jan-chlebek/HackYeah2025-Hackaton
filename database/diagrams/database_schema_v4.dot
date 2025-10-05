@@ -1,0 +1,169 @@
+// UKNF Communication Platform - Database Schema v4 (Right/Down Arrows Only)
+// Generate visualization with: dot -Tpng database_schema_v4.dot -o database_schema_v4.png
+
+digraph UKNF_Database_Schema_V4 {
+    // Graph settings optimized for left-to-right flow
+    graph [
+        rankdir=LR,
+        concentrate=true,
+        compound=true,
+        splines=ortho,
+        overlap=false,
+        nodesep=0.8,
+        ranksep=1.2,
+        fontname="Arial",
+        fontsize=12,
+        pad=0.4,
+        center=true,
+        newrank=true,
+        ordering=out
+    ];
+    
+    // Node defaults
+    node [
+        shape=box,
+        style="filled,rounded",
+        fontname="Arial Bold",
+        fontsize=11,
+        width=2.2,
+        height=0.75,
+        fixedsize=true
+    ];
+    
+    // Edge defaults - only right or down
+    edge [
+        fontname="Arial",
+        fontsize=8,
+        color="#666666",
+        penwidth=1.3,
+        arrowsize=0.7,
+        dir=forward
+    ];
+    
+    // ========================================
+    // IDENTITY & ACCESS MODULE
+    // ========================================
+    subgraph cluster_identity {
+        label="Identity & Access";
+        style="filled,rounded";
+        color="#FFF3E0";
+        fontsize=13;
+        fontcolor="#E65100";
+        
+        password_policies [fillcolor="#FFE0B2", label="password_policies"];
+        roles [fillcolor="#FF9800", label="roles"];
+        permissions [fillcolor="#FF9800", label="permissions"];
+        users [fillcolor="#FFEB3B", label="users\n(Core)"];
+        user_roles [fillcolor="#FFE0B2", label="user_roles"];
+        role_permissions [fillcolor="#FFE0B2", label="role_permissions"];
+        refresh_tokens [fillcolor="#FFE0B2", label="refresh_tokens"];
+        password_histories [fillcolor="#FFE0B2", label="password_histories"];
+    }
+    
+    // ========================================
+    // COMMUNICATION MODULE
+    // ========================================
+    subgraph cluster_communication {
+        label="Communication";
+        style="filled,rounded";
+        color="#E3F2FD";
+        fontsize=13;
+        fontcolor="#01579B";
+        
+        messages [fillcolor="#81D4FA", label="messages"];
+        message_attachments [fillcolor="#B3E5FC", label="message\nattachments"];
+        announcements [fillcolor="#81D4FA", label="announcements"];
+        announcement_recipients [fillcolor="#B3E5FC", label="announcement\nrecipients"];
+        announcement_attachments [fillcolor="#B3E5FC", label="announcement\nattachments"];
+        announcement_reads [fillcolor="#B3E5FC", label="announcement\nreads"];
+        announcement_histories [fillcolor="#B3E5FC", label="announcement\nhistories"];
+    }
+    
+    // ========================================
+    // ADMINISTRATION MODULE
+    // ========================================
+    subgraph cluster_administration {
+        label="Administration";
+        style="filled,rounded";
+        color="#F3E5F5";
+        fontsize=13;
+        fontcolor="#4A148C";
+        
+        entities [fillcolor="#CE93D8", label="entities"];
+        reports [fillcolor="#BA68C8", label="reports"];
+        cases [fillcolor="#BA68C8", label="cases"];
+        case_documents [fillcolor="#E1BEE7", label="case\ndocuments"];
+        case_histories [fillcolor="#E1BEE7", label="case\nhistories"];
+        file_libraries [fillcolor="#BA68C8", label="file_libraries"];
+        file_library_permissions [fillcolor="#E1BEE7", label="file_library\npermissions"];
+        contacts [fillcolor="#BA68C8", label="contacts"];
+        contact_groups [fillcolor="#E1BEE7", label="contact\ngroups"];
+        contact_group_members [fillcolor="#E1BEE7", label="contact_group\nmembers"];
+        faq_questions [fillcolor="#BA68C8", label="faq_questions"];
+        faq_ratings [fillcolor="#E1BEE7", label="faq_ratings"];
+    }
+    
+    // ========================================
+    // RELATIONSHIPS - DOWN DIRECTION
+    // ========================================
+    
+    // Foundation to core (down)
+    password_policies -> users [color="#9E9E9E", style=dotted, label="enforces"];
+    
+    // Core identity (down)
+    roles -> user_roles [color="#1976D2", penwidth=2];
+    permissions -> role_permissions [color="#1976D2", penwidth=2];
+    entities -> users [color="#FF6F00", style=dashed, label="represents"];
+    
+    // Users to dependent tables (down)
+    users -> user_roles [color="#1976D2", penwidth=2];
+    users -> refresh_tokens [color="#1976D2"];
+    users -> password_histories [color="#1976D2"];
+    users -> messages [color="#0288D1", penwidth=2, label="sender"];
+    users -> announcements [color="#0288D1", penwidth=2];
+    users -> reports [color="#7B1FA2", penwidth=2];
+    users -> cases [color="#7B1FA2", penwidth=2, label="assigned"];
+    users -> file_libraries [color="#7B1FA2", penwidth=2];
+    
+    // Junction to permissions (right)
+    roles -> role_permissions [color="#1976D2", penwidth=2];
+    
+    // Entities to dependent (down)
+    entities -> contacts [color="#7B1FA2", penwidth=2];
+    entities -> cases [color="#7B1FA2", penwidth=2, label="entity"];
+    
+    // Messages (down)
+    messages -> message_attachments [color="#0288D1"];
+    messages -> messages [color="#7B1FA2", style=dashed, label="reply", constraint=false];
+    
+    // Announcements (down)
+    announcements -> announcement_recipients [color="#0288D1"];
+    announcements -> announcement_attachments [color="#0288D1"];
+    announcements -> announcement_reads [color="#0288D1"];
+    announcements -> announcement_histories [color="#0288D1"];
+    
+    // Cases (down)
+    cases -> case_documents [color="#7B1FA2"];
+    cases -> case_histories [color="#7B1FA2"];
+    
+    // File libraries (down)
+    file_libraries -> file_library_permissions [color="#7B1FA2"];
+    
+    // Contacts (down)
+    contacts -> contact_group_members [color="#7B1FA2"];
+    contact_groups -> contact_group_members [color="#7B1FA2"];
+    
+    // FAQ (down)
+    faq_questions -> faq_ratings [color="#7B1FA2"];
+    
+    // Cross-module references (right edges)
+    users -> announcement_recipients [color="#FF6F00", style=dashed, constraint=false];
+    entities -> announcement_recipients [color="#FF6F00", style=dashed, constraint=false];
+    users -> announcement_reads [color="#0288D1", constraint=false];
+    users -> announcement_histories [color="#0288D1", constraint=false];
+    users -> case_documents [color="#7B1FA2", constraint=false];
+    users -> case_histories [color="#7B1FA2", constraint=false];
+    users -> file_library_permissions [color="#FF6F00", style=dashed, constraint=false];
+    roles -> file_library_permissions [color="#FF6F00", style=dashed, constraint=false];
+    users -> faq_ratings [color="#7B1FA2", constraint=false];
+}
