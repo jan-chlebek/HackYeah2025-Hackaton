@@ -38,6 +38,11 @@ public class MessageResponse
     public MessageStatus Status { get; set; }
 
     /// <summary>
+    /// Priority level of the message
+    /// </summary>
+    public MessagePriority Priority { get; set; }
+
+    /// <summary>
     /// Has the message been read
     /// </summary>
     public bool IsRead { get; set; }
@@ -68,9 +73,9 @@ public class MessageResponse
     public int AttachmentCount { get; set; }
 
     /// <summary>
-    /// Is this message cancelled
+    /// Parent message ID (if this is a reply)
     /// </summary>
-    public bool IsCancelled { get; set; }
+    public long? ParentMessageId { get; set; }
 
     // Polish UI fields
     /// <summary>

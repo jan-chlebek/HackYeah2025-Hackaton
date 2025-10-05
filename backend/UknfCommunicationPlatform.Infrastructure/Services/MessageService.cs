@@ -37,8 +37,7 @@ public class MessageService
             .Include(m => m.Recipient)
             .Include(m => m.RelatedEntity)
             .Include(m => m.Attachments)
-            .Where(m => m.SenderId == userId || m.RecipientId == userId)
-            .Where(m => !m.IsCancelled);
+            .Where(m => m.SenderId == userId || m.RecipientId == userId);
 
         // Filter by read status
         if (isRead.HasValue)
@@ -86,8 +85,7 @@ public class MessageService
             .Include(m => m.Attachments)
             .FirstOrDefaultAsync(m =>
                 m.Id == messageId &&
-                (m.SenderId == userId || m.RecipientId == userId) &&
-                !m.IsCancelled);
+                (m.SenderId == userId || m.RecipientId == userId));
 
         if (message == null) return null;
 
@@ -118,13 +116,14 @@ public class MessageService
                 LastName = message.Recipient.LastName
             } : null,
             Status = message.Status,
+            Priority = message.Priority,
             IsRead = message.IsRead,
             SentAt = message.SentAt,
             ReadAt = message.ReadAt,
             RelatedEntityId = entityId,
             RelatedEntityName = entityName,
             AttachmentCount = message.Attachments.Count,
-            IsCancelled = message.IsCancelled,
+            ParentMessageId = message.ParentMessageId,
 
             // Polish UI fields - computed from entity data
             Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
@@ -169,9 +168,9 @@ public class MessageService
             RecipientId = request.RecipientId,
             RelatedEntityId = request.RelatedEntityId,
             Status = MessageStatus.Sent,
+            Priority = request.Priority,
             IsRead = false,
-            SentAt = DateTime.UtcNow,
-            IsCancelled = false
+            SentAt = DateTime.UtcNow
         };
 
         _context.Messages.Add(message);
@@ -279,8 +278,7 @@ public class MessageService
         return await _context.Messages
             .CountAsync(m =>
                 m.RecipientId == userId &&
-                !m.IsRead &&
-                !m.IsCancelled);
+                !m.IsRead);
     }
 
     /// <summary>
@@ -291,9 +289,9 @@ public class MessageService
         var stats = new MessageStatsResponse
         {
             TotalInbox = await _context.Messages.CountAsync(m =>
-                m.RecipientId == userId && !m.IsCancelled),
+                m.RecipientId == userId),
             TotalSent = await _context.Messages.CountAsync(m =>
-                m.SenderId == userId && !m.IsCancelled),
+                m.SenderId == userId),
             UnreadCount = await GetUnreadCountAsync(userId)
         };
 
@@ -332,13 +330,14 @@ public class MessageService
                 LastName = message.Recipient.LastName
             } : null,
             Status = message.Status,
+            Priority = message.Priority,
             IsRead = message.IsRead,
             SentAt = message.SentAt,
             ReadAt = message.ReadAt,
             RelatedEntityId = entityId,
             RelatedEntityName = entityName,
             AttachmentCount = message.Attachments?.Count ?? 0,
-            IsCancelled = message.IsCancelled,
+            ParentMessageId = message.ParentMessageId,
 
             // Polish UI fields - computed from entity data
             Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
@@ -370,8 +369,7 @@ public class MessageService
         var message = await _context.Messages
             .FirstOrDefaultAsync(m =>
                 m.Id == messageId &&
-                (m.SenderId == userId || m.RecipientId == userId) &&
-                !m.IsCancelled);
+                (m.SenderId == userId || m.RecipientId == userId));
 
         if (message == null)
         {
@@ -393,6 +391,173 @@ public class MessageService
         }
 
         return attachment;
+    }
+
+    /// <summary>
+    /// Reply to an existing message
+    /// </summary>
+    public async Task<MessageResponse> ReplyToMessageAsync(long parentMessageId, long userId, ReplyMessageRequest request)
+    {
+        // Get the parent message to verify access and get context
+        var parentMessage = await _context.Messages
+            .Include(m => m.Sender)
+            .Include(m => m.Recipient)
+            .FirstOrDefaultAsync(m =>
+                m.Id == parentMessageId &&
+                (m.SenderId == userId || m.RecipientId == userId));
+
+        if (parentMessage == null)
+        {
+            throw new UnauthorizedAccessException("Parent message not found or access denied");
+        }
+
+        // Determine recipient: if current user is sender, reply to recipient; otherwise reply to sender
+        var recipientId = parentMessage.SenderId == userId
+            ? parentMessage.RecipientId
+            : parentMessage.SenderId;
+
+        if (!recipientId.HasValue)
+        {
+            throw new InvalidOperationException("Cannot reply to a message without a recipient");
+        }
+
+        // Create reply message with "Re: " prefix if not already present
+        var replySubject = parentMessage.Subject.StartsWith("Re: ")
+            ? parentMessage.Subject
+            : $"Re: {parentMessage.Subject}";
+
+        var replyMessage = new Message
+        {
+            Subject = replySubject,
+            Body = request.Body,
+            SenderId = userId,
+            RecipientId = recipientId,
+            ParentMessageId = parentMessageId,
+            RelatedEntityId = parentMessage.RelatedEntityId,
+            Status = MessageStatus.Sent,
+            Priority = request.Priority ?? parentMessage.Priority, // Inherit priority if not specified
+            IsRead = false,
+            SentAt = DateTime.UtcNow
+        };
+
+        _context.Messages.Add(replyMessage);
+        await _context.SaveChangesAsync();
+
+        // Process attachments if any
+        if (request.Attachments != null && request.Attachments.Any())
+        {
+            foreach (var file in request.Attachments)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+
+                var attachment = new MessageAttachment
+                {
+                    MessageId = replyMessage.Id,
+                    FileName = file.FileName,
+                    FileSize = file.Length,
+                    ContentType = file.ContentType,
+                    FileContent = memoryStream.ToArray(),
+                    UploadedAt = DateTime.UtcNow,
+                    UploadedByUserId = userId
+                };
+
+                _context.MessageAttachments.Add(attachment);
+            }
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Created {Count} attachments for reply message {MessageId}", request.Attachments.Count, replyMessage.Id);
+        }
+
+        // Reload with navigation properties
+        await _context.Entry(replyMessage).Reference(m => m.Sender).LoadAsync();
+        await _context.Entry(replyMessage).Reference(m => m.Recipient).LoadAsync();
+        if (replyMessage.RelatedEntityId.HasValue)
+        {
+            await _context.Entry(replyMessage).Reference(m => m.RelatedEntity).LoadAsync();
+        }
+        await _context.Entry(replyMessage).Collection(m => m.Attachments).LoadAsync();
+
+        _logger.LogInformation("Reply message {MessageId} created by user {UserId} to parent {ParentMessageId}",
+            replyMessage.Id, userId, parentMessageId);
+
+        return MapToResponse(replyMessage);
+    }
+
+    /// <summary>
+    /// Export messages to CSV format
+    /// </summary>
+    public async Task<List<MessageExportDto>> ExportMessagesAsync(
+        long userId,
+        bool? isRead = null,
+        string? searchTerm = null,
+        long? relatedEntityId = null,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null)
+    {
+        var query = _context.Messages
+            .Include(m => m.Sender)
+            .Include(m => m.Recipient)
+            .Include(m => m.RelatedEntity)
+            .Include(m => m.Attachments)
+            .Where(m => m.SenderId == userId || m.RecipientId == userId);
+
+        // Apply filters
+        if (isRead.HasValue)
+        {
+            query = query.Where(m => m.IsRead == isRead.Value);
+        }
+
+        if (relatedEntityId.HasValue)
+        {
+            query = query.Where(m => m.RelatedEntityId == relatedEntityId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.ToLower();
+            query = query.Where(m =>
+                m.Subject.ToLower().Contains(term) ||
+                m.Body.ToLower().Contains(term));
+        }
+
+        if (dateFrom.HasValue)
+        {
+            query = query.Where(m => m.SentAt >= dateFrom.Value);
+        }
+
+        if (dateTo.HasValue)
+        {
+            query = query.Where(m => m.SentAt <= dateTo.Value);
+        }
+
+        var messages = await query
+            .OrderByDescending(m => m.SentAt)
+            .ToListAsync();
+
+        return messages.Select(m => new MessageExportDto
+        {
+            Id = m.Id,
+            Subject = m.Subject,
+            SenderName = $"{m.Sender.FirstName} {m.Sender.LastName}",
+            SenderEmail = m.Sender.Email,
+            RecipientName = m.Recipient != null ? $"{m.Recipient.FirstName} {m.Recipient.LastName}" : null,
+            RecipientEmail = m.Recipient?.Email,
+            Status = m.Status.ToString(),
+            Priority = m.Priority switch
+            {
+                MessagePriority.Low => "Niski",
+                MessagePriority.Normal => "Normalny",
+                MessagePriority.High => "Wysoki",
+                _ => m.Priority.ToString()
+            },
+            IsRead = m.IsRead,
+            SentAt = m.SentAt,
+            ReadAt = m.ReadAt,
+            RelatedEntityName = m.RelatedEntity?.Name,
+            AttachmentCount = m.Attachments.Count,
+            IsReply = m.ParentMessageId.HasValue
+        }).ToList();
     }
 }
 
