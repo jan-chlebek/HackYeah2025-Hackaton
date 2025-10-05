@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-export const WNIOSKI_ROUTES: Routes = [
+export const wnioskirRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('./wnioski-list/wnioski-list.component').then(m => m.WnioskiListComponent)

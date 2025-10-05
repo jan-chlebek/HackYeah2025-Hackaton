@@ -5,9 +5,16 @@ import { CommonModule } from '@angular/common';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  template: `
+    <div class="login-container">
+      <h1>Login</h1>
+      <p>Login screen - empty</p>
+    </div>
+  `,
+  styles: [`
+    .login-container {
+      padding: 2rem;
+    }
+  `]
 })
-export class LoginComponent {
-
-}
+export class LoginComponent {}

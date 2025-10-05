@@ -48,6 +48,11 @@ public class Message
     public MessageStatus Status { get; set; }
 
     /// <summary>
+    /// Priority level of the message
+    /// </summary>
+    public MessagePriority Priority { get; set; } = MessagePriority.Normal;
+
+    /// <summary>
     /// Has the message been read
     /// </summary>
     public bool IsRead { get; set; }
@@ -63,6 +68,21 @@ public class Message
     public DateTime? ReadAt { get; set; }
 
     /// <summary>
+    /// Parent message ID for threading (replies)
+    /// </summary>
+    public long? ParentMessageId { get; set; }
+
+    /// <summary>
+    /// Navigation property - Parent message
+    /// </summary>
+    public Message? ParentMessage { get; set; }
+
+    /// <summary>
+    /// Navigation property - Replies to this message
+    /// </summary>
+    public ICollection<Message> Replies { get; set; } = new List<Message>();
+
+    /// <summary>
     /// Related supervised entity ID (optional)
     /// </summary>
     public long? RelatedEntityId { get; set; }
@@ -76,9 +96,4 @@ public class Message
     /// Navigation property - Message attachments
     /// </summary>
     public ICollection<MessageAttachment> Attachments { get; set; } = new List<MessageAttachment>();
-
-    /// <summary>
-    /// Is this message cancelled
-    /// </summary>
-    public bool IsCancelled { get; set; }
 }

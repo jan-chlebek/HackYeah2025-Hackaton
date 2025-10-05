@@ -1,173 +1,258 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
 
-interface Communication {
-  id: number;
-  publicationDate: string;
-  subject: string;
+interface Announcement {
+  date: string;
+  topic: string;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
-})
-export class DashboardComponent implements OnInit {
-  // Expose Math for template
-  Math = Math;
+  imports: [
+    CommonModule,
+    RouterModule,
+    TableModule,
+    ButtonModule
+  ],
+  template: `
+    <div class="dashboard-container">
+      <!-- Tabs Navigation -->
+      <div class="tabs-wrapper">
+        <div class="tabs-header">
+          <button 
+            *ngFor="let tab of tabs; let i = index"
+            class="tab-button"
+            [class.active]="selectedTab === i"
+            (click)="selectTab(i)">
+            {{ tab.label }}
+          </button>
+        </div>
 
-  // Breadcrumb
-  systemName = 'System';
-  entityName = 'Instytucja Testowa';
+        <div class="tabs-content">
+          <!-- Tab 0: Pulpit użytkownika -->
+          <div *ngIf="selectedTab === 0" class="tab-panel">
+            <div class="tab-content">
+              <p class="text-gray-600">Pulpit użytkownika - główny widok z przeglądem aktywności</p>
+            </div>
+          </div>
 
-  // Active tab
-  activeTab: 'pulpit' | 'wnioski' | 'biblioteka' = 'pulpit';
+          <!-- Tab 1: Wnioski o dostęp -->
+          <div *ngIf="selectedTab === 1" class="tab-panel">
+            <div class="tab-content">
+              <p class="text-gray-600">Zarządzanie wnioskami o dostęp do systemu</p>
+            </div>
+          </div>
 
-  // Search/Filter
-  searchExpanded = false;
+          <!-- Tab 2: Biblioteka - repozytorium plików -->
+          <div *ngIf="selectedTab === 2" class="tab-panel">
+            <div class="tab-content">
+              <!-- Section Header -->
+              <div class="section-header mb-4">
+                <h2 class="section-title">Komunikaty</h2>
+                <div class="action-buttons">
+                  <button pButton type="button" label="Podgląd" icon="pi pi-search" class="p-button-sm p-button-outlined mr-2"></button>
+                  <button pButton type="button" label="Eksportuj" icon="pi pi-download" class="p-button-sm p-button-outlined"></button>
+                </div>
+              </div>
 
-  // Communications data
-  communications: Communication[] = [];
-  filteredCommunications: Communication[] = [];
+              <!-- Search and Filter Section -->
+              <div class="search-section mb-3">
+                <h3 class="subsection-title">Wyszukiwanie</h3>
+                <button pButton type="button" icon="pi pi-angle-down" class="p-button-text p-button-sm filter-toggle"></button>
+              </div>
 
-  // Pagination
-  currentPage = 1;
-  itemsPerPage = 10;
-  totalItems = 200;
-  totalPages = 0;
-  pageNumbers: number[] = [];
-  
-  // Sort
-  sortColumn: 'publicationDate' | 'subject' = 'publicationDate';
-  sortDirection: 'asc' | 'desc' = 'desc';
+              <!-- Data Table -->
+              <p-table 
+                [value]="announcements" 
+                [rows]="10"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing 1 to 10 of 200 entries"
+                styleClass="p-datatable-sm">
+                
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Data publikacji</th>
+                    <th>Temat</th>
+                  </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-announcement>
+                  <tr>
+                    <td>{{ announcement.date }}</td>
+                    <td>{{ announcement.topic }}</td>
+                  </tr>
+                </ng-template>
 
-  ngOnInit() {
-    this.generateMockData();
-    this.updatePagination();
-  }
-
-  generateMockData() {
-    // Generate 200 mock communications
-    const subjects = [
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.'
-    ];
-
-    for (let i = 1; i <= 200; i++) {
-      const date = new Date(2025, 1 + (i % 2), 14 + (i % 7));
-      this.communications.push({
-        id: i,
-        publicationDate: date.toISOString().split('T')[0],
-        subject: subjects[i % 2]
-      });
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="2" class="text-center py-4">Brak danych do wyświetlenia</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .dashboard-container {
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
     }
 
-    this.sortData();
-    this.updateFilteredData();
-  }
+    .tab-content {
+      padding: 1.5rem;
+    }
 
-  setActiveTab(tab: 'pulpit' | 'wnioski' | 'biblioteka') {
-    this.activeTab = tab;
-  }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
 
-  toggleSearch() {
-    this.searchExpanded = !this.searchExpanded;
-  }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0;
+    }
 
-  sortData() {
-    this.communications.sort((a, b) => {
-      let comparison = 0;
-      if (this.sortColumn === 'publicationDate') {
-        comparison = a.publicationDate.localeCompare(b.publicationDate);
-      } else {
-        comparison = a.subject.localeCompare(b.subject);
+    .search-section {
+      background-color: #f9fafb;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subsection-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #374151;
+      margin: 0;
+    }
+
+    .filter-toggle {
+      cursor: pointer;
+      color: #6b7280;
+    }
+
+    .tabs-wrapper {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      background-color: #f3f4f6;
+      border-bottom: 2px solid #003366;
+    }
+
+    .tab-button {
+      padding: 1rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: #4b5563;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .tab-button:hover {
+      background-color: rgba(0, 51, 102, 0.05);
+      color: #003366;
+    }
+
+    .tab-button.active {
+      background-color: white;
+      color: #003366;
+      font-weight: 600;
+      border-bottom-color: #003366;
+    }
+
+    .tabs-content {
+      background: white;
+    }
+
+    .tab-panel {
+      animation: fadeIn 0.2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
       }
-      return this.sortDirection === 'asc' ? comparison : -comparison;
-    });
-  }
-
-  sortBy(column: 'publicationDate' | 'subject') {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
+      to {
+        opacity: 1;
+      }
     }
-    this.sortData();
-    this.updateFilteredData();
-  }
 
-  updateFilteredData() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.filteredCommunications = this.communications.slice(startIndex, endIndex);
-  }
+    :host ::ng-deep {
 
-  updatePagination() {
-    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-    this.pageNumbers = this.getPageNumbers();
-  }
+      .p-datatable .p-datatable-thead > tr > th {
+        background-color: #f9fafb;
+        color: #374151;
+        font-weight: 600;
+        border-bottom: 2px solid #e5e7eb;
+        padding: 0.75rem;
+      }
 
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxPagesToShow = 5;
-    
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-    
-    if (endPage - startPage < maxPagesToShow - 1) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+      .p-datatable .p-datatable-tbody > tr > td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .p-datatable .p-datatable-tbody > tr:hover {
+        background-color: #f9fafb;
+      }
+
+      .p-paginator {
+        background-color: white;
+        border-top: 1px solid #e5e7eb;
+        padding: 0.75rem;
+      }
     }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
-  }
+  `]
+})
+export class DashboardComponent {
+  selectedTab = 2; // Default to "Biblioteka - repozytorium plików" tab
+  
+  tabs = [
+    { label: 'Pulpit użytkownika' },
+    { label: 'Wnioski o dostęp' },
+    { label: 'Biblioteka - repozytorium plików' }
+  ];
 
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.pageNumbers = this.getPageNumbers();
-      this.updateFilteredData();
-    }
-  }
+  announcements: Announcement[] = [
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' },
+    { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { date: '2025-03-21', topic: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisl ut aliquip ex ea commodo consequat.' }
+  ];
 
-  goToFirstPage() {
-    this.goToPage(1);
-  }
-
-  goToLastPage() {
-    this.goToPage(this.totalPages);
-  }
-
-  previousPage() {
-    this.goToPage(this.currentPage - 1);
-  }
-
-  nextPage() {
-    this.goToPage(this.currentPage + 1);
-  }
-
-  changeItemsPerPage(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    this.itemsPerPage = parseInt(select.value);
-    this.currentPage = 1;
-    this.updatePagination();
-    this.updateFilteredData();
-  }
-
-  preview() {
-    console.log('Preview clicked');
-    // TODO: Implement preview functionality
-  }
-
-  export() {
-    console.log('Export clicked');
-    // TODO: Implement export functionality
+  selectTab(index: number): void {
+    this.selectedTab = index;
   }
 }

@@ -1,0 +1,209 @@
+<div class="report-submit-container">
+  <!-- Breadcrumb -->
+  <p-breadcrumb [model]="breadcrumbItems" class="mb-4"></p-breadcrumb>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Dodaj sprawozdanie</h1>
+      <p class="page-subtitle">Prześlij plik Excel ze sprawozdaniem</p>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <p-message 
+    *ngIf="uploadSuccess" 
+    severity="success" 
+    text="Sprawozdanie zostało pomyślnie przesłane!" 
+    styleClass="mb-4">
+  </p-message>
+
+  <!-- Error Message -->
+  <p-message 
+    *ngIf="validationError" 
+    severity="error" 
+    [text]="validationError" 
+    styleClass="mb-4">
+  </p-message>
+
+  <!-- Upload Form -->
+  <div class="form-container" *ngIf="!uploadSuccess">
+    <div class="form-section">
+      <h2 class="section-title">
+        <i class="pi pi-file-excel"></i>
+        Wybierz plik sprawozdania
+      </h2>
+      <p class="section-description">
+        Dozwolone formaty: Excel (.xlsx, .xls) - maksymalny rozmiar: 50MB
+      </p>
+
+      <!-- File Upload Area -->
+      <div class="file-upload-area" [class.has-file]="selectedFile" [class.error]="validationError">
+        <input 
+          type="file" 
+          id="fileInput"
+          accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+          (change)="onFileSelect($event)"
+          style="display: none;">
+        
+        <div *ngIf="!selectedFile" class="upload-prompt" (click)="triggerFileInput()">
+          <i class="pi pi-cloud-upload"></i>
+          <p class="upload-text">Kliknij, aby wybrać plik lub przeciągnij go tutaj</p>
+          <p class="upload-hint">Tylko pliki Excel (.xlsx, .xls)</p>
+          <button 
+            pButton 
+            label="Wybierz plik" 
+            icon="pi pi-folder-open" 
+            class="p-button-outlined">
+          </button>
+        </div>
+
+        <div *ngIf="selectedFile" class="file-selected">
+          <div class="file-icon">
+            <i class="pi pi-file-excel"></i>
+          </div>
+          <div class="file-info">
+            <div class="file-name">{{ selectedFile.name }}</div>
+            <div class="file-size">{{ formatFileSize(selectedFile.size) }}</div>
+          </div>
+          <button 
+            pButton 
+            icon="pi pi-times" 
+            class="p-button-rounded p-button-text p-button-danger"
+            (click)="removeFile()"
+            [disabled]="uploading">
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metadata Section -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <i class="pi pi-info-circle"></i>
+        Informacje o sprawozdaniu
+      </h2>
+
+      <div class="form-grid">
+        <!-- Entity Selector -->
+        <div class="form-field">
+          <label for="entity" class="required">Podmiot</label>
+          <p-select 
+            id="entity"
+            [(ngModel)]="selectedEntity" 
+            [options]="entityOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz podmiot"
+            [disabled]="uploading"
+            styleClass="w-full">
+          </p-select>
+        </div>
+
+        <!-- Reporting Period Selector -->
+        <div class="form-field">
+          <label for="period" class="required">Okres sprawozdawczy</label>
+          <p-select 
+            id="period"
+            [(ngModel)]="selectedPeriod" 
+            [options]="reportingPeriodOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wybierz okres"
+            [disabled]="uploading"
+            styleClass="w-full">
+          </p-select>
+        </div>
+
+        <!-- Correction Checkbox -->
+        <div class="form-field form-field-checkbox">
+          <p-checkbox 
+            id="correction"
+            [(ngModel)]="isCorrection" 
+            [binary]="true"
+            label="To jest korekta poprzedniego sprawozdania"
+            [disabled]="uploading">
+          </p-checkbox>
+        </div>
+
+        <!-- Remarks -->
+        <div class="form-field form-field-full">
+          <label for="remarks">Uwagi (opcjonalnie)</label>
+          <textarea 
+            pTextarea
+            id="remarks"
+            [(ngModel)]="remarks" 
+            rows="4"
+            placeholder="Dodatkowe informacje lub uwagi dotyczące sprawozdania..."
+            [disabled]="uploading"
+            class="w-full">
+          </textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Progress -->
+    <div class="form-section" *ngIf="uploading">
+      <h2 class="section-title">
+        <i class="pi pi-spin pi-spinner"></i>
+        Przesyłanie sprawozdania...
+      </h2>
+      <p-progressBar [value]="uploadProgress"></p-progressBar>
+      <p class="progress-text">{{ uploadProgress }}%</p>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button 
+        pButton 
+        label="Anuluj" 
+        icon="pi pi-times" 
+        class="p-button-outlined p-button-secondary"
+        (click)="cancel()"
+        [disabled]="uploading">
+      </button>
+      <button 
+        pButton 
+        label="Prześlij sprawozdanie" 
+        icon="pi pi-upload" 
+        class="p-button-primary"
+        (click)="submitReport()"
+        [disabled]="!canSubmit()"
+        [loading]="uploading">
+      </button>
+    </div>
+  </div>
+
+  <!-- Success State -->
+  <div class="success-container" *ngIf="uploadSuccess">
+    <div class="success-icon">
+      <i class="pi pi-check-circle"></i>
+    </div>
+    <h2>Sprawozdanie zostało pomyślnie przesłane!</h2>
+    <p>Twoje sprawozdanie zostało przekazane do systemu walidacji.</p>
+    <p class="success-hint">Za chwilę zostaniesz przekierowany do szczegółów sprawozdania...</p>
+    <div class="success-actions">
+      <button 
+        pButton 
+        label="Zobacz szczegóły" 
+        icon="pi pi-eye"
+        class="p-button-primary"
+        (click)="router.navigate(['/reports', uploadedReportId])">
+      </button>
+      <button 
+        pButton 
+        label="Dodaj kolejne" 
+        icon="pi pi-plus"
+        class="p-button-outlined"
+        (click)="resetForm()">
+      </button>
+      <button 
+        pButton 
+        label="Wróć do listy" 
+        icon="pi pi-arrow-left"
+        class="p-button-outlined"
+        (click)="cancel()">
+      </button>
+    </div>
+  </div>
+</div>

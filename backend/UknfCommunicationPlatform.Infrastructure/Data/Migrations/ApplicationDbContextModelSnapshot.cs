@@ -883,13 +883,18 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("body");
 
-                    b.Property<bool>("IsCancelled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_cancelled");
-
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean")
                         .HasColumnName("is_read");
+
+                    b.Property<long?>("ParentMessageId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("parent_message_id");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("priority");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone")
@@ -924,6 +929,9 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("p_k_messages");
+
+                    b.HasIndex("ParentMessageId")
+                        .HasDatabaseName("i_x_messages_parent_message_id");
 
                     b.HasIndex("RelatedEntityId")
                         .HasDatabaseName("i_x_messages_related_entity_id");
@@ -1855,6 +1863,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Message", b =>
                 {
+                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Message", "ParentMessage")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentMessageId")
+                        .HasConstraintName("f_k_messages_messages_parent_message_id");
+
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "Recipient")
                         .WithMany("ReceivedMessages")
                         .HasForeignKey("RecipientId")
@@ -1873,6 +1886,8 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("f_k_messages_users_sender_id");
+
+                    b.Navigation("ParentMessage");
 
                     b.Navigation("Recipient");
 
@@ -2038,6 +2053,8 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Message", b =>
                 {
                     b.Navigation("Attachments");
+
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Permission", b =>
