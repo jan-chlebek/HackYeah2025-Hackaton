@@ -57,6 +57,12 @@ public class DatabaseSeeder
 
             await SeedMessagesAsync();
             await SeedReportsAsync();
+            await SeedCasesAsync();
+            await SeedAnnouncementsAsync();
+            await SeedFileLibrariesAsync();
+            await SeedFaqQuestionsAsync();
+            await SeedContactsAsync();
+            await SeedPasswordPolicyAsync();
 
             await _context.SaveChangesAsync();
 
@@ -971,6 +977,380 @@ public class DatabaseSeeder
         }
 
         await _context.Reports.AddRangeAsync(reports);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedCasesAsync()
+    {
+        _logger.LogInformation("Seeding cases...");
+
+        var entities = await _context.SupervisedEntities.Take(5).ToListAsync();
+        var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
+        var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).Take(5).ToListAsync();
+
+        var cases = new List<Case>();
+        var caseCategories = new[] { "RegistrationDataChange", "PersonnelChange", "EntitySummons", "SystemPermissions", "Reporting" };
+        var casePriorities = new[] { 1, 2, 3, 2, 3 }; // 1=Low, 2=Medium, 3=High
+        var caseStatuses = new[] { CaseStatus.New, CaseStatus.InProgress, CaseStatus.AwaitingUserResponse, CaseStatus.InProgress, CaseStatus.Resolved };
+
+        for (int i = 0; i < 5; i++)
+        {
+            var caseEntity = new Case
+            {
+                CaseNumber = $"CASE-2025-{(i + 1):D4}",
+                Title = $"Sprawa {caseCategories[i]} - {entities[i].Name}",
+                Description = $"Opis sprawy dotyczącej {caseCategories[i].ToLower()}. Wymaga weryfikacji i akceptacji przez UKNF.",
+                Category = caseCategories[i],
+                Priority = casePriorities[i],
+                Status = caseStatuses[i],
+                SupervisedEntityId = entities[i].Id,
+                HandlerId = i < 3 ? internalUsers[i].Id : null,
+                CreatedByUserId = externalUsers[i].Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-20 + i * 4),
+                UpdatedAt = DateTime.UtcNow.AddDays(-10 + i * 2)
+            };
+            cases.Add(caseEntity);
+        }
+
+        await _context.Cases.AddRangeAsync(cases);
+        await _context.SaveChangesAsync();
+
+        // Seed CaseDocuments (at least 5)
+        var caseDocuments = new List<CaseDocument>();
+        for (int i = 0; i < 5; i++)
+        {
+            caseDocuments.Add(new CaseDocument
+            {
+                CaseId = cases[i % cases.Count].Id,
+                DocumentName = $"Dokument sprawy {i + 1}",
+                FileName = $"case_document_{i + 1}.pdf",
+                FilePath = $"/cases/documents/case_document_{i + 1}.pdf",
+                ContentType = "application/pdf",
+                FileSize = 50000 + i * 10000,
+                UploadedByUserId = externalUsers[i % externalUsers.Count].Id,
+                UploadedAt = DateTime.UtcNow.AddDays(-15 + i * 3)
+            });
+        }
+        await _context.CaseDocuments.AddRangeAsync(caseDocuments);
+        await _context.SaveChangesAsync();
+
+        // Seed CaseHistory (at least 5)
+        var caseHistories = new List<CaseHistory>();
+        for (int i = 0; i < 5; i++)
+        {
+            caseHistories.Add(new CaseHistory
+            {
+                CaseId = cases[i % cases.Count].Id,
+                ChangeType = i % 2 == 0 ? "StatusChange" : "DocumentAdded",
+                OldStatus = i % 2 == 0 ? CaseStatus.New : null,
+                NewStatus = i % 2 == 0 ? CaseStatus.InProgress : null,
+                ChangedByUserId = internalUsers[i % internalUsers.Count].Id,
+                ChangedAt = DateTime.UtcNow.AddDays(-12 + i * 2),
+                Description = $"Zmiana w sprawie: {(i % 2 == 0 ? "status zaktualizowany" : "dodano dokument")}"
+            });
+        }
+        await _context.CaseHistories.AddRangeAsync(caseHistories);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedAnnouncementsAsync()
+    {
+        _logger.LogInformation("Seeding announcements...");
+
+        var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
+        var entities = await _context.SupervisedEntities.Take(5).ToListAsync();
+        var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).Take(5).ToListAsync();
+
+        var announcements = new List<Announcement>();
+        var priorities = new[] { AnnouncementPriority.High, AnnouncementPriority.Medium, AnnouncementPriority.Low, AnnouncementPriority.Medium, AnnouncementPriority.High };
+        var categories = new[] { "System", "Reporting", "Training", "Legal", "General" };
+
+        for (int i = 0; i < 5; i++)
+        {
+            var announcement = new Announcement
+            {
+                Title = $"Komunikat {categories[i]} - {i + 1}",
+                Content = $"<p>Treść komunikatu dotyczącego <strong>{categories[i]}</strong>.</p><p>Prosimy o zapoznanie się z załączonymi informacjami.</p>",
+                Category = categories[i],
+                Priority = priorities[i],
+                IsPublished = true,
+                PublishedAt = DateTime.UtcNow.AddDays(-30 + i * 6),
+                ExpiresAt = DateTime.UtcNow.AddDays(30 + i * 10),
+                CreatedByUserId = internalUsers[i % internalUsers.Count].Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-35 + i * 6),
+                UpdatedAt = DateTime.UtcNow.AddDays(-30 + i * 6)
+            };
+            announcements.Add(announcement);
+        }
+
+        await _context.Announcements.AddRangeAsync(announcements);
+        await _context.SaveChangesAsync();
+
+        // Seed AnnouncementRecipients (at least 5)
+        var recipients = new List<AnnouncementRecipient>();
+        for (int i = 0; i < 5; i++)
+        {
+            recipients.Add(new AnnouncementRecipient
+            {
+                AnnouncementId = announcements[i].Id,
+                RecipientType = i % 2 == 0 ? "Entity" : "User",
+                SupervisedEntityId = i % 2 == 0 ? entities[i % entities.Count].Id : null,
+                UserId = i % 2 != 0 ? externalUsers[i % externalUsers.Count].Id : null
+            });
+        }
+        await _context.AnnouncementRecipients.AddRangeAsync(recipients);
+        await _context.SaveChangesAsync();
+
+        // Seed AnnouncementReads (at least 5)
+        var reads = new List<AnnouncementRead>();
+        for (int i = 0; i < 5; i++)
+        {
+            reads.Add(new AnnouncementRead
+            {
+                AnnouncementId = announcements[i % announcements.Count].Id,
+                UserId = externalUsers[i % externalUsers.Count].Id,
+                ReadAt = DateTime.UtcNow.AddDays(-25 + i * 5),
+                IpAddress = $"192.168.1.{100 + i}"
+            });
+        }
+        await _context.AnnouncementReads.AddRangeAsync(reads);
+        await _context.SaveChangesAsync();
+
+        // Seed AnnouncementAttachments (at least 5)
+        var attachments = new List<AnnouncementAttachment>();
+        for (int i = 0; i < 5; i++)
+        {
+            attachments.Add(new AnnouncementAttachment
+            {
+                AnnouncementId = announcements[i % announcements.Count].Id,
+                FileName = $"announcement_attachment_{i + 1}.pdf",
+                FilePath = $"/announcements/attachments/announcement_attachment_{i + 1}.pdf",
+                ContentType = "application/pdf",
+                FileSize = 100000 + i * 20000,
+                UploadedAt = DateTime.UtcNow.AddDays(-32 + i * 6)
+            });
+        }
+        await _context.AnnouncementAttachments.AddRangeAsync(attachments);
+        await _context.SaveChangesAsync();
+
+        // Seed AnnouncementHistories (at least 5)
+        var histories = new List<AnnouncementHistory>();
+        for (int i = 0; i < 5; i++)
+        {
+            histories.Add(new AnnouncementHistory
+            {
+                AnnouncementId = announcements[i % announcements.Count].Id,
+                ChangeType = i % 3 == 0 ? "Created" : i % 3 == 1 ? "Published" : "Updated",
+                ChangedByUserId = internalUsers[i % internalUsers.Count].Id,
+                ChangedAt = DateTime.UtcNow.AddDays(-33 + i * 6),
+                Description = $"Komunikat został {(i % 3 == 0 ? "utworzony" : i % 3 == 1 ? "opublikowany" : "zaktualizowany")}"
+            });
+        }
+        await _context.AnnouncementHistories.AddRangeAsync(histories);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedFileLibrariesAsync()
+    {
+        _logger.LogInformation("Seeding file libraries...");
+
+        var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
+        var entities = await _context.SupervisedEntities.Take(5).ToListAsync();
+
+        var files = new List<FileLibrary>();
+        var categories = new[] { "Templates", "Guidelines", "LegalDocuments", "Reports", "Training" };
+
+        for (int i = 0; i < 5; i++)
+        {
+            files.Add(new FileLibrary
+            {
+                Name = $"Dokument {categories[i]} {i + 1}",
+                Description = $"Opis dokumentu kategorii {categories[i]}",
+                FileName = $"file_{categories[i].ToLower()}_{i + 1}.xlsx",
+                FileSize = 150000 + i * 30000,
+                ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                Category = categories[i],
+                FileContent = new byte[] { 0x50, 0x4B, 0x03, 0x04 }, // ZIP header (XLSX is ZIP)
+                UploadedByUserId = internalUsers[i % internalUsers.Count].Id,
+                UploadedAt = DateTime.UtcNow.AddDays(-60 + i * 12)
+            });
+        }
+
+        await _context.FileLibraries.AddRangeAsync(files);
+        await _context.SaveChangesAsync();
+
+        // Seed FileLibraryPermissions (at least 5)
+        var permissions = new List<FileLibraryPermission>();
+        for (int i = 0; i < 5; i++)
+        {
+            permissions.Add(new FileLibraryPermission
+            {
+                FileLibraryId = files[i].Id,
+                PermissionType = i % 2 == 0 ? "SupervisedEntity" : "User",
+                SupervisedEntityId = i % 2 == 0 ? entities[i % entities.Count].Id : null,
+                UserId = i % 2 != 0 ? (await _context.Users.Where(u => u.SupervisedEntityId != null).Skip(i).FirstOrDefaultAsync())?.Id : null
+            });
+        }
+        await _context.FileLibraryPermissions.AddRangeAsync(permissions);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedFaqQuestionsAsync()
+    {
+        _logger.LogInformation("Seeding FAQ questions...");
+
+        var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
+        var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).Take(5).ToListAsync();
+
+        var questions = new List<FaqQuestion>();
+        var categories = new[] { "Technical", "Reporting", "Access", "General", "Legal" };
+        var statuses = new[] { FaqQuestionStatus.Answered, FaqQuestionStatus.Published, FaqQuestionStatus.Submitted, FaqQuestionStatus.Answered, FaqQuestionStatus.Published };
+
+        for (int i = 0; i < 5; i++)
+        {
+            var question = new FaqQuestion
+            {
+                Title = $"Pytanie {categories[i]} #{i + 1}",
+                Content = $"Treść pytania dotyczącego {categories[i]}. Jak mogę uzyskać więcej informacji na ten temat?",
+                Category = categories[i],
+                Tags = $"tag{i + 1},{categories[i].ToLower()}",
+                Status = statuses[i],
+                SubmittedByUserId = i % 2 == 0 ? externalUsers[i % externalUsers.Count].Id : null,
+                AnonymousName = i % 2 != 0 ? $"Anonim {i + 1}" : null,
+                AnonymousEmail = i % 2 != 0 ? $"anonymous{i + 1}@example.com" : null,
+                SubmittedAt = DateTime.UtcNow.AddDays(-50 + i * 10),
+                AnsweredByUserId = statuses[i] != FaqQuestionStatus.Submitted ? internalUsers[i % internalUsers.Count].Id : null,
+                AnswerContent = statuses[i] != FaqQuestionStatus.Submitted ? $"<p>Odpowiedź na pytanie {i + 1}.</p><p>Szczegółowe wyjaśnienie dotyczące {categories[i]}.</p>" : null,
+                AnsweredAt = statuses[i] != FaqQuestionStatus.Submitted ? DateTime.UtcNow.AddDays(-45 + i * 10) : null,
+                PublishedAt = statuses[i] == FaqQuestionStatus.Published ? DateTime.UtcNow.AddDays(-40 + i * 10) : null,
+                ViewCount = 50 + i * 20,
+                AverageRating = statuses[i] != FaqQuestionStatus.Submitted ? 4.0m + (i * 0.2m) : 0
+            };
+            questions.Add(question);
+        }
+
+        await _context.FaqQuestions.AddRangeAsync(questions);
+        await _context.SaveChangesAsync();
+
+        // Seed FaqRatings (at least 5 - only for answered questions)
+        var ratings = new List<FaqRating>();
+        var answeredQuestions = questions.Where(q => q.Status != FaqQuestionStatus.Submitted).ToList();
+        for (int i = 0; i < 5 && i < answeredQuestions.Count * 2; i++)
+        {
+            var userIndex = i % externalUsers.Count;
+            var questionIndex = i % answeredQuestions.Count;
+            
+            // Skip if this combination already exists
+            var exists = ratings.Any(r => r.FaqQuestionId == answeredQuestions[questionIndex].Id && r.UserId == externalUsers[userIndex].Id);
+            if (!exists)
+            {
+                ratings.Add(new FaqRating
+                {
+                    FaqQuestionId = answeredQuestions[questionIndex].Id,
+                    UserId = externalUsers[userIndex].Id,
+                    Rating = 3 + (i % 3),
+                    RatedAt = DateTime.UtcNow.AddDays(-35 + i * 7)
+                });
+            }
+        }
+        await _context.FaqRatings.AddRangeAsync(ratings);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedContactsAsync()
+    {
+        _logger.LogInformation("Seeding contacts...");
+
+        var entities = await _context.SupervisedEntities.Take(5).ToListAsync();
+        var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
+
+        var contacts = new List<Contact>();
+        for (int i = 0; i < 5; i++)
+        {
+            contacts.Add(new Contact
+            {
+                Name = $"Kontakt {i + 1}",
+                Email = $"contact{i + 1}@{entities[i].Name.Replace(" ", "").Replace(".", "").ToLower()}.pl",
+                Phone = $"+4822555{100 + i:D4}",
+                Mobile = $"+48600{100 + i:D6}",
+                Position = i % 3 == 0 ? "Dyrektor" : i % 3 == 1 ? "Kierownik" : "Specjalista",
+                Department = i % 2 == 0 ? "Dział Sprawozdawczości" : "Dział Compliance",
+                IsPrimary = i == 0,
+                SupervisedEntityId = entities[i].Id,
+                CreatedByUserId = internalUsers[i % internalUsers.Count].Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-100 + i * 20),
+                UpdatedAt = DateTime.UtcNow.AddDays(-90 + i * 18)
+            });
+        }
+
+        await _context.Contacts.AddRangeAsync(contacts);
+        await _context.SaveChangesAsync();
+
+        // Seed ContactGroups (at least 5)
+        var groups = new List<ContactGroup>();
+        for (int i = 0; i < 5; i++)
+        {
+            groups.Add(new ContactGroup
+            {
+                Name = $"Grupa kontaktów {i + 1}",
+                Description = $"Opis grupy kontaktów nr {i + 1}",
+                CreatedByUserId = internalUsers[i % internalUsers.Count].Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-80 + i * 15)
+            });
+        }
+        await _context.ContactGroups.AddRangeAsync(groups);
+        await _context.SaveChangesAsync();
+
+        // Seed ContactGroupMembers (at least 5)
+        var members = new List<ContactGroupMember>();
+        for (int i = 0; i < 5; i++)
+        {
+            members.Add(new ContactGroupMember
+            {
+                ContactGroupId = groups[i % groups.Count].Id,
+                ContactId = contacts[i].Id,
+                AddedAt = DateTime.UtcNow.AddDays(-70 + i * 14)
+            });
+        }
+        await _context.ContactGroupMembers.AddRangeAsync(members);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedPasswordPolicyAsync()
+    {
+        _logger.LogInformation("Seeding password policy...");
+
+        // Seed only one password policy
+        var policy = new PasswordPolicy
+        {
+            MinLength = 8,
+            RequireUppercase = true,
+            RequireLowercase = true,
+            RequireDigit = true,
+            RequireSpecialChar = true,
+            ExpirationDays = 90,
+            HistoryCount = 5,
+            MaxFailedAttempts = 5,
+            LockoutDurationMinutes = 30,
+            UpdatedAt = DateTime.UtcNow.AddDays(-30)
+        };
+
+        await _context.PasswordPolicies.AddAsync(policy);
+        await _context.SaveChangesAsync();
+
+        // Seed PasswordHistories (at least 5)
+        var users = await _context.Users.Take(5).ToListAsync();
+        var histories = new List<PasswordHistory>();
+        for (int i = 0; i < 5; i++)
+        {
+            histories.Add(new PasswordHistory
+            {
+                UserId = users[i].Id,
+                PasswordHash = _passwordHasher.HashPassword($"OldPassword{i}!"),
+                CreatedAt = DateTime.UtcNow.AddDays(-60 + i * 10)
+            });
+        }
+        await _context.PasswordHistories.AddRangeAsync(histories);
         await _context.SaveChangesAsync();
     }
 }
