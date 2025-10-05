@@ -186,8 +186,7 @@ public class AuthController : ControllerBase
     /// <param name="userId">User ID to check</param>
     /// <returns>Lock status</returns>
     [HttpGet("users/{userId}/lock-status")]
-    // TODO: RE-ENABLE AUTHORIZATION - Temporarily disabled for testing
-    // [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

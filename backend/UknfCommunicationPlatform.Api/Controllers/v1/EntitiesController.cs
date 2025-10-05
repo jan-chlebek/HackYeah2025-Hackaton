@@ -35,8 +35,7 @@ public class EntitiesController : ControllerBase
     /// <param name="isActive">Filter by active status</param>
     /// <returns>List of entities with pagination metadata</returns>
     [HttpGet]
-    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
-    // [RequirePermission("entities.read")]
+    [RequirePermission("entities.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<object>> GetEntities(
@@ -71,8 +70,7 @@ public class EntitiesController : ControllerBase
     /// <param name="id">Entity ID</param>
     /// <returns>Entity details</returns>
     [HttpGet("{id}")]
-    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
-    // [RequirePermission("entities.read")]
+    [RequirePermission("entities.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

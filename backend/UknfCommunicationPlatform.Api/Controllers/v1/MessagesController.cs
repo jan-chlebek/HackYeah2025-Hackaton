@@ -343,8 +343,6 @@ public class MessagesController : ControllerBase
     /// </summary>
     private long GetCurrentUserId()
     {
-        // TODO: RE-ENABLE AUTHORIZATION - Temporarily using hardcoded user ID for testing
-        // When authorization is disabled, return user ID 2 (jan.kowalski@uknf.gov.pl) who has seeded messages
         var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim))
         {
