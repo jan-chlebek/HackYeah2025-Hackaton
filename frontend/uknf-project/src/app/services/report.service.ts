@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface Report {
   id: number;
@@ -144,7 +145,7 @@ export class ReportService {
    * Upload a new report with Excel file validation
    */
   uploadReport(submission: ReportSubmission): Observable<Report> {
-    console.log('ReportService.uploadReport called with:', {
+    console.log('ReportService.uploadReport called with (original submission):', {
       fileName: submission.plik.name,
       fileSize: submission.plik.size,
       fileType: submission.plik.type,
@@ -153,29 +154,56 @@ export class ReportService {
       czyKorekta: submission.czyKorekta
     });
 
-    // Validate Excel file
+    // Validate Excel file (keep permissive like component)
     const validExcelTypes = [
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-      'application/vnd.ms-excel' // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel'
     ];
-    
     const validExcelExtensions = ['.xlsx', '.xls'];
     const fileExtension = submission.plik.name.toLowerCase().substring(submission.plik.name.lastIndexOf('.'));
-
     if (!validExcelTypes.includes(submission.plik.type) && !validExcelExtensions.includes(fileExtension)) {
       throw new Error('Nieprawidłowy format pliku. Dozwolone są tylko pliki Excel (.xlsx, .xls)');
     }
 
-    const formData = new FormData();
-    formData.append('plik', submission.plik);
-    formData.append('okresSprawozdawczy', submission.okresSprawozdawczy);
-    formData.append('podmiotId', submission.podmiotId.toString());
-    formData.append('czyKorekta', submission.czyKorekta.toString());
-    if (submission.uwagi) {
-      formData.append('uwagi', submission.uwagi);
-    }
+    // Backend expects form keys: File, ReportingPeriod (PascalCase) only.
+    // Frontend currently stores periods like "Q1_2025"; backend only accepts Q1/Q2/Q3/Q4.
+    const reportingPeriod = submission.okresSprawozdawczy.split('_')[0];
 
-    return this.http.post<Report>(this.baseUrl, formData);
+    const formData = new FormData();
+    formData.append('File', submission.plik);
+    formData.append('ReportingPeriod', reportingPeriod);
+
+    // NOTE: Additional fields (entity, correction flag, remarks) are not yet supported
+    // by backend SubmitReport endpoint. We intentionally do NOT send them to avoid 400.
+    // TODO: Extend backend contract to include these when requirements are clarified.
+
+    return this.http.post<any>(this.baseUrl, formData).pipe(
+      map(apiResponse => {
+        // apiResponse is expected to be ReportDto with PascalCase properties
+        const mapped: Report = {
+          id: apiResponse.id ?? apiResponse.Id ?? 0,
+          nazwaPliku: apiResponse.fileName ?? apiResponse.FileName ?? submission.plik.name,
+          numerSprawozdania: apiResponse.reportNumber ?? apiResponse.ReportNumber,
+          podmiotNazwa: apiResponse.entityName ?? apiResponse.EntityName ?? '',
+            // No entity id provided by backend yet – reuse submitted value (may be null)
+          podmiotId: submission.podmiotId,
+          okresSprawozdawczy: apiResponse.reportingPeriod ?? apiResponse.ReportingPeriod ?? reportingPeriod,
+          dataZlozenia: new Date().toISOString(),
+          statusWalidacji: 'Robocze',
+          uzytkownikNazwisko: undefined,
+          uzytkownikImie: undefined,
+          uzytkownikEmail: undefined,
+          uzytkownikTelefon: undefined,
+          czyKorekta: submission.czyKorekta,
+          wielkoscPliku: submission.plik.size,
+          raportWalidacjiUrl: undefined,
+          dataWalidacji: undefined,
+          opisBledow: undefined
+        };
+        console.log('Mapped upload response to Report interface:', mapped);
+        return mapped;
+      })
+    );
   }
 
   /**
