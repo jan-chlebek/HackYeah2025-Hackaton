@@ -119,6 +119,37 @@ public class DatabaseSeeder
             PermissionId = p.Id
         }).ToList();
 
+        // Assign permissions to InternalUser role
+        var internalRole = roles.First(r => r.Name == "InternalUser");
+        var internalPermissions = permissions.Where(p => 
+            p.Name == "messages.read" || 
+            p.Name == "messages.write" ||
+            p.Name == "entities.read" ||
+            p.Name == "reports.read"
+        ).Select(p => new RolePermission
+        {
+            RoleId = internalRole.Id,
+            PermissionId = p.Id
+        }).ToList();
+        rolePermissions.AddRange(internalPermissions);
+
+        // Assign permissions to Supervisor role (same as internal + more)
+        var supervisorRole = roles.First(r => r.Name == "Supervisor");
+        var supervisorPermissions = permissions.Where(p => 
+            p.Name == "messages.read" || 
+            p.Name == "messages.write" ||
+            p.Name == "entities.read" ||
+            p.Name == "entities.write" ||
+            p.Name == "reports.read" ||
+            p.Name == "reports.write" ||
+            p.Name == "users.read"
+        ).Select(p => new RolePermission
+        {
+            RoleId = supervisorRole.Id,
+            PermissionId = p.Id
+        }).ToList();
+        rolePermissions.AddRange(supervisorPermissions);
+
         await _context.RolePermissions.AddRangeAsync(rolePermissions);
         await _context.SaveChangesAsync();
     }

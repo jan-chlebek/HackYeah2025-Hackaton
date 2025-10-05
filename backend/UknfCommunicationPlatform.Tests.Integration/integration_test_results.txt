@@ -1,0 +1,61 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  UknfCommunicationPlatform.Core -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Core/bin/Debug/net9.0/UknfCommunicationPlatform.Core.dll
+  UknfCommunicationPlatform.Infrastructure -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/bin/Debug/net9.0/UknfCommunicationPlatform.Infrastructure.dll
+  UknfCommunicationPlatform.Api -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Api/bin/Debug/net9.0/UknfCommunicationPlatform.Api.dll
+  UknfCommunicationPlatform.Tests.Integration -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Integration/bin/Debug/net9.0/UknfCommunicationPlatform.Tests.Integration.dll
+Test run for /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Integration/bin/Debug/net9.0/UknfCommunicationPlatform.Tests.Integration.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:07.39]     UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.Supervisor_ShouldHaveCorrectRolesAndPermissions [FAIL]
+[xUnit.net 00:00:07.44]     UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.MultipleFailedLogins_ShouldLockAccount [FAIL]
+[xUnit.net 00:00:07.46]     UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.InternalUser_ShouldHaveCorrectRolesAndPermissions [FAIL]
+  Failed UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.Supervisor_ShouldHaveCorrectRolesAndPermissions [28 ms]
+  Error Message:
+   Expected result.User.Permissions not to be empty.
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Execution.GivenSelector`1.FailWith(String message, Object[] args)
+   at FluentAssertions.Execution.GivenSelector`1.FailWith(String message)
+   at FluentAssertions.Collections.GenericCollectionAssertions`3.<NotBeEmpty>b__56_0(AssertionChain chain)
+   at FluentAssertions.Execution.AssertionChain.WithExpectation(String message, Action`1 chain, Object[] args)
+   at FluentAssertions.Execution.AssertionChain.WithExpectation(String message, Action`1 chain)
+   at FluentAssertions.Collections.GenericCollectionAssertions`3.NotBeEmpty(String because, Object[] becauseArgs)
+   at UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.Supervisor_ShouldHaveCorrectRolesAndPermissions() in /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Integration/Controllers/AuthorizationIntegrationTests.cs:line 364
+--- End of stack trace from previous location ---
+  Failed UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.MultipleFailedLogins_ShouldLockAccount [46 ms]
+  Error Message:
+   Expected user.LockedUntil to have a value, but found <null>.
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Primitives.NullableDateTimeAssertions`1.HaveValue(String because, Object[] becauseArgs)
+   at FluentAssertions.Primitives.NullableDateTimeAssertions`1.NotBeNull(String because, Object[] becauseArgs)
+   at UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.MultipleFailedLogins_ShouldLockAccount() in /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Integration/Controllers/AuthorizationIntegrationTests.cs:line 407
+--- End of stack trace from previous location ---
+  Failed UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.InternalUser_ShouldHaveCorrectRolesAndPermissions [12 ms]
+  Error Message:
+   Expected result.User.Permissions {empty} to contain "messages.read".
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Collections.GenericCollectionAssertions`3.Contain(T expected, String because, Object[] becauseArgs)
+   at UknfCommunicationPlatform.Tests.Integration.Controllers.AuthorizationIntegrationTests.InternalUser_ShouldHaveCorrectRolesAndPermissions() in /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Integration/Controllers/AuthorizationIntegrationTests.cs:line 342
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:    63, Skipped:     0, Total:    66, Duration: 7 s - UknfCommunicationPlatform.Tests.Integration.dll (net9.0)

@@ -1,0 +1,7 @@
+Test run for /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Unit/bin/Debug/net9.0/UknfCommunicationPlatform.Tests.Unit.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   227, Skipped:     0, Total:   227, Duration: 5 s - UknfCommunicationPlatform.Tests.Unit.dll (net9.0)

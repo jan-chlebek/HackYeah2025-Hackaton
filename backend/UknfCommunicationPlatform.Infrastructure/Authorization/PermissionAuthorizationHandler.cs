@@ -14,6 +14,12 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
+        // Null guard - ensure user is authenticated
+        if (context.User?.Identity == null || !context.User.Identity.IsAuthenticated)
+        {
+            return Task.CompletedTask;
+        }
+
         // Get all permission claims from the user's token
         var userPermissions = context.User
             .FindAll("permission")
