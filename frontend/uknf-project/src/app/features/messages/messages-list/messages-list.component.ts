@@ -11,6 +11,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { MessageService, Message, MessageFilters, MessageAttachment } from '../../../services/message.service';
+import { AuthService } from '../../../services/auth.service';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -34,15 +35,11 @@ import { MenuItem } from 'primeng/api';
 })
 export class MessagesListComponent implements OnInit {
   private messageService = inject(MessageService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
   // Breadcrumb
-  breadcrumbItems: MenuItem[] = [
-
-    { label: 'Wnioski o dostęp', routerLink: '/wnioski' },
-    { label: 'Biblioteka - repozytorium plików', routerLink: '/biblioteka' },
-    { label: 'Wiadomości' }
-  ];
+  breadcrumbItems: MenuItem[] = [];
   
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
 
@@ -81,6 +78,18 @@ export class MessagesListComponent implements OnInit {
   showDetailsDialog = false;
 
   ngOnInit(): void {
+    // Build breadcrumb based on permissions
+    const items: MenuItem[] = [];
+    
+    if (this.authService.hasElevatedPermissions()) {
+      items.push({ label: 'Wnioski o dostęp', routerLink: '/wnioski' });
+    }
+    
+    items.push({ label: 'Biblioteka - repozytorium plików', routerLink: '/biblioteka' });
+    items.push({ label: 'Wiadomości' });
+    
+    this.breadcrumbItems = items;
+    
     // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError in zoneless mode
     setTimeout(() => {
       this.loadMessages();

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { AuthService } from '../../services/auth.service';
 
 interface Announcement {
   date: string;
@@ -24,7 +25,7 @@ interface Announcement {
       <div class="tabs-wrapper">
         <div class="tabs-header">
           <button 
-            *ngFor="let tab of tabs; let i = index"
+            *ngFor="let tab of tabs(); let i = index"
             class="tab-button"
             [class.active]="selectedTab === i"
             (click)="selectTab(i)">
@@ -231,13 +232,27 @@ interface Announcement {
   `]
 })
 export class DashboardComponent {
+  private authService = inject(AuthService);
+  
   selectedTab = 2; // Default to "Biblioteka - repozytorium plików" tab
   
-  tabs = [
-    { label: 'Pulpit użytkownika' },
-    { label: 'Wnioski o dostęp' },
-    { label: 'Biblioteka - repozytorium plików' }
+  // Example: Check if user has elevated permissions
+  hasElevatedPermissions = computed(() => this.authService.hasElevatedPermissions());
+  currentUser = computed(() => this.authService.getCurrentUser());
+  
+  private allTabs = [
+    { label: 'Pulpit użytkownika', requiresElevatedPermissions: false },
+    { label: 'Wnioski o dostęp', requiresElevatedPermissions: true },
+    { label: 'Biblioteka - repozytorium plików', requiresElevatedPermissions: false }
   ];
+
+  // Filter tabs based on permissions
+  tabs = computed(() => {
+    const hasElevatedPermissions = this.authService.hasElevatedPermissions();
+    return this.allTabs.filter(tab => 
+      !tab.requiresElevatedPermissions || hasElevatedPermissions
+    );
+  });
 
   announcements: Announcement[] = [
     { date: '2025-02-14', topic: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },

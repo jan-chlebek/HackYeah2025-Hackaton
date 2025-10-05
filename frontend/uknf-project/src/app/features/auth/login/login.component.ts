@@ -31,8 +31,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      rememberMe: [false]
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
@@ -48,13 +47,22 @@ export class LoginComponent implements OnInit {
     this.errorMessage.set(null);
     this.isLoading.set(true);
 
-    const { email, password, rememberMe } = this.loginForm.getRawValue();
+    const { email, password } = this.loginForm.getRawValue();
 
     this.authService
-      .login({ email, password, rememberMe })
+      .login({ email, password })
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: () => {
+        next: (response) => {
+          // Log user info for debugging
+          console.log('Login successful:', {
+            email: response.user.email,
+            fullName: response.user.fullName,
+            roles: response.user.roles,
+            permissions: response.user.permissions,
+            hasElevatedPermissions: this.authService.hasElevatedPermissions()
+          });
+
           this.router.navigate(['/messages']).catch(err => console.error('Navigation error:', err));
         },
         error: (error: unknown) => {

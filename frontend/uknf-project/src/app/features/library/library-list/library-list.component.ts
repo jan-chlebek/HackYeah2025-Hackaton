@@ -11,6 +11,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { DialogModule } from 'primeng/dialog';
 import { LibraryService, LibraryFile, LibraryFilters } from '../../../services/library.service';
+import { AuthService } from '../../../services/auth.service';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -33,15 +34,12 @@ import { MenuItem } from 'primeng/api';
 })
 export class LibraryListComponent implements OnInit {
   private libraryService = inject(LibraryService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   // Breadcrumb
-  breadcrumbItems: MenuItem[] = [
-
-    { label: 'Wnioski o dostęp', routerLink: '/wnioski' },
-    { label: 'Biblioteka - repozytorium plików' }
-  ];
+  breadcrumbItems: MenuItem[] = [];
 
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
 
@@ -80,6 +78,16 @@ export class LibraryListComponent implements OnInit {
   selectedRecipient: string = '';
 
   ngOnInit(): void {
+    // Build breadcrumb based on permissions
+    const items: MenuItem[] = [];
+    
+    if (this.authService.hasElevatedPermissions()) {
+      items.push({ label: 'Wnioski o dostęp', routerLink: '/wnioski' });
+    }
+    
+    items.push({ label: 'Biblioteka - repozytorium plików' });
+    this.breadcrumbItems = items;
+    
     // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError in zoneless mode
     setTimeout(() => {
       this.loadFiles();

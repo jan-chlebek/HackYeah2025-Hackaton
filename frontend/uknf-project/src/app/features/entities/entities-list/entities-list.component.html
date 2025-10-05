@@ -1,15 +1,20 @@
 <div class="entities-page">
   <!-- Page Header -->
   <div class="page-header">
-    <h1>Kartoteka Podmiotów</h1>
-    <button 
-      pButton 
-      type="button" 
-      label="Dodaj podmiot" 
-      icon="pi pi-plus"
-      (click)="createEntity()"
-      class="p-button-success"
-    ></button>
+    <div class="header-content">
+      <h1 class="page-title">Kartoteka Podmiotów</h1>
+      <p class="page-subtitle">Rejestr podmiotów nadzorowanych i ich dane kontaktowe</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        pButton 
+        type="button" 
+        label="Dodaj podmiot" 
+        icon="pi pi-plus"
+        (click)="createEntity()"
+        class="p-button-primary"
+      ></button>
+    </div>
   </div>
 
   <!-- Search and Filter Section -->

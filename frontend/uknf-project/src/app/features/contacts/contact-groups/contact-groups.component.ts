@@ -12,6 +12,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { MenuItem } from 'primeng/api';
 import { ContactGroupService, ContactGroupListItem, ContactGroup, ContactGroupMember, CreateContactGroupRequest, UpdateContactGroupRequest } from '../../../services/contact-group.service';
 import { ContactService, ContactListItem } from '../../../services/contact.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-contact-groups',
@@ -33,14 +34,12 @@ import { ContactService, ContactListItem } from '../../../services/contact.servi
 export class ContactGroupsComponent implements OnInit {
   private groupService = inject(ContactGroupService);
   private contactService = inject(ContactService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  // Breadcrumb
-  breadcrumbItems: MenuItem[] = [
-    { label: 'Adresaci', routerLink: '/contacts' },
-    { label: 'Grupy kontaktów' }
-  ];
+  // Breadcrumb - will be built based on permissions
+  breadcrumbItems: MenuItem[] = [];
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
 
   // Table data
@@ -78,6 +77,17 @@ export class ContactGroupsComponent implements OnInit {
   selectedContactIds: number[] = [];
 
   ngOnInit(): void {
+    // Build breadcrumb based on permissions
+    const items: MenuItem[] = [];
+    
+    // Only show 'Adresaci' breadcrumb if user has elevated permissions
+    if (this.authService.hasElevatedPermissions()) {
+      items.push({ label: 'Adresaci', routerLink: '/contacts' });
+    }
+    
+    items.push({ label: 'Grupy kontaktów' });
+    this.breadcrumbItems = items;
+    
     this.loadGroups();
   }
 

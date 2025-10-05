@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { AuthService } from '../../../services/auth.service';
 
 interface MenuItem {
   label: string;
   icon: string;
   route: string;
   active?: boolean;
+  requiresElevatedPermissions?: boolean;
 }
 
 @Component({
@@ -22,7 +24,7 @@ interface MenuItem {
       
       <nav class="sidebar-nav">
         <ul class="menu-list">
-          <li *ngFor="let item of menuItems" class="menu-item">
+          <li *ngFor="let item of visibleMenuItems()" class="menu-item">
             <a [routerLink]="item.route" 
                routerLinkActive="active"
                class="menu-link">
@@ -187,15 +189,33 @@ interface MenuItem {
   `]
 })
 export class SidebarComponent {
-  menuItems: MenuItem[] = [
+  private authService = inject(AuthService);
+  
+  // All menu items with permission requirements
+  private allMenuItems: MenuItem[] = [
     { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
     { label: 'Komunikaty', icon: 'pi pi-megaphone', route: '/announcements' },
     { label: 'Biblioteka - repozytorium plików', icon: 'pi pi-folder-open', route: '/library' },
-    { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/wnioski' },
+    { label: 'Wnioski o dostęp', icon: 'pi pi-file', route: '/wnioski', requiresElevatedPermissions: true },
     { label: 'Sprawozdawczość', icon: 'pi pi-chart-line', route: '/reports' },
     { label: 'Moje pytania', icon: 'pi pi-question-circle', route: '/faq' },
-    { label: 'Kartoteka Podmiotów', icon: 'pi pi-building', route: '/entities' },
-    { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases' },
-    { label: 'Adresaci', icon: 'pi pi-users', route: '/contacts' }
+    { label: 'Kartoteka Podmiotów', icon: 'pi pi-building', route: '/entities', requiresElevatedPermissions: true },
+    { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases', requiresElevatedPermissions: true },
+    { label: 'Adresaci', icon: 'pi pi-users', route: '/contacts', requiresElevatedPermissions: true }
   ];
+
+  // Computed property that filters menu items based on user permissions
+  visibleMenuItems = computed(() => {
+    const hasElevatedPermissions = this.authService.hasElevatedPermissions();
+    
+    return this.allMenuItems.filter(item => {
+      // If item doesn't require elevated permissions, show it
+      if (!item.requiresElevatedPermissions) {
+        return true;
+      }
+      
+      // If item requires elevated permissions, only show if user has them
+      return hasElevatedPermissions;
+    });
+  });
 }
