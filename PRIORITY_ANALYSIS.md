@@ -1,7 +1,7 @@
 # UKNF Platform - Priority Analysis & What To Do Next
 
-**Date**: October 5, 2025  
-**Branch**: krzys  
+**Date**: October 5, 2025
+**Branch**: krzys
 **Analysis**: Requirements vs. Implementation Status
 
 ---
@@ -32,7 +32,7 @@
 2. Authorization on all controllers (EntitiesController, MessagesController, AnnouncementsController, AuthController)
 3. Hardcoded user ID fallbacks (user ID 2 = jan.kowalski@uknf.gov.pl)
 
-**Impact**: 
+**Impact**:
 - ALL endpoints publicly accessible without authentication
 - No JWT token validation
 - User context not enforced

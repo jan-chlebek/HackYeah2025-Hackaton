@@ -66,3 +66,7 @@ Don't use grep while running any command! Especially tests! If you want to use g
 Never add columns and fields that are not in the requirements and that are not necessary for the implementation of the requirements. If you really need to add something, explain it to me and ask about it.
 
 When you run `psql` remember to disable paging!!!
+
+Cases can be cancelled, cases are not messages but request of registration. There are no draft messages and threads - ignore those. No bulk-sending of messages.
+
+Before `dotnet build` always use `cd` to ensure correct working directory.

@@ -695,6 +695,8 @@ public class DatabaseSeeder
             var sygnaturaSprawyOptions = new[] { "001/2025", "002/2025", "003/2025", "004/2025", "005/2025" };
 
             Message message;
+            MessagePriority priority = i % 5 == 0 ? MessagePriority.High : (i % 3 == 0 ? MessagePriority.Low : MessagePriority.Normal);
+            
             if (isFromInternal)
             {
                 message = new Message
@@ -705,6 +707,7 @@ public class DatabaseSeeder
                     RecipientId = externalUser.Id,
                     RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
+                    Priority = priority,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 4 != 0,
                     ReadAt = i % 4 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(6) : null
@@ -720,6 +723,7 @@ public class DatabaseSeeder
                     RecipientId = internalUser.Id,
                     RelatedEntityId = externalUser.SupervisedEntityId,
                     Status = MessageStatus.Sent,
+                    Priority = priority,
                     SentAt = DateTime.UtcNow.AddDays(-daysAgo),
                     IsRead = i % 3 != 0,
                     ReadAt = i % 3 != 0 ? DateTime.UtcNow.AddDays(-daysAgo).AddHours(3) : null
@@ -730,6 +734,51 @@ public class DatabaseSeeder
         }
 
         await _context.Messages.AddRangeAsync(messages);
+        await _context.SaveChangesAsync();
+
+        // Add some reply messages to demonstrate threading
+        _logger.LogInformation("Seeding reply messages...");
+        var replyMessages = new List<Message>();
+
+        // Add reply to message 4 (Re: Wyjaśnienie dotyczące raportu ryzyka)
+        if (messages.Count > 4)
+        {
+            replyMessages.Add(new Message
+            {
+                Subject = "Re: Wyjaśnienie dotyczące raportu ryzyka",
+                Body = "Przekazujemy szczegółowe wyjaśnienie rozbieżności. Załączamy poprawiony raport.",
+                SenderId = messages[3].RecipientId.Value, // Reply from recipient of original message
+                RecipientId = messages[3].SenderId,
+                ParentMessageId = messages[3].Id,
+                RelatedEntityId = messages[3].RelatedEntityId,
+                Status = MessageStatus.Sent,
+                Priority = messages[3].Priority, // Inherit priority
+                SentAt = messages[3].SentAt.AddHours(4),
+                IsRead = true,
+                ReadAt = messages[3].SentAt.AddHours(5)
+            });
+        }
+
+        // Add reply to message 9 (Re: Prośba o uzupełnienie danych)
+        if (messages.Count > 9)
+        {
+            replyMessages.Add(new Message
+            {
+                Subject = "Re: Prośba o uzupełnienie danych",
+                Body = "Przekazujemy uzupełnione dane zgodnie z Państwa prośbą.",
+                SenderId = messages[8].RecipientId.Value,
+                RecipientId = messages[8].SenderId,
+                ParentMessageId = messages[8].Id,
+                RelatedEntityId = messages[8].RelatedEntityId,
+                Status = MessageStatus.Sent,
+                Priority = messages[8].Priority,
+                SentAt = messages[8].SentAt.AddHours(24),
+                IsRead = false,
+                ReadAt = null
+            });
+        }
+
+        await _context.Messages.AddRangeAsync(replyMessages);
         await _context.SaveChangesAsync();
 
         // Add attachments to some messages - demonstrating 0, 1, 2, 3 attachments
