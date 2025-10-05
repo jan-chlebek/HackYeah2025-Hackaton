@@ -12,8 +12,8 @@ using UknfCommunicationPlatform.Infrastructure.Data;
 namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251005005325_RemoveUnnecessaryMessageFields")]
-    partial class RemoveUnnecessaryMessageFields
+    [Migration("20251005003721_SimplifyReportEntity")]
+    partial class SimplifyReportEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -998,6 +998,10 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("body");
 
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
                     b.Property<string>("Folder")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1023,9 +1027,17 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("recipient_id");
 
+                    b.Property<long?>("RelatedCaseId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("related_case_id");
+
                     b.Property<long?>("RelatedEntityId")
                         .HasColumnType("bigint")
                         .HasColumnName("related_entity_id");
+
+                    b.Property<long?>("RelatedReportId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("related_report_id");
 
                     b.Property<long>("SenderId")
                         .HasColumnType("bigint")
@@ -1056,8 +1068,14 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.HasIndex("ParentMessageId")
                         .HasDatabaseName("i_x_messages_parent_message_id");
 
+                    b.HasIndex("RelatedCaseId")
+                        .HasDatabaseName("i_x_messages_related_case_id");
+
                     b.HasIndex("RelatedEntityId")
                         .HasDatabaseName("i_x_messages_related_entity_id");
+
+                    b.HasIndex("RelatedReportId")
+                        .HasDatabaseName("i_x_messages_related_report_id");
 
                     b.HasIndex("ThreadId")
                         .HasDatabaseName("i_x_messages_thread_id");
@@ -1339,9 +1357,14 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ErrorDescription")
-                        .HasColumnType("text")
-                        .HasColumnName("error_description");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("file_content");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -1349,29 +1372,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("file_name");
 
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("file_path");
-
-                    b.Property<bool>("IsCorrection")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_correction");
-
-                    b.Property<long?>("OriginalReportId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("original_report_id");
-
                     b.Property<string>("ReportNumber")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("report_number");
-
-                    b.Property<string>("ReportType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("report_type");
 
                     b.Property<string>("ReportingPeriod")
                         .IsRequired()
@@ -1391,27 +1396,26 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("submitted_by_user_id");
 
-                    b.Property<long>("SupervisedEntityId")
+                    b.Property<long?>("SupervisedEntityId")
                         .HasColumnType("bigint")
                         .HasColumnName("supervised_entity_id");
 
-                    b.Property<DateTime?>("ValidatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("validated_at");
-
-                    b.Property<string>("ValidationResultPath")
-                        .HasColumnType("text")
-                        .HasColumnName("validation_result_path");
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("p_k_reports");
 
-                    b.HasIndex("OriginalReportId")
-                        .HasDatabaseName("i_x_reports_original_report_id");
-
                     b.HasIndex("ReportNumber")
                         .IsUnique()
                         .HasDatabaseName("i_x_reports_report_number");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("i_x_reports_status");
+
+                    b.HasIndex("SubmittedAt")
+                        .HasDatabaseName("i_x_reports_submitted_at");
 
                     b.HasIndex("SubmittedByUserId")
                         .HasDatabaseName("i_x_reports_submitted_by_user_id");
@@ -2062,11 +2066,23 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("f_k_messages_users_recipient_id");
 
+                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Case", "RelatedCase")
+                        .WithMany("Messages")
+                        .HasForeignKey("RelatedCaseId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("f_k_messages_cases_related_case_id");
+
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.SupervisedEntity", "RelatedEntity")
                         .WithMany()
                         .HasForeignKey("RelatedEntityId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("f_k_messages_entities_related_entity_id");
+
+                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Report", "RelatedReport")
+                        .WithMany()
+                        .HasForeignKey("RelatedReportId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("f_k_messages_reports_related_report_id");
 
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "Sender")
                         .WithMany("SentMessages")
@@ -2079,7 +2095,11 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
                     b.Navigation("Recipient");
 
+                    b.Navigation("RelatedCase");
+
                     b.Navigation("RelatedEntity");
+
+                    b.Navigation("RelatedReport");
 
                     b.Navigation("Sender");
                 });
@@ -2142,12 +2162,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Report", b =>
                 {
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.Report", "OriginalReport")
-                        .WithMany("Corrections")
-                        .HasForeignKey("OriginalReportId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_reports_reports_original_report_id");
-
                     b.HasOne("UknfCommunicationPlatform.Core.Entities.User", "SubmittedBy")
                         .WithMany("Reports")
                         .HasForeignKey("SubmittedByUserId")
@@ -2155,18 +2169,12 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("f_k_reports_users_submitted_by_user_id");
 
-                    b.HasOne("UknfCommunicationPlatform.Core.Entities.SupervisedEntity", "SupervisedEntity")
+                    b.HasOne("UknfCommunicationPlatform.Core.Entities.SupervisedEntity", null)
                         .WithMany("Reports")
                         .HasForeignKey("SupervisedEntityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("f_k_reports_entities_supervised_entity_id");
 
-                    b.Navigation("OriginalReport");
-
                     b.Navigation("SubmittedBy");
-
-                    b.Navigation("SupervisedEntity");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.RolePermission", b =>
@@ -2238,6 +2246,8 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("History");
+
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Contact", b =>
@@ -2270,11 +2280,6 @@ namespace UknfCommunicationPlatform.Infrastructure.Data.Migrations
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Report", b =>
-                {
-                    b.Navigation("Corrections");
                 });
 
             modelBuilder.Entity("UknfCommunicationPlatform.Core.Entities.Role", b =>

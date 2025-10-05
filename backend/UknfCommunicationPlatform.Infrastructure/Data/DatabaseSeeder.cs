@@ -923,52 +923,60 @@ public class DatabaseSeeder
     {
         _logger.LogInformation("Seeding reports...");
 
-        var entities = await _context.SupervisedEntities.ToListAsync();
         var externalUsers = await _context.Users.Where(u => u.SupervisedEntityId != null).ToListAsync();
 
+        if (!externalUsers.Any())
+        {
+            _logger.LogWarning("No external users found. Skipping report seeding.");
+            return;
+        }
+
         var reports = new List<Report>();
-        var reportStatuses = new[] { ReportStatus.Submitted, ReportStatus.ValidationSuccessful, ReportStatus.ValidationErrors, ReportStatus.QuestionedByUKNF };
-        var reportTypes = new[] { "FinancialReport", "RiskReport", "ComplianceReport", "QuarterlyReport" };
-        var periods = new[] { "2024-Q1", "2024-Q2", "2024-Q3", "2024-Q4" };
+        var reportStatuses = new[] 
+        { 
+            ReportStatus.Submitted, 
+            ReportStatus.ValidationSuccessful, 
+            ReportStatus.ValidationErrors, 
+            ReportStatus.QuestionedByUKNF,
+            ReportStatus.Draft 
+        };
+        
+        var periods = new[] 
+        { 
+            ReportingPeriod.Q1, 
+            ReportingPeriod.Q2, 
+            ReportingPeriod.Q3, 
+            ReportingPeriod.Q4 
+        };
+
+        // Generate fake XLSX file content (ZIP header for valid XLSX)
+        var fakeXlsxContent = new byte[] { 0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00 };
 
         int reportCounter = 1;
-        for (int i = 0; i < entities.Count; i++)
+        
+        // Create 5-7 reports per user to ensure minimum 5 total
+        int reportsPerUser = Math.Max(5, (int)Math.Ceiling(25.0 / externalUsers.Count));
+        
+        foreach (var user in externalUsers.Take(5)) // Take first 5 users to avoid too many reports
         {
-            var entity = entities[i];
-            var user = externalUsers.FirstOrDefault(u => u.SupervisedEntityId == entity.Id);
-
-            if (user == null) continue;
-
-            // Create 3-5 reports per entity
-            int reportCount = 3 + (i % 3);
-            for (int j = 0; j < reportCount; j++)
+            for (int j = 0; j < reportsPerUser; j++)
             {
                 var status = reportStatuses[j % reportStatuses.Length];
-                var reportType = reportTypes[j % reportTypes.Length];
                 var period = periods[j % periods.Length];
-                var daysAgo = 30 + (j * 20);
+                var daysAgo = 30 + (j * 15);
+                var year = 2024 + (j / 4); // Some reports from 2024, some from 2025
 
                 var report = new Report
                 {
-                    ReportNumber = $"RPT-{entity.UKNFCode}-{reportCounter:D4}",
-                    FileName = $"report_{entity.UKNFCode}_{period}_{reportType}.pdf",
-                    FilePath = $"/reports/{entity.UKNFCode}/{period}_{reportType}.pdf",
+                    ReportNumber = $"RPT-{year}-{reportCounter:D4}",
+                    FileName = $"raport_kwartalny_{period}_{year}.xlsx",
+                    FileContent = fakeXlsxContent,
                     ReportingPeriod = period,
-                    ReportType = reportType,
                     Status = status,
-                    ErrorDescription = status == ReportStatus.ValidationErrors
-                        ? "Missing required financial data in section 3.2"
-                        : status == ReportStatus.QuestionedByUKNF
-                            ? "Please update the balance sheet figures"
-                            : null,
                     SubmittedAt = DateTime.UtcNow.AddDays(-daysAgo),
-                    ValidatedAt = status == ReportStatus.ValidationSuccessful
-                        ? DateTime.UtcNow.AddDays(-daysAgo + 2)
-                        : null,
-                    IsCorrection = j > 3,
-                    OriginalReportId = j > 3 ? (long?)(reportCounter - 3) : null,
-                    SupervisedEntityId = entity.Id,
-                    SubmittedByUserId = user.Id
+                    SubmittedByUserId = user.Id,
+                    CreatedAt = DateTime.UtcNow.AddDays(-daysAgo),
+                    UpdatedAt = DateTime.UtcNow.AddDays(-daysAgo + 2)
                 };
 
                 reports.Add(report);
@@ -978,6 +986,8 @@ public class DatabaseSeeder
 
         await _context.Reports.AddRangeAsync(reports);
         await _context.SaveChangesAsync();
+        
+        _logger.LogInformation("Seeded {Count} reports", reports.Count);
     }
 
     private async Task SeedCasesAsync()
