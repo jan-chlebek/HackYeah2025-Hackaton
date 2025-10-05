@@ -84,13 +84,6 @@ public class DatabaseSeeder
     {
         _logger.LogInformation("Seeding roles and permissions...");
 
-        // Check if permissions already exist
-        if (await _context.Permissions.AnyAsync())
-        {
-            _logger.LogInformation("Permissions already exist. Skipping permission seeding.");
-            return;
-        }
-
         var permissions = new List<Permission>
         {
             new Permission { Name = "users.read", Resource = "users", Action = "read", Description = "Can view user information" },
@@ -98,11 +91,41 @@ public class DatabaseSeeder
             new Permission { Name = "users.delete", Resource = "users", Action = "delete", Description = "Can delete users" },
             new Permission { Name = "entities.read", Resource = "entities", Action = "read", Description = "Can view supervised entities" },
             new Permission { Name = "entities.write", Resource = "entities", Action = "write", Description = "Can create and edit entities" },
+            new Permission { Name = "entities.delete", Resource = "entities", Action = "delete", Description = "Can delete entities" },
             new Permission { Name = "messages.read", Resource = "messages", Action = "read", Description = "Can view messages" },
             new Permission { Name = "messages.write", Resource = "messages", Action = "write", Description = "Can send and manage messages" },
             new Permission { Name = "reports.read", Resource = "reports", Action = "read", Description = "Can view reports" },
-            new Permission { Name = "reports.write", Resource = "reports", Action = "write", Description = "Can submit and manage reports" }
+            new Permission { Name = "reports.write", Resource = "reports", Action = "write", Description = "Can submit and manage reports" },
+            new Permission { Name = "reports.create", Resource = "reports", Action = "create", Description = "Can create reports" },
+            new Permission { Name = "cases.read", Resource = "cases", Action = "read", Description = "Can view cases" },
+            new Permission { Name = "cases.write", Resource = "cases", Action = "write", Description = "Can create and edit cases" },
+            new Permission { Name = "cases.delete", Resource = "cases", Action = "delete", Description = "Can delete cases" }
         };
+
+        // Check if permissions already exist - if so, skip entirely
+        if (await _context.Permissions.AnyAsync())
+        {
+            _logger.LogInformation("Permissions already exist. Checking for new permissions...");
+            
+            // But check if we need to add new permissions
+            var existingPermissionNames = await _context.Permissions.Select(p => p.Name).ToListAsync();
+            var missingPermissions = permissions.Where(p => !existingPermissionNames.Contains(p.Name)).ToList();
+            
+            if (missingPermissions.Any())
+            {
+                _logger.LogInformation($"Adding {missingPermissions.Count} new permissions...");
+                await _context.Permissions.AddRangeAsync(missingPermissions);
+                await _context.SaveChangesAsync();
+                
+                // Reload all permissions from database
+                permissions = await _context.Permissions.ToListAsync();
+                
+                // Assign new permissions to roles
+                await AssignPermissionsToRolesAsync(permissions);
+            }
+            
+            return;
+        }
 
         await _context.Permissions.AddRangeAsync(permissions);
         await _context.SaveChangesAsync();
@@ -118,47 +141,71 @@ public class DatabaseSeeder
         await _context.Roles.AddRangeAsync(roles);
         await _context.SaveChangesAsync();
 
+        await AssignPermissionsToRolesAsync(permissions);
+    }
+
+    private async Task AssignPermissionsToRolesAsync(List<Permission> permissions)
+    {
+        // Get roles from database
+        var adminRole = await _context.Roles.FirstAsync(r => r.Name == "Administrator");
+        var internalRole = await _context.Roles.FirstAsync(r => r.Name == "InternalUser");
+        var supervisorRole = await _context.Roles.FirstAsync(r => r.Name == "Supervisor");
+
+        // Get existing role permissions
+        var existingRolePermissions = await _context.RolePermissions
+            .Select(rp => new { rp.RoleId, rp.PermissionId })
+            .ToListAsync();
+
+        var rolePermissions = new List<RolePermission>();
+
         // Assign all permissions to Administrator role
-        var adminRole = roles.First(r => r.Name == "Administrator");
-        var rolePermissions = permissions.Select(p => new RolePermission
+        foreach (var permission in permissions)
         {
-            RoleId = adminRole.Id,
-            PermissionId = p.Id
-        }).ToList();
+            if (!existingRolePermissions.Any(rp => rp.RoleId == adminRole.Id && rp.PermissionId == permission.Id))
+            {
+                rolePermissions.Add(new RolePermission
+                {
+                    RoleId = adminRole.Id,
+                    PermissionId = permission.Id
+                });
+            }
+        }
 
         // Assign permissions to InternalUser role
-        var internalRole = roles.First(r => r.Name == "InternalUser");
-        var internalPermissions = permissions.Where(p => 
-            p.Name == "messages.read" || 
-            p.Name == "messages.write" ||
-            p.Name == "entities.read" ||
-            p.Name == "reports.read"
-        ).Select(p => new RolePermission
+        var internalPermissionNames = new[] { "messages.read", "messages.write", "entities.read", "reports.read", "cases.read" };
+        foreach (var permission in permissions.Where(p => internalPermissionNames.Contains(p.Name)))
         {
-            RoleId = internalRole.Id,
-            PermissionId = p.Id
-        }).ToList();
-        rolePermissions.AddRange(internalPermissions);
+            if (!existingRolePermissions.Any(rp => rp.RoleId == internalRole.Id && rp.PermissionId == permission.Id))
+            {
+                rolePermissions.Add(new RolePermission
+                {
+                    RoleId = internalRole.Id,
+                    PermissionId = permission.Id
+                });
+            }
+        }
 
-        // Assign permissions to Supervisor role (same as internal + more)
-        var supervisorRole = roles.First(r => r.Name == "Supervisor");
-        var supervisorPermissions = permissions.Where(p => 
-            p.Name == "messages.read" || 
-            p.Name == "messages.write" ||
-            p.Name == "entities.read" ||
-            p.Name == "entities.write" ||
-            p.Name == "reports.read" ||
-            p.Name == "reports.write" ||
-            p.Name == "users.read"
-        ).Select(p => new RolePermission
+        // Assign permissions to Supervisor role
+        var supervisorPermissionNames = new[] { "messages.read", "messages.write", "entities.read", "entities.write", 
+            "reports.read", "reports.write", "reports.create", "users.read", "cases.read", "cases.write" };
+        foreach (var permission in permissions.Where(p => supervisorPermissionNames.Contains(p.Name)))
         {
-            RoleId = supervisorRole.Id,
-            PermissionId = p.Id
-        }).ToList();
-        rolePermissions.AddRange(supervisorPermissions);
+            if (!existingRolePermissions.Any(rp => rp.RoleId == supervisorRole.Id && rp.PermissionId == permission.Id))
+            {
+                rolePermissions.Add(new RolePermission
+                {
+                    RoleId = supervisorRole.Id,
+                    PermissionId = permission.Id
+                });
+            }
+        }
 
-        await _context.RolePermissions.AddRangeAsync(rolePermissions);
-        await _context.SaveChangesAsync();
+        if (rolePermissions.Any())
+        {
+            await _context.RolePermissions.AddRangeAsync(rolePermissions);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"Assigned {rolePermissions.Count} new role permissions");
+        }
     }
 
     private async Task SeedUsersAsync()
