@@ -30,30 +30,17 @@ import { FaqQuestion } from '../../../models/faq.model';
       </div>
 
       <div *ngIf="!loading && !error && questions.length > 0" class="faq-list">
-        <div *ngFor="let question of questions" class="faq-item">
+        <div *ngFor="let item of questions" class="faq-item">
           <div class="faq-question">
-            <div class="faq-meta">
-              <span class="faq-category">{{ question.category }}</span>
-              <span class="faq-stats">
-                <i class="pi pi-eye"></i> {{ question.viewCount }}
-                <span *ngIf="question.averageRating" class="rating">
-                  <i class="pi pi-star-fill"></i> {{ question.averageRating | number: '1.1-1' }}
-                </span>
-              </span>
-            </div>
-            <h3 class="faq-title">{{ question.title }}</h3>
-            <p class="faq-content">{{ question.content }}</p>
+            <h3 class="faq-title">{{ item.question }}</h3>
           </div>
 
-          <div *ngIf="question.answerContent" class="faq-answer">
+          <div *ngIf="item.answer" class="faq-answer">
             <div class="answer-header">
               <i class="pi pi-check-circle"></i>
               <span>Odpowiedź</span>
-              <span *ngIf="question.answeredAt" class="answer-date">
-                {{ question.answeredAt | date: 'dd.MM.yyyy' }}
-              </span>
             </div>
-            <div class="answer-content" [innerHTML]="question.answerContent"></div>
+            <div class="answer-content">{{ item.answer }}</div>
           </div>
         </div>
       </div>
@@ -124,38 +111,6 @@ import { FaqQuestion } from '../../../models/faq.model';
       background: #f8f9fa;
     }
 
-    .faq-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      font-size: 0.875rem;
-    }
-
-    .faq-category {
-      background: #003366;
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-
-    .faq-stats {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      color: #666;
-    }
-
-    .faq-stats i {
-      margin-right: 0.25rem;
-    }
-
-    .rating {
-      color: #ffa726;
-      font-weight: 500;
-    }
-
     .faq-title {
       font-size: 1.25rem;
       font-weight: 600;
@@ -215,16 +170,6 @@ import { FaqQuestion } from '../../../models/faq.model';
       .faq-header h1 {
         font-size: 1.5rem;
       }
-
-      .faq-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-
-      .faq-stats {
-        font-size: 0.75rem;
-      }
     }
   `]
 })
@@ -243,7 +188,7 @@ export class FaqListComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.faqService.getPublishedQuestions().subscribe({
+    this.faqService.getAllQuestions().subscribe({
       next: (response) => {
         this.questions = response.items;
         this.loading = false;

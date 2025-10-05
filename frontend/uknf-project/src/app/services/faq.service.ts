@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { FaqQuestion, FaqListResponse, FaqQuestionStatus } from '../models/faq.model';
+import { FaqQuestion, FaqListResponse } from '../models/faq.model';
 
 /**
  * Service for managing FAQ questions and answers
@@ -15,26 +15,14 @@ export class FaqService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Get all published FAQ questions
+   * Get all FAQ questions
    */
-  getPublishedQuestions(pageNumber: number = 1, pageSize: number = 20): Observable<FaqListResponse> {
+  getAllQuestions(page: number = 1, pageSize: number = 20): Observable<FaqListResponse> {
     const params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString())
-      .set('status', FaqQuestionStatus.Published.toString());
-    
-    return this.http.get<FaqListResponse>(this.apiUrl, { params });
-  }
-
-  /**
-   * Get FAQ questions by user (Moje zapytania)
-   */
-  getMyQuestions(pageNumber: number = 1, pageSize: number = 20): Observable<FaqListResponse> {
-    const params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
+      .set('page', page.toString())
       .set('pageSize', pageSize.toString());
     
-    return this.http.get<FaqListResponse>(`${this.apiUrl}/my-questions`, { params });
+    return this.http.get<FaqListResponse>(this.apiUrl, { params });
   }
 
   /**
@@ -47,22 +35,7 @@ export class FaqService {
   /**
    * Submit a new FAQ question
    */
-  submitQuestion(question: Partial<FaqQuestion>): Observable<FaqQuestion> {
-    return this.http.post<FaqQuestion>(this.apiUrl, question);
-  }
-
-  /**
-   * Search FAQ questions
-   */
-  searchQuestions(searchTerm: string, category?: string): Observable<FaqListResponse> {
-    let params = new HttpParams()
-      .set('searchTerm', searchTerm)
-      .set('status', FaqQuestionStatus.Published.toString());
-    
-    if (category) {
-      params = params.set('category', category);
-    }
-    
-    return this.http.get<FaqListResponse>(`${this.apiUrl}/search`, { params });
+  submitQuestion(question: string, answer?: string): Observable<FaqQuestion> {
+    return this.http.post<FaqQuestion>(this.apiUrl, { question, answer });
   }
 }
