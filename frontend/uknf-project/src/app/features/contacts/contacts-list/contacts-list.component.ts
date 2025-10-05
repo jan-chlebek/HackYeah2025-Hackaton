@@ -36,7 +36,6 @@ export class ContactsListComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
     { label: 'Adresaci' }
   ];
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };

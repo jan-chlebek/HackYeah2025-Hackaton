@@ -38,7 +38,6 @@ export class ContactGroupsComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
     { label: 'Adresaci', routerLink: '/contacts' },
     { label: 'Grupy kontaktów' }
   ];

@@ -20,14 +20,6 @@ import { MessageService, Message, MessageAttachment } from '../../../services/me
   ],
   template: `
     <div class="message-details-page">
-      <!-- Breadcrumb Navigation -->
-      <p-breadcrumb 
-        [model]="breadcrumbItems" 
-        [home]="home"
-        class="mb-4"
-        aria-label="Ścieżka nawigacji"
-      ></p-breadcrumb>
-
       <div class="page-header">
         <h1>Szczegóły wiadomości</h1>
         <button 
@@ -489,7 +481,7 @@ export class MessageDetailsComponent implements OnInit {
   error: string | null = null;
 
   breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
+
     { label: 'Wiadomości', routerLink: '/wiadomosci' },
     { label: 'Szczegóły wiadomości' }
   ];

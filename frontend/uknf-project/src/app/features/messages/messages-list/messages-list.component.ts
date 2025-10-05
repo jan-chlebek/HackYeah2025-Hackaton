@@ -38,7 +38,7 @@ export class MessagesListComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
+
     { label: 'Wnioski o dostęp', routerLink: '/wnioski' },
     { label: 'Biblioteka - repozytorium plików', routerLink: '/biblioteka' },
     { label: 'Wiadomości' }

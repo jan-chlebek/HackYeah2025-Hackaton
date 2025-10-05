@@ -42,7 +42,7 @@ export class AnnouncementCreateComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
+
     { label: 'Komunikaty', routerLink: '/announcements' },
     { label: 'Nowy komunikat' }
   ];

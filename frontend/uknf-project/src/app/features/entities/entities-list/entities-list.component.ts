@@ -32,7 +32,6 @@ export class EntitiesListComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems: MenuItem[] = [
-    { label: 'Pulpit użytkownika', routerLink: '/dashboard' },
     { label: 'Kartoteka Podmiotów' }
   ];
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };

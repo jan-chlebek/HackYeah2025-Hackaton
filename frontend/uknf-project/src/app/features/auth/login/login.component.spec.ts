@@ -68,7 +68,7 @@ describe('LoginComponent', () => {
       password: 'password123',
       rememberMe: true
     });
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/messages']);
   });
 
   it('should toggle password visibility', () => {

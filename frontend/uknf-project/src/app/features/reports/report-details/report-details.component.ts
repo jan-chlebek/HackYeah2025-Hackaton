@@ -40,7 +40,7 @@ export class ReportDetailsComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems = [
-    { label: 'Strona główna', routerLink: '/dashboard' },
+
     { label: 'Moduł komunikacyjny' },
     { label: 'Sprawozdawczość', routerLink: '/reports' },
     { label: 'Szczegóły sprawozdania' }

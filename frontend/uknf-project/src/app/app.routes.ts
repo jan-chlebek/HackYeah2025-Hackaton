@@ -4,7 +4,7 @@ export const routes: Routes = [
   // Landing / Home
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'messages',
     pathMatch: 'full'
   },
 
@@ -19,12 +19,6 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./shared/layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     children: [
-      // Dashboard (Main)
-      {
-        path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
-
       // Communication Module - Messages
       {
         path: 'messages',
@@ -90,6 +84,6 @@ export const routes: Routes = [
   // 404 Not Found
   {
     path: '**',
-    redirectTo: 'dashboard'
+    redirectTo: 'messages'
   }
 ];

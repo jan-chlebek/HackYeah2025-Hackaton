@@ -39,8 +39,6 @@ export class ReportsListComponent implements OnInit {
 
   // Breadcrumb
   breadcrumbItems = [
-    { label: 'Strona główna', routerLink: '/dashboard' },
-    { label: 'Moduł komunikacyjny' },
     { label: 'Sprawozdawczość' }
   ];
 

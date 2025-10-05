@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
-import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AccessibilityControlsComponent } from '../../components/accessibility-controls/accessibility-controls.component';
 
@@ -12,15 +11,13 @@ import { AccessibilityControlsComponent } from '../../components/accessibility-c
   imports: [
     CommonModule,
     RouterModule,
-  HeaderComponent,
-  BreadcrumbComponent,
-  SidebarComponent,
-  AccessibilityControlsComponent
+    HeaderComponent,
+    SidebarComponent,
+    AccessibilityControlsComponent
   ],
   template: `
     <div class="main-layout">
       <app-header></app-header>
-      <app-breadcrumb></app-breadcrumb>
       
       <div class="content-wrapper">
         <app-sidebar></app-sidebar>
