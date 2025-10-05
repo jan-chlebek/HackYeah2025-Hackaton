@@ -1,0 +1,375 @@
+<div class="contact-groups-page">
+  <!-- Breadcrumb Navigation -->
+  <p-breadcrumb 
+    [model]="breadcrumbItems" 
+    [home]="home"
+    class="mb-4"
+    aria-label="Ścieżka nawigacji"
+  ></p-breadcrumb>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Grupy kontaktów</h1>
+    <div class="header-actions">
+      <button 
+        pButton 
+        type="button" 
+        label="Wróć do adresatów" 
+        icon="pi pi-arrow-left"
+        (click)="backToContacts()"
+        class="p-button-outlined"
+      ></button>
+      <button 
+        pButton 
+        type="button" 
+        label="Utwórz grupę" 
+        icon="pi pi-plus"
+        (click)="openCreateDialog()"
+        class="p-button-success"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Contact Groups Table -->
+  <div class="table-container">
+    <p-table 
+      [value]="groups" 
+      [loading]="loading"
+      [rows]="pageSize"
+      [totalRecords]="totalRecords"
+      [paginator]="true"
+      [rowsPerPageOptions]="pageSizeOptions"
+      (onPage)="onPageChange($event)"
+      [lazy]="true"
+      responsiveLayout="scroll"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Wyświetlono {first} do {last} z {totalRecords} grup"
+      styleClass="p-datatable-striped"
+      [first]="first"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">#</th>
+          <th pSortableColumn="name">
+            Nazwa grupy
+            <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th>Opis</th>
+          <th style="width: 10rem">Liczba członków</th>
+          <th style="width: 12rem" pSortableColumn="createdAt">
+            Data utworzenia
+            <p-sortIcon field="createdAt"></p-sortIcon>
+          </th>
+          <th style="width: 15rem">Akcje</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-group let-rowIndex="rowIndex">
+        <tr>
+          <td>{{ first + rowIndex + 1 }}</td>
+          <td>
+            <strong>{{ group.name }}</strong>
+          </td>
+          <td>{{ group.description || '-' }}</td>
+          <td class="text-center">
+            <span class="member-count-badge">{{ group.memberCount }}</span>
+          </td>
+          <td>{{ group.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+          <td>
+            <div class="action-buttons">
+              <button 
+                pButton 
+                type="button"
+                icon="pi pi-users"
+                class="p-button-text p-button-sm"
+                (click)="viewMembers(group.id)"
+                title="Pokaż członków"
+                [disabled]="group.memberCount === 0"
+              ></button>
+              <button 
+                pButton 
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-text p-button-sm"
+                (click)="openEditDialog(group)"
+                title="Edytuj"
+              ></button>
+              <button 
+                pButton 
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-danger"
+                (click)="confirmDelete(group)"
+                title="Usuń"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-users" style="font-size: 3rem; color: #ccc;"></i>
+              <p>Nie znaleziono grup kontaktów</p>
+              <p class="text-muted">Utwórz nową grupę, aby organizować adresatów</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="6" class="text-center">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+            <p>Ładowanie danych...</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Create Group Dialog -->
+<p-dialog 
+  [(visible)]="showCreateDialog" 
+  [modal]="true"
+  [closable]="true"
+  [style]="{width: '500px'}"
+  header="Utwórz nową grupę">
+  
+  <div class="form-field">
+    <label for="create-name">Nazwa grupy *</label>
+    <input 
+      id="create-name"
+      type="text" 
+      pInputText 
+      [(ngModel)]="groupForm.name"
+      placeholder="Wprowadź nazwę grupy"
+      class="w-full"
+    />
+  </div>
+
+  <div class="form-field">
+    <label for="create-description">Opis</label>
+    <textarea 
+      id="create-description"
+      pTextarea
+      [(ngModel)]="groupForm.description"
+      placeholder="Opcjonalny opis grupy"
+      rows="3"
+      class="w-full"
+    ></textarea>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button"
+      label="Anuluj" 
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="showCreateDialog = false">
+    </button>
+    <button 
+      pButton 
+      type="button"
+      label="Utwórz" 
+      icon="pi pi-check"
+      (click)="createGroup()"
+      [disabled]="!groupForm.name">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Edit Group Dialog -->
+<p-dialog 
+  [(visible)]="showEditDialog" 
+  [modal]="true"
+  [closable]="true"
+  [style]="{width: '500px'}"
+  header="Edytuj grupę">
+  
+  <div class="form-field">
+    <label for="edit-name">Nazwa grupy *</label>
+    <input 
+      id="edit-name"
+      type="text" 
+      pInputText 
+      [(ngModel)]="groupForm.name"
+      placeholder="Wprowadź nazwę grupy"
+      class="w-full"
+    />
+  </div>
+
+  <div class="form-field">
+    <label for="edit-description">Opis</label>
+    <textarea 
+      id="edit-description"
+      pTextarea
+      [(ngModel)]="groupForm.description"
+      placeholder="Opcjonalny opis grupy"
+      rows="3"
+      class="w-full"
+    ></textarea>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button"
+      label="Anuluj" 
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="showEditDialog = false">
+    </button>
+    <button 
+      pButton 
+      type="button"
+      label="Zapisz" 
+      icon="pi pi-check"
+      (click)="updateGroup()"
+      [disabled]="!groupForm.name">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Delete Confirmation Dialog -->
+<p-dialog 
+  [(visible)]="showDeleteDialog" 
+  [modal]="true"
+  [closable]="true"
+  [style]="{width: '450px'}"
+  header="Potwierdź usunięcie">
+  <p>Czy na pewno chcesz usunąć grupę <strong>{{ groupToDelete?.name }}</strong>?</p>
+  <p class="text-muted">Usunięcie grupy nie usuwa kontaktów, które do niej należą.</p>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button"
+      label="Anuluj" 
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="showDeleteDialog = false">
+    </button>
+    <button 
+      pButton 
+      type="button"
+      label="Usuń" 
+      icon="pi pi-check"
+      class="p-button-danger"
+      (click)="deleteGroup()">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- View Members Dialog -->
+<p-dialog 
+  [(visible)]="showMembersDialog" 
+  [modal]="true"
+  [closable]="true"
+  [style]="{width: '800px'}"
+  [header]="'Członkowie grupy: ' + (selectedGroup?.name || '')">
+  
+  <div class="members-header">
+    <h3>Członkowie ({{ groupMembers.length }})</h3>
+    <button 
+      pButton 
+      type="button" 
+      label="Dodaj członków" 
+      icon="pi pi-plus"
+      (click)="openAddMembersDialog()"
+      class="p-button-sm"
+    ></button>
+  </div>
+
+  <div class="members-list" *ngIf="groupMembers.length > 0">
+    <div class="member-item" *ngFor="let member of groupMembers">
+      <div class="member-info">
+        <div class="member-name">{{ member.contactName }}</div>
+        <div class="member-details">
+          <span class="member-email">{{ member.contactEmail }}</span>
+          <span class="member-phone" *ngIf="member.contactPhone"> | {{ member.contactPhone }}</span>
+          <span class="member-entity" *ngIf="member.supervisedEntityName"> | {{ member.supervisedEntityName }}</span>
+        </div>
+      </div>
+      <button 
+        pButton 
+        type="button"
+        icon="pi pi-times"
+        class="p-button-text p-button-sm p-button-danger"
+        (click)="removeMember(member.id)"
+        title="Usuń z grupy"
+      ></button>
+    </div>
+  </div>
+
+  <div class="empty-members" *ngIf="groupMembers.length === 0">
+    <i class="pi pi-users" style="font-size: 2rem; color: #ccc;"></i>
+    <p>Brak członków w tej grupie</p>
+    <p class="text-muted">Dodaj kontakty, aby móc wysyłać do nich wiadomości grupowe</p>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button"
+      label="Zamknij" 
+      icon="pi pi-times"
+      (click)="showMembersDialog = false">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Add Members Dialog -->
+<p-dialog 
+  [(visible)]="showAddMembersDialog" 
+  [modal]="true"
+  [closable]="true"
+  [style]="{width: '500px'}"
+  header="Dodaj członków do grupy">
+  
+  <div class="form-field">
+    <label for="select-contacts">Wybierz kontakty</label>
+    <p-multiSelect
+      id="select-contacts"
+      [(ngModel)]="selectedContactIds"
+      [options]="availableContacts"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Wybierz kontakty"
+      [filter]="true"
+      filterPlaceHolder="Szukaj..."
+      class="w-full"
+      [showClear]="true"
+    >
+      <ng-template let-contact pTemplate="item">
+        <div class="contact-option">
+          <div>{{ contact.name }}</div>
+          <small class="text-muted">{{ contact.email }}</small>
+        </div>
+      </ng-template>
+    </p-multiSelect>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button"
+      label="Anuluj" 
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="showAddMembersDialog = false">
+    </button>
+    <button 
+      pButton 
+      type="button"
+      label="Dodaj" 
+      icon="pi pi-check"
+      (click)="addMembers()"
+      [disabled]="selectedContactIds.length === 0">
+    </button>
+  </ng-template>
+</p-dialog>
