@@ -10,7 +10,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
-import { MessageService, Message, MessageFilters } from '../../../services/message.service';
+import { MessageService, Message, MessageFilters, MessageAttachment } from '../../../services/message.service';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -137,15 +137,41 @@ export class MessagesListComponent implements OnInit {
   }
 
   viewMessageDetails(message: Message): void {
-    // Create a copy of the message to avoid mutating the original
-    this.selectedMessage = { ...message };
-    
-    // Set default priority if not set
-    if (!this.selectedMessage.priorytet) {
-      this.selectedMessage.priorytet = 'Średni';
-    }
-    
-    this.showDetailsDialog = true;
+    // Fetch full message details including attachments
+    this.messageService.getMessageById(message.id).subscribe({
+      next: (response: any) => {
+        console.log('Full message details loaded:', response);
+        
+        // Handle wrapped response with data array or direct message object
+        if (response.data && Array.isArray(response.data)) {
+          this.selectedMessage = response.data[0] || null;
+        } else if (response.attachments) {
+          // Direct message object with attachments
+          this.selectedMessage = response;
+        } else {
+          // Fallback to original message
+          this.selectedMessage = { ...message };
+        }
+        
+        // Set default priority if not set
+        if (this.selectedMessage && !this.selectedMessage.priorytet) {
+          this.selectedMessage.priorytet = 'Średni';
+        }
+        
+        this.showDetailsDialog = true;
+      },
+      error: (error) => {
+        console.error('Error loading message details:', error);
+        // Fallback to using the message from the list
+        this.selectedMessage = { ...message };
+        
+        if (!this.selectedMessage.priorytet) {
+          this.selectedMessage.priorytet = 'Średni';
+        }
+        
+        this.showDetailsDialog = true;
+      }
+    });
   }
 
   closeDetailsDialog(): void {
@@ -202,5 +228,32 @@ export class MessagesListComponent implements OnInit {
     if (statusLower.includes('zamknięta')) return 'status-closed';
     if (statusLower.includes('wysłana')) return 'status-sent';
     return '';
+  }
+
+  downloadMessageAttachment(attachment: MessageAttachment): void {
+    if (!this.selectedMessage) return;
+    
+    console.log('Downloading attachment:', attachment);
+    this.messageService.downloadAttachment(this.selectedMessage.id, attachment.id).subscribe({
+      next: (blob) => {
+        // Create a temporary URL for the blob
+        const url = window.URL.createObjectURL(blob);
+        
+        // Create a temporary anchor element to trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = attachment.fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Error downloading attachment:', error);
+        alert('Nie udało się pobrać załącznika. Spróbuj ponownie.');
+      }
+    });
   }
 }

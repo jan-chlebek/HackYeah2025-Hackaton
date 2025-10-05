@@ -243,6 +243,7 @@ export class SidebarComponent {
     { label: 'Wiadomości', icon: 'pi pi-envelope', route: '/messages' },
     { label: 'Sprawy', icon: 'pi pi-clipboard', route: '/cases' },
     { label: 'Sprawozdawczość', icon: 'pi pi-chart-line', route: '/reports' },
+    { label: 'Komunikaty', icon: 'pi pi-megaphone', route: '/announcements' },
     { label: 'Moje pytania', icon: 'pi pi-question-circle', route: '/faq' }
   ];
 

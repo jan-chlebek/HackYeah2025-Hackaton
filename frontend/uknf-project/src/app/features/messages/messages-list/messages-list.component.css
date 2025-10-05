@@ -371,6 +371,18 @@
   flex-wrap: wrap;
 }
 
+.no-attachments {
+  text-align: center;
+  padding: 1rem;
+  color: var(--uknf-medium-gray);
+  font-style: italic;
+}
+
+.text-muted {
+  color: var(--uknf-medium-gray);
+  opacity: 0.8;
+}
+
 /* Dialog Footer */
 :host ::ng-deep .p-dialog .p-dialog-footer {
   display: flex;
