@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UknfCommunicationPlatform.Core.DTOs.FileLibrary;
 using UknfCommunicationPlatform.Core.Entities;
+using UknfCommunicationPlatform.Core.Enums;
 using UknfCommunicationPlatform.Infrastructure.Data;
 
 namespace UknfCommunicationPlatform.Api.Controllers.v1;
@@ -42,6 +43,7 @@ public class FileLibraryController : ControllerBase
     /// </summary>
     /// <param name="category">Filter by category</param>
     /// <param name="search">Search by name or filename</param>
+    /// <param name="reportingPeriodType">Filter by reporting period type (0=None, 1=Annual, 2=Quarterly)</param>
     /// <param name="page">Page number (default: 1)</param>
     /// <param name="pageSize">Page size (default: 20)</param>
     /// <returns>List of files</returns>
@@ -51,12 +53,12 @@ public class FileLibraryController : ControllerBase
     public async Task<ActionResult<IEnumerable<FileLibraryResponse>>> GetFiles(
         [FromQuery] string? category = null,
         [FromQuery] string? search = null,
+        [FromQuery] ReportingPeriodType? reportingPeriodType = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
         var query = _context.FileLibraries
-            .Include(f => f.UploadedBy)
-            .Include(f => f.Permissions)
+            .AsNoTracking()
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(category))
@@ -71,29 +73,43 @@ public class FileLibraryController : ControllerBase
                 (f.Description != null && f.Description.ToLower().Contains(searchLower)));
         }
 
+        if (reportingPeriodType.HasValue)
+            query = query.Where(f => f.ReportingPeriodType == reportingPeriodType.Value);
+
         var totalCount = await query.CountAsync();
 
-        var files = await query
+        // Load entities into memory FIRST to avoid EF Core subquery optimization excluding columns
+        var fileEntities = await query
             .OrderByDescending(f => f.UploadedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(f => new FileLibraryResponse
-            {
-                Id = f.Id,
-                Name = f.Name,
-                Description = f.Description,
-                FileName = f.FileName,
-                FileSize = f.FileSize,
-                FileSizeFormatted = FormatFileSize(f.FileSize),
-                ContentType = f.ContentType,
-                Category = f.Category,
-                UploadedAt = f.UploadedAt,
-                UploadedByUserId = f.UploadedByUserId,
-                UploadedByName = $"{f.UploadedBy.FirstName} {f.UploadedBy.LastName}",
-                UploadedByEmail = f.UploadedBy.Email,
-                PermissionCount = f.Permissions.Count
-            })
+            .Include(f => f.UploadedBy)
             .ToListAsync();
+
+        // Now project to DTO in memory where EF Core can't optimize away columns
+        var files = fileEntities.Select(f => new FileLibraryResponse
+        {
+            Id = f.Id,
+            Name = f.Name,
+            Description = f.Description,
+            FileName = f.FileName,
+            FileSize = f.FileSize,
+            FileSizeFormatted = FormatFileSize(f.FileSize),
+            ContentType = f.ContentType,
+            Category = f.Category,
+            ReportingPeriodType = f.ReportingPeriodType,
+            UploadedAt = f.UploadedAt,
+            UploadedByUserId = f.UploadedByUserId,
+            UploadedByName = $"{f.UploadedBy.FirstName} {f.UploadedBy.LastName}",
+            UploadedByEmail = f.UploadedBy.Email,
+            PermissionCount = _context.FileLibraryPermissions.Count(p => p.FileLibraryId == f.Id)
+        }).ToList();
+
+        // DEBUG: Log ReportingPeriodType values
+        foreach (var file in files)
+        {
+            _logger.LogInformation($"File {file.Id} ({file.Name}): ReportingPeriodType = {file.ReportingPeriodType}");
+        }
 
         // Add pagination header (if Response is available - might be null in unit tests)
         if (Response != null)
@@ -138,6 +154,7 @@ public class FileLibraryController : ControllerBase
                 FileSizeFormatted = FormatFileSize(f.FileSize),
                 ContentType = f.ContentType,
                 Category = f.Category,
+                ReportingPeriodType = f.ReportingPeriodType,
                 UploadedAt = f.UploadedAt,
                 UploadedByUserId = f.UploadedByUserId,
                 UploadedByName = $"{f.UploadedBy.FirstName} {f.UploadedBy.LastName}",
@@ -256,6 +273,7 @@ public class FileLibraryController : ControllerBase
                 FileSizeFormatted = FormatFileSize(f.FileSize),
                 ContentType = f.ContentType,
                 Category = f.Category,
+                ReportingPeriodType = f.ReportingPeriodType,
                 UploadedAt = f.UploadedAt,
                 UploadedByUserId = f.UploadedByUserId,
                 UploadedByName = $"{f.UploadedBy.FirstName} {f.UploadedBy.LastName}",
@@ -277,6 +295,7 @@ public class FileLibraryController : ControllerBase
                 FileSizeFormatted = FormatFileSize(fileLibrary.FileSize),
                 ContentType = fileLibrary.ContentType,
                 Category = fileLibrary.Category,
+                ReportingPeriodType = fileLibrary.ReportingPeriodType,
                 UploadedAt = fileLibrary.UploadedAt,
                 UploadedByUserId = fileLibrary.UploadedByUserId,
                 UploadedByName = "Unknown",

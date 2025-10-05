@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UknfCommunicationPlatform.Core.Entities;
 using UserRoleEnum = UknfCommunicationPlatform.Core.Enums.UserRole;
+using ReportingPeriodTypeEnum = UknfCommunicationPlatform.Core.Enums.ReportingPeriodType;
 
 namespace UknfCommunicationPlatform.Infrastructure.Data;
 
@@ -397,8 +398,13 @@ public class ApplicationDbContext : DbContext
       entity.Property(e => e.FileName).IsRequired().HasMaxLength(500);
       entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
       entity.Property(e => e.FileContent).IsRequired(); // BLOB storage
+      entity.Property(e => e.ReportingPeriodType)
+                .HasConversion<string>()
+                .IsRequired()
+                .HasColumnName("reporting_period_type");
       entity.HasIndex(e => e.Category);
       entity.HasIndex(e => e.UploadedAt);
+      entity.HasIndex(e => e.ReportingPeriodType);
 
       entity.HasOne(e => e.UploadedBy)
                 .WithMany()

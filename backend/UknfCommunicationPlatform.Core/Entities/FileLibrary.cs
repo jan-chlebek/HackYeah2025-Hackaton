@@ -1,3 +1,5 @@
+using UknfCommunicationPlatform.Core.Enums;
+
 namespace UknfCommunicationPlatform.Core.Entities;
 
 /// <summary>
@@ -44,6 +46,11 @@ public class FileLibrary
     /// Binary content of the file stored as BLOB
     /// </summary>
     public byte[] FileContent { get; set; } = Array.Empty<byte>();
+
+    /// <summary>
+    /// Reporting period type: None (empty), Annual (Roczne), or Quarterly (Kwartalne)
+    /// </summary>
+    public ReportingPeriodType ReportingPeriodType { get; set; } = ReportingPeriodType.None;
 
     /// <summary>
     /// Uploaded by user ID

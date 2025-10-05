@@ -478,4 +478,120 @@ public class FaqControllerTests : IDisposable
     }
 
     #endregion
+
+    #region SubmitQuestion Tests
+
+    [Fact]
+    public async Task SubmitQuestion_WithValidQuestion_ReturnsCreatedResult()
+    {
+        // Arrange
+        var request = new SubmitQuestionRequest
+        {
+            Question = "Jak zmienić adres email?"
+        };
+
+        // Act
+        var result = await _controller.SubmitQuestion(request);
+
+        // Assert
+        result.Should().BeOfType<CreatedAtActionResult>();
+        var createdResult = result as CreatedAtActionResult;
+        createdResult!.Value.Should().BeOfType<FaqQuestionDto>();
+        
+        var dto = createdResult.Value as FaqQuestionDto;
+        dto!.Question.Should().Be("Jak zmienić adres email?");
+        dto.Answer.Should().BeEmpty();
+        dto.Id.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task SubmitQuestion_AddsQuestionToDatabase()
+    {
+        // Arrange
+        var request = new SubmitQuestionRequest
+        {
+            Question = "Jakie dokumenty są wymagane?"
+        };
+
+        // Act
+        await _controller.SubmitQuestion(request);
+
+        // Assert
+        var faq = await _context.FaqQuestions
+            .FirstOrDefaultAsync(f => f.Question == "Jakie dokumenty są wymagane?");
+        faq.Should().NotBeNull();
+        faq!.Answer.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SubmitQuestion_TrimsWhitespace()
+    {
+        // Arrange
+        var request = new SubmitQuestionRequest
+        {
+            Question = "  Pytanie z białymi znakami  "
+        };
+
+        // Act
+        await _controller.SubmitQuestion(request);
+
+        // Assert
+        var faq = await _context.FaqQuestions
+            .FirstOrDefaultAsync(f => f.Question == "Pytanie z białymi znakami");
+        faq.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task SubmitQuestion_WithEmptyQuestion_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new SubmitQuestionRequest
+        {
+            Question = ""
+        };
+
+        // Act
+        var result = await _controller.SubmitQuestion(request);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequest = result as BadRequestObjectResult;
+        badRequest!.Value.Should().BeOfType<ProblemDetails>();
+    }
+
+    [Fact]
+    public async Task SubmitQuestion_WithWhitespaceOnly_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new SubmitQuestionRequest
+        {
+            Question = "   "
+        };
+
+        // Act
+        var result = await _controller.SubmitQuestion(request);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    [Fact]
+    public async Task SubmitQuestion_ReturnsCreatedAtActionWithCorrectRoute()
+    {
+        // Arrange
+        var request = new SubmitQuestionRequest
+        {
+            Question = "Test question"
+        };
+
+        // Act
+        var result = await _controller.SubmitQuestion(request);
+
+        // Assert
+        var createdResult = result as CreatedAtActionResult;
+        createdResult!.ActionName.Should().Be(nameof(FaqController.GetById));
+        createdResult.RouteValues.Should().ContainKey("id");
+    }
+
+    #endregion
 }
