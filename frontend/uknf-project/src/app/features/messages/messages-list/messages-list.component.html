@@ -1,0 +1,438 @@
+<div class="messages-page">
+  <!-- Breadcrumb Navigation -->
+  <p-breadcrumb 
+    [model]="breadcrumbItems" 
+    [home]="home"
+    class="mb-4"
+    aria-label="Ścieżka nawigacji"
+  ></p-breadcrumb>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Wiadomości</h1>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="filter-section">
+    <div class="filter-header">
+      <h2>Wyszukiwanie</h2>
+      <button 
+        pButton 
+        type="button" 
+        [label]="showFilters ? 'Zwiń' : 'Rozwiń'" 
+        [icon]="showFilters ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+        (click)="toggleFilters()"
+        class="p-button-text"
+        [attr.aria-expanded]="showFilters"
+        aria-controls="filter-panel"
+      ></button>
+    </div>
+
+    <div id="filter-panel" class="filter-panel" [class.expanded]="showFilters">
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label for="filter-identyfikator">Identyfikator</label>
+          <input 
+            id="filter-identyfikator"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.identyfikator"
+            placeholder="np. 2024/System14/5"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-sygnatura">Sygnatura sprawy</label>
+          <input 
+            id="filter-sygnatura"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.sygnaturaSprawy"
+            placeholder="np. 001/2025"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-podmiot">Podmiot</label>
+          <input 
+            id="filter-podmiot"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.podmiot"
+            placeholder="Nazwa podmiotu"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-status">Status wiadomości</label>
+          <p-select 
+            id="filter-status"
+            [options]="statusOptions" 
+            [(ngModel)]="filters.statusWiadomosci"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wszystkie"
+            [style]="{'width': '100%'}"
+          ></p-select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-priorytet">Priorytet</label>
+          <p-select 
+            id="filter-priorytet"
+            [options]="priorityOptions" 
+            [(ngModel)]="filters.priorytet"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Wszystkie"
+            [style]="{'width': '100%'}"
+          ></p-select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-data-podmiotu">Data przesłania podmiotu</label>
+          <p-datepicker 
+            id="filter-data-podmiotu"
+            [(ngModel)]="filters.dataPrzeslaniaPodmiotuFrom"
+            dateFormat="yy-mm-dd"
+            placeholder="Od"
+            [showIcon]="true"
+          ></p-datepicker>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-uzytkownik">Użytkownik</label>
+          <input 
+            id="filter-uzytkownik"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.uzytkownik"
+            placeholder="Nazwa użytkownika"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-data-uknf">Data przesłania UKNF</label>
+          <p-datepicker 
+            id="filter-data-uknf"
+            [(ngModel)]="filters.dataPrzeslaniaUKNFFrom"
+            dateFormat="yy-mm-dd"
+            placeholder="Od"
+            [showIcon]="true"
+          ></p-datepicker>
+        </div>
+
+        <div class="filter-field">
+          <label for="filter-pracownik">Pracownik UKNF</label>
+          <input 
+            id="filter-pracownik"
+            type="text" 
+            pInputText 
+            [(ngModel)]="filters.pracownikUKNF"
+            placeholder="Imię i nazwisko"
+          />
+        </div>
+      </div>
+
+      <div class="filter-checkboxes">
+        <div class="checkbox-field">
+          <p-checkbox 
+            inputId="filter-moje-podmioty"
+            [(ngModel)]="filters.mojePodmioty"
+            [binary]="true"
+            label="Moje podmioty"
+          ></p-checkbox>
+        </div>
+
+        <div class="checkbox-field">
+          <p-checkbox 
+            inputId="filter-wymagana-odpowiedz"
+            [(ngModel)]="filters.wymaganaOdpowiedzUKNF"
+            [binary]="true"
+            label="Wymagana odpowiedź UKNF"
+          ></p-checkbox>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button 
+          pButton 
+          type="button" 
+          label="Wyczyść" 
+          icon="pi pi-times"
+          class="p-button-outlined"
+          (click)="clearFilters()"
+        ></button>
+        <button 
+          pButton 
+          type="button" 
+          label="Szukaj" 
+          icon="pi pi-search"
+          (click)="applyFilters()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages Table -->
+  <div class="table-container">
+    <p-table 
+      [value]="messages" 
+      [loading]="loading"
+      [rows]="pageSize"
+      [totalRecords]="totalRecords"
+      [paginator]="true"
+      [rowsPerPageOptions]="pageSizeOptions"
+      (onPage)="onPageChange($event)"
+      [lazy]="true"
+      responsiveLayout="scroll"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Identyfikator</th>
+          <th>Sygnatura sprawy</th>
+          <th>Podmiot</th>
+          <th>Status wiadomości</th>
+          <th>Priorytet</th>
+          <th>Data przesłania podmiotu</th>
+          <th>Użytkownik</th>
+          <th>Wiadomość użytkownika</th>
+          <th>Data przesłania UKNF</th>
+          <th>Pracownik UKNF</th>
+          <th>Wiadomość pracownika UKNF</th>
+          <th>Akcje</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-message>
+        <tr>
+          <td>{{ message.identyfikator || '-' }}</td>
+          <td>{{ message.sygnaturaSprawy || '-' }}</td>
+          <td>{{ message.podmiot || '-' }}</td>
+          <td>
+            <span [class]="'status-badge ' + getStatusClass(message.statusWiadomosci)">
+              {{ message.statusWiadomosci || '-' }}
+            </span>
+          </td>
+          <td>
+            <span [class]="'priority-badge ' + getPriorityClass(message.priorytet)">
+              {{ message.priorytet || '-' }}
+            </span>
+          </td>
+          <td>{{ formatDate(message.dataPrzeslaniaPodmiotu) }}</td>
+          <td>{{ message.uzytkownik || '-' }}</td>
+          <td class="message-preview">{{ message.wiadomoscUzytkownika || '-' }}</td>
+          <td>{{ formatDate(message.dataPrzeslaniaUKNF) }}</td>
+          <td>{{ message.pracownikUKNF || '-' }}</td>
+          <td class="message-preview">{{ message.wiadomoscPracownikaUKNF || '-' }}</td>
+          <td>
+            <button 
+              pButton 
+              type="button" 
+              icon="pi pi-eye" 
+              label="Szczegóły"
+              class="p-button-sm"
+              (click)="viewMessageDetails(message)"
+              [attr.aria-label]="'Szczegóły wiadomości ' + message.identyfikator"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="12" class="text-center">
+            Brak wiadomości do wyświetlenia
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Message Details Dialog -->
+<p-dialog 
+  [(visible)]="showDetailsDialog" 
+  [header]="'Edycja wiadomości ' + (selectedMessage?.identyfikator || '')"
+  [modal]="true"
+  [style]="{width: '80vw', maxWidth: '1200px'}"
+  [closable]="true"
+  (onHide)="closeDetailsDialog()"
+>
+  <div *ngIf="selectedMessage" class="message-details">
+    <!-- Priority Section -->
+    <div class="detail-section">
+      <label class="detail-label">Priorytet</label>
+      <div class="priority-options">
+        <label>
+          <input type="radio" name="priorytet" value="Niski" [(ngModel)]="selectedMessage.priorytet" />
+          Niski
+        </label>
+        <label>
+          <input type="radio" name="priorytet" value="Średni" [(ngModel)]="selectedMessage.priorytet" />
+          Średni
+        </label>
+        <label>
+          <input type="radio" name="priorytet" value="Wysoki" [(ngModel)]="selectedMessage.priorytet" />
+          Wysoki
+        </label>
+      </div>
+    </div>
+
+    <!-- Status and Dates Section -->
+    <div class="detail-grid">
+      <div class="detail-field">
+        <label for="detail-status">Status wiadomości</label>
+        <p-select 
+          id="detail-status"
+          [options]="statusOptions" 
+          [(ngModel)]="selectedMessage.statusWiadomosci"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{'width': '100%'}"
+        ></p-select>
+      </div>
+
+      <div class="detail-field">
+        <label for="detail-uzytkownik">Użytkownik</label>
+        <input 
+          id="detail-uzytkownik"
+          type="text" 
+          pInputText 
+          [(ngModel)]="selectedMessage.uzytkownik"
+          [style]="{'width': '100%'}"
+        />
+      </div>
+
+      <div class="detail-field">
+        <label for="detail-data-podmiotu">Data przesłania podmiotu</label>
+        <p-datepicker 
+          id="detail-data-podmiotu"
+          [(ngModel)]="selectedMessage.dataPrzeslaniaPodmiotu"
+          [showTime]="true"
+          dateFormat="yy-mm-dd"
+          [style]="{'width': '100%'}"
+        ></p-datepicker>
+      </div>
+    </div>
+
+    <!-- User Message Section -->
+    <div class="detail-section">
+      <label for="detail-wiadomosc-uzytkownika" class="detail-label">Wiadomość użytkownika</label>
+      <textarea 
+        id="detail-wiadomosc-uzytkownika"
+        pInputTextarea
+        [(ngModel)]="selectedMessage.wiadomoscUzytkownika"
+        rows="5"
+        [style]="{'width': '100%'}"
+        placeholder="Treść wiadomości użytkownika..."
+      ></textarea>
+    </div>
+
+    <!-- Attachments Section -->
+    <div class="detail-section">
+      <label class="detail-label">Załączniki</label>
+      <div class="attachments-list">
+        <div class="attachment-item">
+          <span>Zalącznik_pierwszy.pdf</span>
+          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
+        </div>
+        <div class="attachment-item">
+          <span>Zalącznik_drugi.pdf</span>
+          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
+        </div>
+        <div class="attachment-item">
+          <span>Zalącznik_trzeci.txt</span>
+          <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"></button>
+        </div>
+      </div>
+      <div class="attachment-actions">
+        <button pButton type="button" label="Pobierz" icon="pi pi-download" class="p-button-outlined"></button>
+        <button pButton type="button" label="Edytuj" icon="pi pi-pencil" class="p-button-outlined"></button>
+        <button pButton type="button" label="Usuń" icon="pi pi-trash" class="p-button-outlined p-button-danger"></button>
+        <button pButton type="button" label="Dodaj" icon="pi pi-plus" class="p-button-outlined"></button>
+      </div>
+    </div>
+
+    <!-- UKNF Response Section -->
+    <div class="detail-grid">
+      <div class="detail-field">
+        <label for="detail-pracownik-uknf">Pracownik UKNF</label>
+        <input 
+          id="detail-pracownik-uknf"
+          type="text" 
+          pInputText 
+          [(ngModel)]="selectedMessage.pracownikUKNF"
+          [style]="{'width': '100%'}"
+        />
+      </div>
+
+      <div class="detail-field">
+        <label for="detail-data-uknf">Data przesłania UKNF</label>
+        <p-datepicker 
+          id="detail-data-uknf"
+          [(ngModel)]="selectedMessage.dataPrzeslaniaUKNF"
+          [showTime]="true"
+          dateFormat="yy-mm-dd"
+          [style]="{'width': '100%'}"
+        ></p-datepicker>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <label for="detail-wiadomosc-uknf" class="detail-label">Wiadomość pracownika UKNF *</label>
+      <textarea 
+        id="detail-wiadomosc-uknf"
+        pInputTextarea
+        [(ngModel)]="selectedMessage.wiadomoscPracownikaUKNF"
+        rows="5"
+        [style]="{'width': '100%'}"
+        placeholder="Treść odpowiedzi UKNF..."
+        required
+      ></textarea>
+    </div>
+
+    <!-- UKNF Attachments Section -->
+    <div class="detail-section">
+      <label class="detail-label">Załączniki UKNF</label>
+      <div class="attachments-list">
+        <div class="checkbox-field">
+          <p-checkbox 
+            inputId="attachment-1"
+            [binary]="true"
+            label="Załącznik_pierwszy.txt"
+          ></p-checkbox>
+        </div>
+        <div class="checkbox-field">
+          <p-checkbox 
+            inputId="attachment-2"
+            [binary]="true"
+            label="Załącznik_drugi.pdf"
+          ></p-checkbox>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Anuluj" 
+      icon="pi pi-times"
+      class="p-button-text p-button-secondary"
+      (click)="closeDetailsDialog()"
+    ></button>
+    <button 
+      pButton 
+      type="button" 
+      label="Zapisz i wyślij" 
+      icon="pi pi-check"
+      class="p-button-primary"
+      (click)="saveMessage()"
+    ></button>
+  </ng-template>
+</p-dialog>
