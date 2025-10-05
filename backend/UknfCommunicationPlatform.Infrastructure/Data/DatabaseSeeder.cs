@@ -1475,42 +1475,42 @@ public class DatabaseSeeder
             new FaqQuestion
             {
                 Question = "Jak uzyskać dostęp do platformy komunikacyjnej UKNF?",
-                Answer = "Aby uzyskać dostęp do platformy, należy:\n1. Złożyć wniosek o dostęp do systemu w formie pisemnej do UKNF\n2. Po zatwierdzeniu wniosku, otrzymacie Państwo dane dostępowe na wskazany adres e-mail\n3. Przy pierwszym logowaniu należy zmienić hasło na własne\n4. W przypadku problemów z dostępem, prosimy o kontakt z helpdesk UKNF: helpdesk@uknf.gov.pl lub +48 22 262 5000 (pn-pt, 8:00-16:00)"
+                Answer = "Aby uzyskać dostęp do platformy, należy:<br/>1. Złożyć wniosek o dostęp do systemu w formie pisemnej do UKNF<br/>2. Po zatwierdzeniu wniosku, otrzymacie Państwo dane dostępowe na wskazany adres e-mail<br/>3. Przy pierwszym logowaniu należy zmienić hasło na własne<br/>4. W przypadku problemów z dostępem, prosimy o kontakt z helpdesk UKNF: helpdesk@uknf.gov.pl lub +48 22 262 5000 (pn-pt, 8:00-16:00)"
             },
             new FaqQuestion
             {
                 Question = "Jak zgłosić sprawy rejestrowe dla mojego podmiotu?",
-                Answer = "Zgłoszenia rejestrowe należy składać poprzez platformę:\n1. Zaloguj się do systemu\n2. Przejdź do sekcji \"Sprawy rejestrowe\"\n3. Wypełnij formularz zgłoszeniowy, podając wszystkie wymagane dane\n4. Dołącz wymagane dokumenty (statut, licencje, dokumenty identyfikacyjne zarządu)\n5. Wyślij zgłoszenie - otrzymacie Państwo numer sprawy do śledzenia statusu\n\nW przypadku braków formalnych, UKNF skontaktuje się z Państwem przez platformę z prośbą o uzupełnienie dokumentacji."
+                Answer = "Zgłoszenia rejestrowe należy składać poprzez platformę:<br/>1. Zaloguj się do systemu<br/>2. Przejdź do sekcji \"Sprawy rejestrowe\"<br/>3. Wypełnij formularz zgłoszeniowy, podając wszystkie wymagane dane<br/>4. Dołącz wymagane dokumenty (statut, licencje, dokumenty identyfikacyjne zarządu)<br/>5. Wyślij zgłoszenie - otrzymacie Państwo numer sprawy do śledzenia statusu<br/><br/>W przypadku braków formalnych, UKNF skontaktuje się z Państwem przez platformę z prośbą o uzupełnienie dokumentacji."
             },
             new FaqQuestion
             {
                 Question = "Jakie dokumenty mogę przesyłać jako załączniki?",
-                Answer = "System akceptuje następujące typy plików:\n- Dokumenty: PDF, DOCX, XLSX, ODT, ODS\n- Archiwa: ZIP (max 100 MB)\n- Obrazy: JPG, PNG (np. skany dokumentów)\n\nLimity:\n- Maksymalny rozmiar pojedynczego pliku: 25 MB\n- Maksymalna liczba załączników w jednej wiadomości: 10 plików\n- Dla archiwów ZIP: maksymalnie 100 MB\n\nPliki w innych formatach lub przekraczające limity zostaną odrzucone przez system."
+                Answer = "System akceptuje następujące typy plików:<br/>- Dokumenty: PDF, DOCX, XLSX, ODT, ODS<br/>- Archiwa: ZIP (max 100 MB)<br/>- Obrazy: JPG, PNG (np. skany dokumentów)<br/><br/>Limity:<br/>- Maksymalny rozmiar pojedynczego pliku: 25 MB<br/>- Maksymalna liczba załączników w jednej wiadomości: 10 plików<br/>- Dla archiwów ZIP: maksymalnie 100 MB<br/><br/>Pliki w innych formatach lub przekraczające limity zostaną odrzucone przez system."
             },
             new FaqQuestion
             {
                 Question = "Jak zaktualizować dane mojego podmiotu w systemie?",
-                Answer = "Aktualizacja danych podmiotu:\n1. Zaloguj się do platformy i przejdź do sekcji \"Moje dane\"\n2. Wybierz \"Dane podmiotu\" i kliknij \"Aktualizuj\"\n3. Wprowadź zmiany (adres, osoby kontaktowe, dane zarządu itp.)\n4. Dołącz dokumenty potwierdzające zmiany (KRS, umowy, uchwały)\n5. Wyślij wniosek o aktualizację\n\nUwaga: Zmiany danych podstawowych (NIP, REGON, nazwa firmy) wymagają weryfikacji i zatwierdzenia przez pracownika UKNF. Proces może potrwać do 5 dni roboczych."
+                Answer = "Aktualizacja danych podmiotu:<br/>1. Zaloguj się do platformy i przejdź do sekcji \"Moje dane\"<br/>2. Wybierz \"Dane podmiotu\" i kliknij \"Aktualizuj\"<br/>3. Wprowadź zmiany (adres, osoby kontaktowe, dane zarządu itp.)<br/>4. Dołącz dokumenty potwierdzające zmiany (KRS, umowy, uchwały)<br/>5. Wyślij wniosek o aktualizację<br/><br/>Uwaga: Zmiany danych podstawowych (NIP, REGON, nazwa firmy) wymagają weryfikacji i zatwierdzenia przez pracownika UKNF. Proces może potrwać do 5 dni roboczych."
             },
             new FaqQuestion
             {
                 Question = "Gdzie znajdę archiwalną korespondencję z UKNF?",
-                Answer = "Cała korespondencja z UKNF jest dostępna w sekcji \"Wiadomości\":\n- Możesz filtrować wiadomości według daty, statusu lub tematu\n- Wiadomości są archiwizowane zgodnie z wymogami prawnymi (10 lat)\n- Każdą wiadomość wraz z załącznikami możesz pobrać w dowolnym momencie\n\nDokumenty związane ze sprawami rejestracyjnymi znajdują się również w zakładce \"Sprawy\" - pod numerem konkretnej sprawy."
+                Answer = "Cała korespondencja z UKNF jest dostępna w sekcji \"Wiadomości\":<br/>- Możesz filtrować wiadomości według daty, statusu lub tematu<br/>- Wiadomości są archiwizowane zgodnie z wymogami prawnymi (10 lat)<br/>- Każdą wiadomość wraz z załącznikami możesz pobrać w dowolnym momencie<br/><br/>Dokumenty związane ze sprawami rejestracyjnymi znajdują się również w zakładce \"Sprawy\" - pod numerem konkretnej sprawy."
             },
             new FaqQuestion
             {
                 Question = "Co zrobić w przypadku problemów technicznych z platformą?",
-                Answer = "W przypadku problemów technicznych:\n1. Sprawdź sekcję FAQ oraz instrukcje użytkownika dostępne w systemie\n2. Upewnij się, że używasz aktualnej wersji przeglądarki (Chrome, Firefox, Edge)\n3. Wyczyść cache przeglądarki i spróbuj ponownie\n\nJeśli problem nadal występuje:\n- Skontaktuj się z helpdesk: helpdesk@uknf.gov.pl\n- W pilnych sprawach dzwoń: +48 22 262 5000\n- Godziny pracy helpdesk: poniedziałek-piątek, 8:00-16:00\n\nPrzy zgłoszeniu podaj: nazwę podmiotu, opis problemu oraz zrzut ekranu (jeśli dotyczy)."
+                Answer = "W przypadku problemów technicznych:<br/>1. Sprawdź sekcję FAQ oraz instrukcje użytkownika dostępne w systemie<br/>2. Upewnij się, że używasz aktualnej wersji przeglądarki (Chrome, Firefox, Edge)<br/>3. Wyczyść cache przeglądarki i spróbuj ponownie<br/><br/>Jeśli problem nadal występuje:<br/>- Skontaktuj się z helpdesk: helpdesk@uknf.gov.pl<br/>- W pilnych sprawach dzwoń: +48 22 262 5000<br/>- Godziny pracy helpdesk: poniedziałek-piątek, 8:00-16:00<br/><br/>Przy zgłoszeniu podaj: nazwę podmiotu, opis problemu oraz zrzut ekranu (jeśli dotyczy)."
             },
             new FaqQuestion
             {
                 Question = "Jak długo przechowywane są dokumenty i wiadomości w systemie?",
-                Answer = "Okresy przechowywania danych zgodnie z przepisami:\n- Wiadomości i korespondencja: 10 lat od daty wysłania\n- Dokumenty związane ze sprawami rejestracyjnymi: 10 lat od zakończenia sprawy\n- Dane podmiotu: przez cały okres nadzoru + 10 lat po wykreśleniu z rejestru\n- Załączniki do wiadomości: 10 lat (ten sam okres co wiadomości)\n\nPo upływie okresu archiwizacji dane są automatycznie usuwane z systemu. Zalecamy regularne pobieranie ważnych dokumentów na własne nośniki."
+                Answer = "Okresy przechowywania danych zgodnie z przepisami:<br/>- Wiadomości i korespondencja: 10 lat od daty wysłania<br/>- Dokumenty związane ze sprawami rejestracyjnymi: 10 lat od zakończenia sprawy<br/>- Dane podmiotu: przez cały okres nadzoru + 10 lat po wykreśleniu z rejestru<br/>- Załączniki do wiadomości: 10 lat (ten sam okres co wiadomości)<br/><br/>Po upływie okresu archiwizacji dane są automatycznie usuwane z systemu. Zalecamy regularne pobieranie ważnych dokumentów na własne nośniki."
             },
             new FaqQuestion
             {
                 Question = "Czy mogę upoważnić inne osoby do korzystania z platformy w imieniu mojego podmiotu?",
-                Answer = "Tak, możesz zarządzać użytkownikami z Twojego podmiotu:\n1. Przejdź do sekcji \"Zarządzanie użytkownikami\"\n2. Dodaj nowego użytkownika, podając jego dane (imię, nazwisko, e-mail, stanowisko)\n3. Przypisz odpowiednie uprawnienia (odczyt, wysyłka wiadomości, sprawy rejestracyjne)\n4. Użytkownik otrzyma zaproszenie e-mailem z linkiem aktywacyjnym\n\nUwaga: Osoba zarządzająca kontem głównym ponosi odpowiedzialność za działania wszystkich użytkowników z danego podmiotu. Zalecamy przyznawanie uprawnień zgodnie z zasadą minimalnych niezbędnych praw dostępu."
+                Answer = "Tak, możesz zarządzać użytkownikami z Twojego podmiotu:<br/>1. Przejdź do sekcji \"Zarządzanie użytkownikami\"<br/>2. Dodaj nowego użytkownika, podając jego dane (imię, nazwisko, e-mail, stanowisko)<br/>3. Przypisz odpowiednie uprawnienia (odczyt, wysyłka wiadomości, sprawy rejestracyjne)<br/>4. Użytkownik otrzyma zaproszenie e-mailem z linkiem aktywacyjnym<br/><br/>Uwaga: Osoba zarządzająca kontem głównym ponosi odpowiedzialność za działania wszystkich użytkowników z danego podmiotu. Zalecamy przyznawanie uprawnień zgodnie z zasadą minimalnych niezbędnych praw dostępu."
             }
         };
 

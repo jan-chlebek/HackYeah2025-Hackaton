@@ -134,6 +134,8 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Email = user.Email,
                 FullName = $"{user.FirstName} {user.LastName}",
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 Roles = roles,
                 Permissions = permissions,
                 SupervisedEntityId = user.SupervisedEntityId
@@ -218,6 +220,8 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Email = user.Email,
                 FullName = $"{user.FirstName} {user.LastName}",
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 Roles = roles,
                 Permissions = permissions,
                 SupervisedEntityId = user.SupervisedEntityId

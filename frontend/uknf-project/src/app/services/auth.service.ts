@@ -13,6 +13,8 @@ export interface UserInfoDto {
   id: number;
   email: string;
   fullName: string;
+  firstName?: string;
+  lastName?: string;
   roles: string[];
   permissions: string[];
   supervisedEntityId?: number | null;
