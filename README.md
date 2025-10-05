@@ -4,7 +4,10 @@ Zachęcamy do
 - Przejrzenia fragmentów dokumentacji
     - [Przygotowanie dokumentacji projektowej do programowania z AI]("AIDevelopment_Documentation/3.1 Working with AI - Planning.md")
     - [Przykłady dobrego promptowania]("AIDevelopment_Documentation/2.1 Good practise - prompt structure.md")
-- Wejścia na stronę demo (opublikowania na Azure przy pomocy skryptów z folderu *azure-deploy*) - [Kliknij mnie!](https://hackyeah2025chlebkiknffrontend.azurewebsites.net/biblioteka)
+- Wejścia na stronę demo (opublikowania na Azure przy pomocy skryptów z folderu *azure-deploy*) - [Kliknij mnie - wykorzystaj dane logowania wylistowane powyżej!](https://hackyeah2025chlebkiknffrontend.azurewebsites.net/auth/login):
+      - admin@uknf.gov.pl | Admin123!
+      - Zachęcamy do zobaczenia - **funkcjonalności związane z dostępnością (kontrast w PrimeNG)**, **Moje Pytania**, **Biblioteka - repozytorium plików**, i wielu innych - czy to bardziej czy mniej funkcjonalnych :)
+- Obejrzenia Swaggera: [https://hackyeah2025chlebkiknfbackend.azurewebsites.net/swagger/](https://hackyeah2025chlebkiknfbackend.azurewebsites.net/swagger/)
 - Uruchomienia samodzielnego repozytorium z wykorzystaniem Dockera - `bash ./dev-start.sh`
 
 
@@ -124,18 +127,47 @@ docker-compose up -d
 
 Use these credentials for manual testing via Swagger UI or frontend:
 
-| Role | Email | Password | Permissions |
-|------|-------|----------|------------|
-| **Administrator** | admin@uknf.gov.pl | Admin123! | 9 permissions (full access) |
-| **Administrator** | k.administratorska@uknf.gov.pl | Admin123! | 9 permissions |
-| **Internal User** | jan.kowalski@uknf.gov.pl | User123! | 4 permissions |
-| **Internal User** | piotr.wisniewski@uknf.gov.pl | User123! | 4 permissions |
-| **Internal User** | marek.dabrowski@uknf.gov.pl | User123! | 4 permissions |
-| **Internal User** | tomasz.lewandowski@uknf.gov.pl | User123! | 4 permissions |
-| **Internal User** | krzysztof.zielinski@uknf.gov.pl | User123! | 4 permissions |
-| **Supervisor** | anna.nowak@uknf.gov.pl | Supervisor123! | 7 permissions |
-| **Supervisor** | magdalena.szymanska@uknf.gov.pl | Supervisor123! | 7 permissions |
-| **Supervisor** | michal.wozniak@uknf.gov.pl | Supervisor123! | 7 permissions |
+### Internal Users (UKNF Staff)
+
+| Role | Email | Password | Permissions | Description |
+|------|-------|----------|-------------|-------------|
+| **Administrator** | admin@uknf.gov.pl | Admin123! | 14 permissions | Full system access |
+| **Administrator** | k.administratorska@uknf.gov.pl | Admin123! | 14 permissions | Full system access |
+| **Supervisor** | anna.nowak@uknf.gov.pl | Supervisor123! | 10 permissions | Supervisory access |
+| **Supervisor** | magdalena.szymanska@uknf.gov.pl | Supervisor123! | 10 permissions | Supervisory access |
+| **Supervisor** | michal.wozniak@uknf.gov.pl | Supervisor123! | 10 permissions | Supervisory access |
+| **Internal User** | jan.kowalski@uknf.gov.pl | User123! | 5 permissions | Standard UKNF employee |
+| **Internal User** | piotr.wisniewski@uknf.gov.pl | User123! | 5 permissions | Standard UKNF employee |
+| **Internal User** | marek.dabrowski@uknf.gov.pl | User123! | 5 permissions | Standard UKNF employee |
+| **Internal User** | tomasz.lewandowski@uknf.gov.pl | User123! | 5 permissions | Standard UKNF employee |
+| **Internal User** | krzysztof.zielinski@uknf.gov.pl | User123! | 5 permissions | Standard UKNF employee |
+
+### External Users (Supervised Entities)
+
+| Entity Type | Email | Password | Entity Name | Permissions |
+|-------------|-------|----------|-------------|-------------|
+| **Bank** | kontakt@pkobp.pl | External123! | PKO Bank Polski S.A. | 4 permissions |
+| **Bank** | kontakt@pekao.pl | External123! | Bank Pekao S.A. | 4 permissions |
+| **Bank** | kontakt@ingbank.pl | External123! | ING Bank Śląski S.A. | 4 permissions |
+| **Bank** | kontakt@mbank.pl | External123! | mBank S.A. | 4 permissions |
+| **Bank** | kontakt@santander.pl | External123! | Santander Bank Polska S.A. | 4 permissions |
+| **Bank** | kontakt@bankmillennium.pl | External123! | Bank Millennium S.A. | 4 permissions |
+| **Bank** | kontakt@bnpparibas.pl | External123! | BNP Paribas Bank Polska S.A. | 4 permissions |
+| **Bank** | kontakt@citihandlowy.pl | External123! | Bank Handlowy w Warszawie S.A. | 4 permissions |
+| **Insurance** | kontakt@pzu.pl | External123! | PZU S.A. | 4 permissions |
+| **Insurance** | kontakt@allianz.pl | External123! | Allianz Polska S.A. | 4 permissions |
+| **Insurance** | kontakt@warta.pl | External123! | WARTA S.A. | 4 permissions |
+
+**Note:** External users can submit reports, send/receive messages, but have limited access compared to internal UKNF staff.
+
+### Quick Reference - Common Test Accounts
+
+For quick testing, use these accounts:
+- **Full Access:** `admin@uknf.gov.pl` / `Admin123!`
+- **Supervisor:** `anna.nowak@uknf.gov.pl` / `Supervisor123!`
+- **UKNF Employee:** `jan.kowalski@uknf.gov.pl` / `User123!`
+- **Bank (External):** `kontakt@pkobp.pl` / `External123!`
+- **Insurance (External):** `kontakt@pzu.pl` / `External123!`
 
 ---
 
@@ -145,8 +177,8 @@ Use these credentials for manual testing via Swagger UI or frontend:
 
 1. Navigate to http://localhost:5000/swagger
 2. Click **Authorize** button (top right)
-3. Login with credentials:
-   ```
+3. Login with credentials (example):
+   ```json
    POST /api/v1/Auth/login
    {
      "email": "admin@uknf.gov.pl",

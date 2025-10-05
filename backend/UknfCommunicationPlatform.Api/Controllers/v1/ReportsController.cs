@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UknfCommunicationPlatform.Api.Authorization;
 using UknfCommunicationPlatform.Core.DTOs.Reports;
 using UknfCommunicationPlatform.Core.DTOs.Requests;
 using UknfCommunicationPlatform.Infrastructure.Services;
@@ -30,8 +31,7 @@ public class ReportsController : ControllerBase
     /// <param name="reportingPeriod">Filter by reporting period (Q1, Q2, Q3, Q4)</param>
     /// <returns>List of reports</returns>
     [HttpGet]
-    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
-    // [RequirePermission("reports.read")]
+    [RequirePermission("reports.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<List<ReportDto>>> GetReports(
@@ -55,8 +55,7 @@ public class ReportsController : ControllerBase
     /// <param name="id">Report ID</param>
     /// <returns>Report details</returns>
     [HttpGet("{id}")]
-    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
-    // [RequirePermission("reports.read")]
+    [RequirePermission("reports.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,8 +86,7 @@ public class ReportsController : ControllerBase
     /// <returns>Created report details</returns>
     [HttpPost]
     [Consumes("multipart/form-data")]
-    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
-    // [RequirePermission("reports.create")]
+    [RequirePermission("reports.create")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -142,8 +140,7 @@ public class ReportsController : ControllerBase
     /// <param name="id">Report ID</param>
     /// <returns>XLSX file</returns>
     [HttpGet("{id}/download")]
-    // TODO: RE-ENABLE PERMISSION CHECK - Temporarily disabled for testing
-    // [RequirePermission("reports.read")]
+    [RequirePermission("reports.read")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

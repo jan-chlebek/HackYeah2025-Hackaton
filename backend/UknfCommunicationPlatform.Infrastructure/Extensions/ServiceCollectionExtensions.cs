@@ -56,9 +56,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<MessageService>();
         services.AddScoped<ReportsService>();
         services.AddScoped<IAnnouncementService, AnnouncementService>();
-
-        // TODO: Register additional repositories and services here
-        // services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<CaseService>();
 
         return services;
     }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { Contact, ContactListItem } from './contact.service';
 
 /**
@@ -106,7 +107,7 @@ export interface ContactGroupFilters {
 })
 export class ContactGroupService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/v1/contact-groups';
+  private apiUrl = `${environment.apiUrl}/contact-groups`;
 
   /**
    * Get list of contact groups with pagination and filtering
@@ -217,3 +218,4 @@ export class ContactGroupService {
     return this.http.get<ContactListItem[]>(`${this.apiUrl}/${groupId}/available-contacts`);
   }
 }
+

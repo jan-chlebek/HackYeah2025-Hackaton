@@ -10,7 +10,7 @@ import { DialogModule } from 'primeng/dialog';
 import { TextareaModule } from 'primeng/textarea';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { MenuItem } from 'primeng/api';
-import { ContactGroupService, ContactGroupListItem, ContactGroup, ContactGroupMember, CreateContactGroupRequest, UpdateContactGroupRequest } from '../../../services/contact-group.service';
+import { ContactGroupService, ContactGroupListItem, ContactGroup, ContactGroupMember, CreateContactGroupRequest, UpdateContactGroupRequest, ContactGroupListResponse } from '../../../services/contact-group.service';
 import { ContactService, ContactListItem } from '../../../services/contact.service';
 import { AuthService } from '../../../services/auth.service';
 
@@ -96,14 +96,14 @@ export class ContactGroupsComponent implements OnInit {
     console.log('Loading contact groups');
     
     this.groupService.getContactGroups(this.page, this.pageSize).subscribe({
-      next: (response) => {
+      next: (response: ContactGroupListResponse) => {
         console.log('Groups loaded successfully:', response);
         this.groups = response.data;
         this.totalRecords = response.pagination.totalCount;
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading groups:', error);
         this.loading = false;
         this.cdr.detectChanges();
@@ -139,7 +139,7 @@ export class ContactGroupsComponent implements OnInit {
         this.showCreateDialog = false;
         this.loadGroups();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error creating group:', error);
       }
     });
@@ -154,7 +154,7 @@ export class ContactGroupsComponent implements OnInit {
           this.editingGroupId = null;
           this.loadGroups();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error updating group:', error);
         }
       });
