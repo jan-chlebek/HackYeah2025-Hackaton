@@ -1,0 +1,271 @@
+<div class="reports-list-container">
+  <!-- Breadcrumb -->
+  <p-breadcrumb [model]="breadcrumbItems" class="mb-4"></p-breadcrumb>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Sprawozdawczość</h1>
+      <p class="page-subtitle">Historia przekazanych sprawozdań i ich statusy walidacji</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        pButton 
+        label="Dodaj sprawozdanie" 
+        icon="pi pi-plus" 
+        class="p-button-primary"
+        (click)="goToSubmitReport()">
+      </button>
+      <button 
+        pButton 
+        [label]="showFilters ? 'Ukryj filtry' : 'Pokaż filtry'" 
+        [icon]="showFilters ? 'pi pi-angle-up' : 'pi pi-angle-down'" 
+        class="p-button-outlined"
+        (click)="toggleFilters()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" *ngIf="showFilters">
+    <div class="filters-grid">
+      <!-- Status Filter -->
+      <div class="filter-field">
+        <label for="statusFilter">Status walidacji</label>
+        <p-select 
+          id="statusFilter"
+          [(ngModel)]="filters.statusWalidacji" 
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Wszystkie statusy"
+          [showClear]="true">
+        </p-select>
+      </div>
+
+      <!-- Reporting Period Filter -->
+      <div class="filter-field">
+        <label for="periodFilter">Okres sprawozdawczy</label>
+        <p-select 
+          id="periodFilter"
+          [(ngModel)]="filters.okresSprawozdawczy" 
+          [options]="reportingPeriodOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Wszystkie okresy"
+          [showClear]="true">
+        </p-select>
+      </div>
+
+      <!-- Entity Filter -->
+      <div class="filter-field">
+        <label for="entityFilter">Podmiot</label>
+        <p-select 
+          id="entityFilter"
+          [(ngModel)]="filters.podmiotId" 
+          [options]="entityOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Wszystkie podmioty"
+          [showClear]="true">
+        </p-select>
+      </div>
+
+      <!-- Correction Filter -->
+      <div class="filter-field">
+        <label for="correctionFilter">Korekta</label>
+        <p-checkbox 
+          id="correctionFilter"
+          [(ngModel)]="filters.czyKorekta" 
+          [binary]="true"
+          label="Tylko korekty">
+        </p-checkbox>
+      </div>
+
+      <!-- Date From Filter -->
+      <div class="filter-field">
+        <label for="dateFromFilter">Data złożenia od</label>
+        <p-datepicker 
+          id="dateFromFilter"
+          [(ngModel)]="filters.dataZlozeniaOd" 
+          dateFormat="yy-mm-dd"
+          placeholder="Wybierz datę"
+          [showIcon]="true"
+          [showClear]="true">
+        </p-datepicker>
+      </div>
+
+      <!-- Date To Filter -->
+      <div class="filter-field">
+        <label for="dateToFilter">Data złożenia do</label>
+        <p-datepicker 
+          id="dateToFilter"
+          [(ngModel)]="filters.dataZlozeniaDo" 
+          dateFormat="yy-mm-dd"
+          placeholder="Wybierz datę"
+          [showIcon]="true"
+          [showClear]="true">
+        </p-datepicker>
+      </div>
+
+      <!-- Search Filter -->
+      <div class="filter-field filter-search">
+        <label for="searchFilter">Wyszukiwanie</label>
+        <input 
+          pInputText 
+          id="searchFilter"
+          [(ngModel)]="searchQuery" 
+          placeholder="Szukaj po nazwie pliku, numerze..."
+          class="w-full">
+      </div>
+    </div>
+
+    <!-- Filter Actions -->
+    <div class="filter-actions">
+      <button 
+        pButton 
+        label="Zastosuj filtry" 
+        icon="pi pi-filter" 
+        class="p-button-primary"
+        (click)="applyFilters()">
+      </button>
+      <button 
+        pButton 
+        label="Wyczyść filtry" 
+        icon="pi pi-times" 
+        class="p-button-outlined"
+        (click)="clearFilters()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Reports Table -->
+  <div class="table-container">
+    <p-table 
+      [value]="reports" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [lazy]="true"
+      (onLazyLoad)="onPageChange($event)"
+      [first]="first"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Wyświetlono {first} do {last} z {totalRecords} sprawozdań"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">#</th>
+          <th pSortableColumn="dataZlozenia">
+            Data złożenia
+            <p-sortIcon field="dataZlozenia"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nazwaPliku">
+            Nazwa pliku
+            <p-sortIcon field="nazwaPliku"></p-sortIcon>
+          </th>
+          <th pSortableColumn="numerSprawozdania">
+            Numer sprawozdania
+            <p-sortIcon field="numerSprawozdania"></p-sortIcon>
+          </th>
+          <th pSortableColumn="podmiotNazwa">
+            Podmiot
+            <p-sortIcon field="podmiotNazwa"></p-sortIcon>
+          </th>
+          <th pSortableColumn="okresSprawozdawczy">
+            Okres
+            <p-sortIcon field="okresSprawozdawczy"></p-sortIcon>
+          </th>
+          <th>Użytkownik</th>
+          <th>Wielkość</th>
+          <th>Korekta</th>
+          <th pSortableColumn="statusWalidacji">
+            Status
+            <p-sortIcon field="statusWalidacji"></p-sortIcon>
+          </th>
+          <th style="width: 12rem">Akcje</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-report let-rowIndex="rowIndex">
+        <tr>
+          <td>{{ first + rowIndex + 1 }}</td>
+          <td>{{ formatDate(report.dataZlozenia) }}</td>
+          <td>
+            <div class="file-name">
+              <i class="pi pi-file-excel"></i>
+              <span>{{ report.nazwaPliku }}</span>
+            </div>
+          </td>
+          <td>{{ report.numerSprawozdania || '-' }}</td>
+          <td>{{ report.podmiotNazwa }}</td>
+          <td>
+            <span class="period-badge">{{ report.okresSprawozdawczy }}</span>
+          </td>
+          <td>
+            <div class="user-info">
+              <div class="user-name">{{ report.uzytkownikImie }} {{ report.uzytkownikNazwisko }}</div>
+              <div class="user-email">{{ report.uzytkownikEmail }}</div>
+            </div>
+          </td>
+          <td>{{ formatFileSize(report.wielkoscPliku) }}</td>
+          <td>
+            <span *ngIf="report.czyKorekta" class="correction-badge">
+              <i class="pi pi-exclamation-circle"></i> Korekta
+            </span>
+            <span *ngIf="!report.czyKorekta">-</span>
+          </td>
+          <td>
+            <span 
+              class="status-badge" 
+              [ngClass]="getStatusBadgeClass(report.statusWalidacji)">
+              {{ getStatusBadgeLabel(report.statusWalidacji) }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button 
+                pButton 
+                icon="pi pi-eye" 
+                class="p-button-text p-button-sm"
+                pTooltip="Szczegóły"
+                tooltipPosition="top"
+                (click)="viewReportDetails(report)">
+              </button>
+              <button 
+                pButton 
+                icon="pi pi-download" 
+                class="p-button-text p-button-sm"
+                pTooltip="Pobierz raport walidacji"
+                tooltipPosition="top"
+                [disabled]="!report.raportWalidacjiUrl"
+                (click)="downloadValidationReport(report)">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="11" class="empty-message">
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <p>Brak sprawozdań do wyświetlenia</p>
+              <button 
+                pButton 
+                label="Dodaj pierwsze sprawozdanie" 
+                icon="pi pi-plus" 
+                class="p-button-primary"
+                (click)="goToSubmitReport()">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
