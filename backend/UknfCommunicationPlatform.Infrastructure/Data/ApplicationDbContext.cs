@@ -33,7 +33,6 @@ public class ApplicationDbContext : DbContext
       public DbSet<FileLibrary> FileLibraries { get; set; }
       public DbSet<FileLibraryPermission> FileLibraryPermissions { get; set; }
       public DbSet<FaqQuestion> FaqQuestions { get; set; }
-      public DbSet<FaqRating> FaqRatings { get; set; }
       public DbSet<Contact> Contacts { get; set; }
       public DbSet<ContactGroup> ContactGroups { get; set; }
       public DbSet<ContactGroupMember> ContactGroupMembers { get; set; }
@@ -449,47 +448,13 @@ public class ApplicationDbContext : DbContext
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // FaqQuestion configuration
+            // FaqQuestion configuration (simplified: id, question, answer)
             modelBuilder.Entity<FaqQuestion>(entity =>
             {
                   entity.ToTable("faq_questions");
                   entity.HasKey(e => e.Id);
-                  entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
-                  entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
-                  entity.Property(e => e.AnonymousName).HasMaxLength(250);
-                  entity.Property(e => e.AnonymousEmail).HasMaxLength(500);
-                  entity.HasIndex(e => new { e.Status, e.Category });
-                  entity.HasIndex(e => e.SubmittedAt);
-                  entity.HasIndex(e => e.PublishedAt);
-
-                  entity.HasOne(e => e.SubmittedBy)
-                    .WithMany()
-                    .HasForeignKey(e => e.SubmittedByUserId)
-                    .OnDelete(DeleteBehavior.SetNull);
-
-                  entity.HasOne(e => e.AnsweredBy)
-                    .WithMany()
-                    .HasForeignKey(e => e.AnsweredByUserId)
-                    .OnDelete(DeleteBehavior.SetNull);
-            });
-
-            // FaqRating configuration
-            modelBuilder.Entity<FaqRating>(entity =>
-            {
-                  entity.ToTable("faq_ratings");
-                  entity.HasKey(e => e.Id);
-                  entity.Property(e => e.Rating).IsRequired();
-                  entity.HasIndex(e => new { e.FaqQuestionId, e.UserId }).IsUnique();
-
-                  entity.HasOne(e => e.FaqQuestion)
-                    .WithMany(f => f.Ratings)
-                    .HasForeignKey(e => e.FaqQuestionId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                  entity.HasOne(e => e.User)
-                    .WithMany()
-                    .HasForeignKey(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                  entity.Property(e => e.Question).IsRequired();
+                  entity.Property(e => e.Answer).IsRequired();
             });
 
             // Contact configuration
