@@ -133,7 +133,7 @@
 /* Column widths - using percentage for better flexibility */
 ::ng-deep .announcements-table .p-datatable-thead > tr > th:nth-child(1),
 ::ng-deep .announcements-table .p-datatable-tbody > tr > td:nth-child(1) {
-  width: 25% !important;
+  width: 20% !important;
 }
 
 ::ng-deep .announcements-table .p-datatable-thead > tr > th:nth-child(2),
@@ -153,7 +153,7 @@
 
 ::ng-deep .announcements-table .p-datatable-thead > tr > th:nth-child(5),
 ::ng-deep .announcements-table .p-datatable-tbody > tr > td:nth-child(5) {
-  width: 10% !important;
+  width: 15% !important;
 }
 
 .announcement-row {
