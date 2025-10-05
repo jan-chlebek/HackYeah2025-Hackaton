@@ -94,8 +94,25 @@
     </div>
   </div>
 
+  <!-- Error Message -->
+  <div *ngIf="error && !loading" class="error-message">
+    <i class="pi pi-exclamation-triangle"></i>
+    <div class="error-content">
+      <h3>Nie udało się załadować danych</h3>
+      <p>{{ errorMessage }}</p>
+      <button 
+        pButton 
+        type="button" 
+        label="Spróbuj ponownie" 
+        icon="pi pi-refresh"
+        (click)="loadEntities()"
+        class="p-button-outlined"
+      ></button>
+    </div>
+  </div>
+
   <!-- Entities Table -->
-  <div class="table-container">
+  <div class="table-container" *ngIf="!error">
     <p-table 
       [value]="entities" 
       [loading]="loading"

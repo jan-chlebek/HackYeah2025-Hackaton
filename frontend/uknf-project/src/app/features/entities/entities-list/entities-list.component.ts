@@ -40,6 +40,8 @@ export class EntitiesListComponent implements OnInit {
   entities: SupervisedEntityListItem[] = [];
   loading = false;
   totalRecords = 0;
+  error = false;
+  errorMessage = '';
   
   // Pagination
   page = 1;
@@ -79,7 +81,11 @@ export class EntitiesListComponent implements OnInit {
 
   loadEntities(): void {
     this.loading = true;
-    console.log('Loading entities with params:', { page: this.page, pageSize: this.pageSize, filters: this.filters });
+    this.error = false;
+    this.errorMessage = '';
+    
+    console.log('[EntitiesList] Loading entities with params:', { page: this.page, pageSize: this.pageSize, filters: this.filters });
+    console.log('[EntitiesList] API URL:', `http://localhost:5000/api/v1/entities`);
     
     this.entityService.getEntities(
       this.page,
@@ -87,21 +93,38 @@ export class EntitiesListComponent implements OnInit {
       this.filters
     ).subscribe({
       next: (response) => {
-        console.log('Entities loaded successfully:', response);
-        this.entities = response.data;
-        this.totalRecords = response.pagination.totalCount;
+        console.log('[EntitiesList] Entities loaded successfully:', response);
+        this.entities = response.data || [];
+        this.totalRecords = response.pagination?.totalCount || 0;
         this.loading = false;
+        this.error = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error loading entities:', error);
-        console.error('Error details:', {
+        console.error('[EntitiesList] Error loading entities:', error);
+        console.error('[EntitiesList] Error details:', {
           status: error.status,
           statusText: error.statusText,
           message: error.message,
-          error: error.error
+          error: error.error,
+          url: error.url
         });
+        
+        // Set user-friendly error message
+        if (error.status === 401) {
+          this.errorMessage = 'Nie masz uprawnień do przeglądania kartoteki podmiotów. Zaloguj się ponownie.';
+        } else if (error.status === 403) {
+          this.errorMessage = 'Dostęp do kartoteki podmiotów jest zabroniony. Skontaktuj się z administratorem.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'Brak połączenia z serwerem. Sprawdź, czy backend działa na porcie 5000.';
+        } else {
+          this.errorMessage = `Błąd serwera (${error.status}): ${error.statusText || 'Nieznany błąd'}`;
+        }
+        
+        this.entities = [];
+        this.totalRecords = 0;
         this.loading = false;
+        this.error = true;
         this.cdr.detectChanges();
       }
     });
