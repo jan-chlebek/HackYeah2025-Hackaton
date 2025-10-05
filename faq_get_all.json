@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "question": "Jak mogę zalogować się do systemu?",
+      "answer": "<p>Aby zalogować się do systemu, należy:</p><ol><li>Przejść na stronę logowania</li><li>Wprowadzić swój login i hasło</li><li>Kliknąć przycisk \"Zaloguj\"</li></ol><p>W przypadku problemów z logowaniem, skontaktuj się z administratorem systemu.</p>"
+    },
+    {
+      "id": 2,
+      "question": "Jak często należy składać raporty kwartalne?",
+      "answer": "<p>Raporty kwartalne należy składać cztery razy w roku:</p><ul><li>Q1 - do 30 kwietnia</li><li>Q2 - do 31 lipca</li><li>Q3 - do 31 października</li><li>Q4 - do 31 stycznia roku następnego</li></ul><p>Zaleca się składanie raportów z wyprzedzeniem, aby uniknąć problemów technicznych w ostatnim dniu.</p>"
+    },
+    {
+      "id": 3,
+      "question": "Jakie formaty plików są akceptowane przy wysyłaniu raportów?",
+      "answer": "<p>System akceptuje wyłącznie pliki w formacie <strong>XLSX</strong> (Microsoft Excel).</p><p>Pliki w innych formatach (XLS, CSV, PDF) nie będą przyjmowane. Upewnij się, że plik został zapisany w odpowiednim formacie przed przesłaniem.</p>"
+    },
+    {
+      "id": 4,
+      "question": "Jak mogę zmienić dane mojego podmiotu nadzorowanego?",
+      "answer": "<p>Aby zmienić dane podmiotu nadzorowanego:</p><ol><li>Przejdź do zakładki \"Administracja\"</li><li>Wybierz \"Podmioty nadzorowane\"</li><li>Znajdź swój podmiot na liście i kliknij \"Edytuj\"</li><li>Wprowadź zmiany i zapisz</li></ol><p>Zmiany krytycznych danych (np. NIP, REGON) wymagają zatwierdzenia przez pracownika UKNF.</p>"
+    },
+    {
+      "id": 5,
+      "question": "Gdzie mogę znaleźć archiwalne raporty?",
+      "answer": "<p>Archiwalne raporty znajdują się w zakładce <strong>\"Biblioteka plików\"</strong>.</p><p>Możesz filtrować raporty według:</p><ul><li>Okresu sprawozdawczego (kwartał)</li><li>Daty złożenia</li><li>Statusu walidacji</li></ul><p>Każdy raport można pobrać w formacie XLSX.</p>"
+    },
+    {
+      "id": 6,
+      "question": "Co zrobić w przypadku problemów technicznych?",
+      "answer": "<p>W przypadku problemów technicznych:</p><ol><li>Sprawdź sekcję FAQ - większość problemów jest tam opisana</li><li>Skontaktuj się z helpdesk: <a href=\"mailto:helpdesk@uknf.gov.pl\">helpdesk@uknf.gov.pl</a></li><li>W pilnych sprawach zadzwoń: +48 22 262 5000</li></ol><p>Helpdesk jest dostępny od poniedziałku do piątku w godzinach 8:00-16:00.</p>"
+    },
+    {
+      "id": 7,
+      "question": "Jak długo przechowywane są wiadomości w systemie?",
+      "answer": "<p>Wiadomości w systemie są przechowywane zgodnie z wymogami prawnymi:</p><ul><li>Wiadomości robocze: <strong>5 lat</strong></li><li>Wiadomości urzędowe: <strong>10 lat</strong></li><li>Wiadomości dotyczące postępowań: <strong>do zakończenia postępowania + 10 lat</strong></li></ul><p>Po upływie okresu archiwizacji wiadomości są automatycznie usuwane.</p>"
+    },
+    {
+      "id": 8,
+      "question": "Czy mogę dodać załączniki do wiadomości?",
+      "answer": "<p>Tak, do każdej wiadomości możesz dodać załączniki.</p><p>Ograniczenia:</p><ul><li>Maksymalny rozmiar pojedynczego pliku: <strong>25 MB</strong></li><li>Maksymalna liczba załączników: <strong>10</strong></li><li>Dozwolone formaty: PDF, XLSX, DOCX, ZIP, JPG, PNG</li></ul><p>Pliki o innych rozszerzeniach lub przekraczające limity zostaną odrzucone.</p>"
+    }
+  ],
+  "totalCount": 8,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}

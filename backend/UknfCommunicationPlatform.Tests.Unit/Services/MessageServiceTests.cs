@@ -67,8 +67,7 @@ public class MessageServiceTests : IDisposable
         {
             Subject = "Test Subject",
             Body = "Test Body",
-            RecipientId = _testRecipient.Id,
-            Folder = MessageFolder.Sent
+            RecipientId = _testRecipient.Id
         };
 
         // Act
@@ -105,23 +104,6 @@ public class MessageServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task GetMessagesAsync_WithFolderFilter_ShouldReturnFilteredMessages()
-    {
-        // Arrange
-        await SeedMessagesAsync();
-
-        // Act
-        var (messages, totalCount) = await _sut.GetMessagesAsync(
-            userId: _testSender.Id,
-            page: 1,
-            pageSize: 10,
-            folder: MessageFolder.Sent);
-
-        // Assert
-        messages.Should().OnlyContain(m => m.Folder == MessageFolder.Sent);
-    }
-
-    [Fact]
     public async Task GetMessagesAsync_WithSearchTerm_ShouldReturnMatchingMessages()
     {
         // Arrange
@@ -153,7 +135,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testRecipient.Id,
             RecipientId = _testSender.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Inbox,
             IsRead = false,
             SentAt = DateTime.UtcNow
         };
@@ -183,7 +164,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Sent,
             IsRead = false,
             SentAt = DateTime.UtcNow
         };
@@ -196,7 +176,6 @@ public class MessageServiceTests : IDisposable
         // Assert
         result.Should().NotBeNull();
         result!.Subject.Should().Be("Detail Test");
-        result.Replies.Should().NotBeNull();
         result.Attachments.Should().NotBeNull();
     }
 
@@ -211,7 +190,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Sent,
             SentAt = DateTime.UtcNow
         };
         _context.Messages.Add(message);
@@ -235,7 +213,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Sent,
-            Folder = MessageFolder.Inbox,
             IsRead = false,
             SentAt = DateTime.UtcNow
         };
@@ -264,7 +241,6 @@ public class MessageServiceTests : IDisposable
             SenderId = _testSender.Id,
             RecipientId = _testRecipient.Id,
             Status = MessageStatus.Read,
-            Folder = MessageFolder.Inbox,
             IsRead = true,
             ReadAt = DateTime.UtcNow,
             SentAt = DateTime.UtcNow
@@ -292,7 +268,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             },
@@ -303,7 +278,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             }
@@ -337,7 +311,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             },
@@ -348,7 +321,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Inbox,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             }
@@ -390,7 +362,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
                 IsRead = false,
                 SentAt = DateTime.UtcNow
             },
@@ -401,7 +372,6 @@ public class MessageServiceTests : IDisposable
                 SenderId = _testSender.Id,
                 RecipientId = _testRecipient.Id,
                 Status = MessageStatus.Sent,
-                Folder = MessageFolder.Sent,
                 IsRead = true,
                 SentAt = DateTime.UtcNow,
                 ReadAt = DateTime.UtcNow

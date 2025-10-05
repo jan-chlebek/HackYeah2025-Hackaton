@@ -80,11 +80,13 @@ public class EntityManagementService
     {
         var entity = await _context.SupervisedEntities
             .Include(e => e.Users)
-            .Include(e => e.Reports)
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (entity == null)
             return null;
+
+        // Get report count separately since we removed the navigation property
+        var reportCount = await _context.Reports.CountAsync(r => r.SubmittedBy.SupervisedEntityId == id);
 
         return new EntityResponse
         {
@@ -109,7 +111,7 @@ public class EntityManagementService
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt,
             UserCount = entity.Users.Count,
-            ReportCount = entity.Reports.Count
+            ReportCount = reportCount
         };
     }
 

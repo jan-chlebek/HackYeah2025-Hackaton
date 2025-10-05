@@ -28,7 +28,6 @@ public class MessageService
         long userId,
         int page,
         int pageSize,
-        MessageFolder? folder = null,
         bool? isRead = null,
         string? searchTerm = null,
         long? relatedEntityId = null)
@@ -38,15 +37,8 @@ public class MessageService
             .Include(m => m.Recipient)
             .Include(m => m.RelatedEntity)
             .Include(m => m.Attachments)
-            .Include(m => m.Replies)
             .Where(m => m.SenderId == userId || m.RecipientId == userId)
             .Where(m => !m.IsCancelled);
-
-        // Filter by folder
-        if (folder.HasValue)
-        {
-            query = query.Where(m => m.Folder == folder.Value);
-        }
 
         // Filter by read status
         if (isRead.HasValue)
@@ -92,16 +84,19 @@ public class MessageService
             .Include(m => m.Recipient)
             .Include(m => m.RelatedEntity)
             .Include(m => m.Attachments)
-            .Include(m => m.Replies)
-                .ThenInclude(r => r.Sender)
-            .Include(m => m.Replies)
-                .ThenInclude(r => r.Recipient)
             .FirstOrDefaultAsync(m =>
                 m.Id == messageId &&
                 (m.SenderId == userId || m.RecipientId == userId) &&
                 !m.IsCancelled);
 
         if (message == null) return null;
+
+        // Determine if sender is external user (has supervised entity)
+        var isExternalSender = message.Sender.SupervisedEntityId != null;
+
+        // Get the entity context - either from sender or recipient
+        var entityId = message.RelatedEntityId ?? message.Sender.SupervisedEntityId ?? message.Recipient?.SupervisedEntityId;
+        var entityName = message.RelatedEntity?.Name;
 
         return new MessageDetailResponse
         {
@@ -123,21 +118,32 @@ public class MessageService
                 LastName = message.Recipient.LastName
             } : null,
             Status = message.Status,
-            Folder = message.Folder,
-            ThreadId = message.ThreadId,
-            ParentMessageId = message.ParentMessageId,
             IsRead = message.IsRead,
             SentAt = message.SentAt,
             ReadAt = message.ReadAt,
-            RelatedEntityId = message.RelatedEntityId,
-            RelatedEntityName = message.RelatedEntity?.Name,
-            RelatedReportId = message.RelatedReportId,
-            RelatedCaseId = message.RelatedCaseId,
+            RelatedEntityId = entityId,
+            RelatedEntityName = entityName,
             AttachmentCount = message.Attachments.Count,
-            ReplyCount = message.Replies.Count,
             IsCancelled = message.IsCancelled,
-            CancelledAt = message.CancelledAt,
-            Replies = message.Replies.Select(r => MapToResponse(r)).ToList(),
+
+            // Polish UI fields - computed from entity data
+            Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
+            SygnaturaSprawy = $"{message.SentAt.Year:D4}/{message.Id:D6}",
+            Podmiot = entityName ?? "Brak powiązania",
+            StatusWiadomosci = message.Status switch
+            {
+                MessageStatus.Sent => "Wysłana",
+                MessageStatus.Closed => "Zamknięta",
+                MessageStatus.Read => "Przeczytana",
+                MessageStatus.AwaitingUknfResponse => "Oczekuje na odpowiedź UKNF",
+                MessageStatus.AwaitingUserResponse => "Oczekuje na odpowiedź użytkownika",
+                _ => message.Status.ToString()
+            },
+            WiadomoscUzytkownika = isExternalSender ? message.Body : null,
+            DataPrzeslaniaUKNF = !isExternalSender ? message.SentAt : null,
+            PracownikUKNF = !isExternalSender ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
+            WiadomoscPracownikaUKNF = !isExternalSender ? message.Body : null,
+
             Attachments = message.Attachments.Select(a => new MessageAttachmentInfo
             {
                 Id = a.Id,
@@ -161,12 +167,7 @@ public class MessageService
             Body = request.Body,
             SenderId = senderId,
             RecipientId = request.RecipientId,
-            Folder = request.Folder,
-            ThreadId = request.ThreadId,
-            ParentMessageId = request.ParentMessageId,
             RelatedEntityId = request.RelatedEntityId,
-            RelatedReportId = request.RelatedReportId,
-            RelatedCaseId = request.RelatedCaseId,
             Status = MessageStatus.Sent,
             IsRead = false,
             SentAt = DateTime.UtcNow,
@@ -290,9 +291,9 @@ public class MessageService
         var stats = new MessageStatsResponse
         {
             TotalInbox = await _context.Messages.CountAsync(m =>
-                m.RecipientId == userId && m.Folder == MessageFolder.Inbox && !m.IsCancelled),
+                m.RecipientId == userId && !m.IsCancelled),
             TotalSent = await _context.Messages.CountAsync(m =>
-                m.SenderId == userId && m.Folder == MessageFolder.Sent && !m.IsCancelled),
+                m.SenderId == userId && !m.IsCancelled),
             UnreadCount = await GetUnreadCountAsync(userId)
         };
 
@@ -304,6 +305,13 @@ public class MessageService
     /// </summary>
     private MessageResponse MapToResponse(Message message)
     {
+        // Determine if sender is external user (has supervised entity)
+        var isExternalSender = message.Sender.SupervisedEntityId != null;
+
+        // Get the entity context - either from sender or recipient
+        var entityId = message.RelatedEntityId ?? message.Sender.SupervisedEntityId ?? message.Recipient?.SupervisedEntityId;
+        var entityName = message.RelatedEntity?.Name;
+
         return new MessageResponse
         {
             Id = message.Id,
@@ -324,25 +332,18 @@ public class MessageService
                 LastName = message.Recipient.LastName
             } : null,
             Status = message.Status,
-            Folder = message.Folder,
-            ThreadId = message.ThreadId,
-            ParentMessageId = message.ParentMessageId,
             IsRead = message.IsRead,
             SentAt = message.SentAt,
             ReadAt = message.ReadAt,
-            RelatedEntityId = message.RelatedEntityId,
-            RelatedEntityName = message.RelatedEntity?.Name,
-            RelatedReportId = message.RelatedReportId,
-            RelatedCaseId = message.RelatedCaseId,
+            RelatedEntityId = entityId,
+            RelatedEntityName = entityName,
             AttachmentCount = message.Attachments?.Count ?? 0,
-            ReplyCount = message.Replies?.Count ?? 0,
             IsCancelled = message.IsCancelled,
-            CancelledAt = message.CancelledAt,
 
             // Polish UI fields - computed from entity data
             Identyfikator = $"{message.SentAt.Year}/System{message.SenderId}/{message.Id}",
-            SygnaturaSprawy = message.RelatedCase?.CaseNumber,
-            Podmiot = message.RelatedEntity?.Name,
+            SygnaturaSprawy = $"{message.SentAt.Year:D4}/{message.Id:D6}",
+            Podmiot = entityName ?? "Brak powiązania",
             StatusWiadomosci = message.Status switch
             {
                 MessageStatus.Sent => "Wysłana",
@@ -352,13 +353,10 @@ public class MessageService
                 MessageStatus.AwaitingUserResponse => "Oczekuje na odpowiedź użytkownika",
                 _ => message.Status.ToString()
             },
-            Priorytet = null, // Priority not tracked in current model
-            DataPrzeslaniaPodmiotu = message.SenderId != message.RelatedEntity?.Id ? null : message.SentAt,
-            Uzytkownik = $"{message.Sender.FirstName} {message.Sender.LastName}",
-            WiadomoscUzytkownika = message.Body,
-            DataPrzeslaniaUKNF = message.Sender.SupervisedEntityId == null ? message.SentAt : null,
-            PracownikUKNF = message.Sender.SupervisedEntityId == null ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
-            WiadomoscPracownikaUKNF = message.Sender.SupervisedEntityId == null ? message.Body : null
+            WiadomoscUzytkownika = isExternalSender ? message.Body : null,
+            DataPrzeslaniaUKNF = !isExternalSender ? message.SentAt : null,
+            PracownikUKNF = !isExternalSender ? $"{message.Sender.FirstName} {message.Sender.LastName}" : null,
+            WiadomoscPracownikaUKNF = !isExternalSender ? message.Body : null
         };
     }
 

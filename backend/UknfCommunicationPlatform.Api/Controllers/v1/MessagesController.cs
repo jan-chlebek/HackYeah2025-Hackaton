@@ -31,7 +31,6 @@ public class MessagesController : ControllerBase
     /// </summary>
     /// <param name="page">Page number (default: 1)</param>
     /// <param name="pageSize">Items per page (default: 20, max: 100)</param>
-    /// <param name="folder">Filter by message folder</param>
     /// <param name="isRead">Filter by read status</param>
     /// <param name="searchTerm">Search in subject and body</param>
     /// <param name="relatedEntityId">Filter by related supervised entity</param>
@@ -42,7 +41,6 @@ public class MessagesController : ControllerBase
     public async Task<ActionResult<object>> GetMessages(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        [FromQuery] MessageFolder? folder = null,
         [FromQuery] bool? isRead = null,
         [FromQuery] string? searchTerm = null,
         [FromQuery] long? relatedEntityId = null)
@@ -53,7 +51,7 @@ public class MessagesController : ControllerBase
         if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
         var (messages, totalCount) = await _messageService.GetMessagesAsync(
-            userId, page, pageSize, folder, isRead, searchTerm, relatedEntityId);
+            userId, page, pageSize, isRead, searchTerm, relatedEntityId);
 
         return Ok(new
         {
@@ -69,7 +67,7 @@ public class MessagesController : ControllerBase
     }
 
     /// <summary>
-    /// Get message by ID with full details including replies and attachments
+    /// Get message by ID with full details including attachments
     /// </summary>
     /// <param name="id">Message ID</param>
     /// <returns>Detailed message information</returns>

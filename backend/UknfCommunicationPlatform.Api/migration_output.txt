@@ -1,0 +1,4 @@
+Build started...
+Build succeeded.
+An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.
+Done. To undo this action, use 'ef migrations remove'
