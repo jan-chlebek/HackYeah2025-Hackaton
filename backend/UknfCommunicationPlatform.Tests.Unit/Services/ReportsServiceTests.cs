@@ -1,5 +1,9 @@
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
+using UknfCommunicationPlatform.Core.DTOs.Requests;
 using UknfCommunicationPlatform.Core.Entities;
 using UknfCommunicationPlatform.Core.Enums;
 using UknfCommunicationPlatform.Infrastructure.Data;
@@ -15,6 +19,7 @@ public class ReportsServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
     private readonly ReportsService _sut;
+    private readonly Mock<ILogger<ReportsService>> _loggerMock;
 
     public ReportsServiceTests()
     {
@@ -23,7 +28,8 @@ public class ReportsServiceTests : IDisposable
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _sut = new ReportsService(_context);
+        _loggerMock = new Mock<ILogger<ReportsService>>();
+        _sut = new ReportsService(_context, _loggerMock.Object);
     }
 
     [Fact]
@@ -99,6 +105,237 @@ public class ReportsServiceTests : IDisposable
         result.ReportNumber.Should().Be(report.ReportNumber);
         result.ReportingPeriod.Should().Be(report.ReportingPeriod.ToString());
         result.EntityName.Should().NotBeNullOrEmpty();
+        result.FileName.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_WithValidXlsxFile_ShouldCreateReport()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var file = CreateMockXlsxFile("test_report.xlsx", 1024);
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q1 };
+
+        // Act
+        var result = await _sut.SubmitReportAsync(user.Id, file.Object, request);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().BeGreaterThan(0);
+        result.ReportNumber.Should().MatchRegex(@"RPT-\d{4}-\d{4}");
+        result.ReportingPeriod.Should().Be("Q1");
+        result.FileName.Should().Be("test_report.xlsx");
+
+        var savedReport = await _context.Reports.FindAsync(result.Id);
+        savedReport.Should().NotBeNull();
+        savedReport!.FileName.Should().Be("test_report.xlsx");
+        savedReport.FileContent.Should().NotBeEmpty();
+        savedReport.Status.Should().Be(ReportStatus.Draft);
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_WithNullFile_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q1 };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SubmitReportAsync(user.Id, null!, request));
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_WithEmptyFile_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var file = CreateMockXlsxFile("empty.xlsx", 0);
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q1 };
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SubmitReportAsync(user.Id, file.Object, request));
+        exception.Message.Should().Contain("required");
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_WithNonXlsxFile_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var file = CreateMockFile("document.pdf", "application/pdf", 1024);
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q1 };
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SubmitReportAsync(user.Id, file.Object, request));
+        exception.Message.Should().Contain(".xlsx");
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_WithInvalidMimeType_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var file = CreateMockFile("fake.xlsx", "text/plain", 1024);
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q1 };
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SubmitReportAsync(user.Id, file.Object, request));
+        exception.Message.Should().Contain("content type");
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_WithFileTooLarge_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var file = CreateMockXlsxFile("huge.xlsx", 51 * 1024 * 1024); // 51MB
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q1 };
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SubmitReportAsync(user.Id, file.Object, request));
+        exception.Message.Should().Contain("exceeds maximum");
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_ShouldGenerateUniqueReportNumber()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var file1 = CreateMockXlsxFile("report1.xlsx", 1024);
+        var file2 = CreateMockXlsxFile("report2.xlsx", 1024);
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q1 };
+
+        // Act
+        var result1 = await _sut.SubmitReportAsync(user.Id, file1.Object, request);
+        var result2 = await _sut.SubmitReportAsync(user.Id, file2.Object, request);
+
+        // Assert
+        result1.ReportNumber.Should().NotBe(result2.ReportNumber);
+        result1.ReportNumber.Should().MatchRegex(@"RPT-\d{4}-\d{4}");
+        result2.ReportNumber.Should().MatchRegex(@"RPT-\d{4}-\d{4}");
+    }
+
+    [Fact]
+    public async Task SubmitReportAsync_ShouldStoreFileContent()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var file = CreateMockXlsxFile("test.xlsx", 2048);
+        var request = new SubmitReportRequest { ReportingPeriod = ReportingPeriod.Q2 };
+
+        // Act
+        var result = await _sut.SubmitReportAsync(user.Id, file.Object, request);
+
+        // Assert
+        var savedReport = await _context.Reports.FindAsync(result.Id);
+        savedReport!.FileContent.Should().HaveCount(2048);
+        savedReport.FileName.Should().Be("test.xlsx");
+    }
+
+    [Fact]
+    public async Task GetReportFileAsync_ExistingReport_ShouldReturnFileData()
+    {
+        // Arrange
+        var report = await SeedSingleReportAsync();
+
+        // Act
+        var result = await _sut.GetReportFileAsync(report.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Value.FileContent.Should().Equal(report.FileContent);
+        result.Value.FileName.Should().Be(report.FileName);
+    }
+
+    [Fact]
+    public async Task GetReportFileAsync_NonExistingReport_ShouldReturnNull()
+    {
+        // Act
+        var result = await _sut.GetReportFileAsync(999);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetReportFileAsync_ReportWithEmptyFile_ShouldReturnNull()
+    {
+        // Arrange
+        var user = await SeedUserAsync();
+        var report = new Report
+        {
+            ReportNumber = "RPT-2025-0001",
+            FileName = "empty.xlsx",
+            FileContent = Array.Empty<byte>(),
+            ReportingPeriod = ReportingPeriod.Q1,
+            Status = ReportStatus.Draft,
+            SubmittedAt = DateTime.UtcNow,
+            SubmittedByUserId = user.Id,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        _context.Reports.Add(report);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _sut.GetReportFileAsync(report.Id);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    // Helper methods for creating mock files
+
+    private Mock<IFormFile> CreateMockXlsxFile(string fileName, long length)
+    {
+        return CreateMockFile(
+            fileName,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            length);
+    }
+
+    private Mock<IFormFile> CreateMockFile(string fileName, string contentType, long length)
+    {
+        var fileMock = new Mock<IFormFile>();
+        var content = new byte[length];
+        var ms = new MemoryStream(content);
+
+        fileMock.Setup(f => f.FileName).Returns(fileName);
+        fileMock.Setup(f => f.Length).Returns(length);
+        fileMock.Setup(f => f.ContentType).Returns(contentType);
+        fileMock.Setup(f => f.OpenReadStream()).Returns(ms);
+        fileMock.Setup(f => f.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .Returns((Stream stream, CancellationToken token) =>
+            {
+                ms.Position = 0;
+                return ms.CopyToAsync(stream, token);
+            });
+
+        return fileMock;
+    }
+
+    private async Task<User> SeedUserAsync()
+    {
+        var user = new User
+        {
+            FirstName = "Test",
+            LastName = "User",
+            Email = "test@example.com",
+            PasswordHash = "hash",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        return user;
     }
 
     [Fact]
