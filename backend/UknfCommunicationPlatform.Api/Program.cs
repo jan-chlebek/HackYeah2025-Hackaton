@@ -70,17 +70,32 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Permission_entities.write", policy =>
         policy.Requirements.Add(new PermissionRequirement("entities.write")));
 
+    options.AddPolicy("Permission_entities.delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("entities.delete")));
+
     options.AddPolicy("Permission_reports.read", policy =>
         policy.Requirements.Add(new PermissionRequirement("reports.read")));
 
     options.AddPolicy("Permission_reports.write", policy =>
         policy.Requirements.Add(new PermissionRequirement("reports.write")));
 
+    options.AddPolicy("Permission_reports.create", policy =>
+        policy.Requirements.Add(new PermissionRequirement("reports.create")));
+
     options.AddPolicy("Permission_messages.read", policy =>
         policy.Requirements.Add(new PermissionRequirement("messages.read")));
 
     options.AddPolicy("Permission_messages.write", policy =>
         policy.Requirements.Add(new PermissionRequirement("messages.write")));
+
+    options.AddPolicy("Permission_cases.read", policy =>
+        policy.Requirements.Add(new PermissionRequirement("cases.read")));
+
+    options.AddPolicy("Permission_cases.write", policy =>
+        policy.Requirements.Add(new PermissionRequirement("cases.write")));
+
+    options.AddPolicy("Permission_cases.delete", policy =>
+        policy.Requirements.Add(new PermissionRequirement("cases.delete")));
 
     // Role-based policies
     options.AddPolicy("AdminOnly", policy =>

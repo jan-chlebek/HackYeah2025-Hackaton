@@ -102,18 +102,20 @@ public class DatabaseSeeder
             new Permission { Name = "cases.delete", Resource = "cases", Action = "delete", Description = "Can delete cases" }
         };
 
-        // Check if permissions already exist - if so, skip entirely
-        if (await _context.Permissions.AnyAsync())
+        // Check if permissions already exist
+        var hasPermissions = await _context.Permissions.AnyAsync();
+        
+        if (hasPermissions)
         {
             _logger.LogInformation("Permissions already exist. Checking for new permissions...");
             
-            // But check if we need to add new permissions
+            // Check if we need to add new permissions
             var existingPermissionNames = await _context.Permissions.Select(p => p.Name).ToListAsync();
             var missingPermissions = permissions.Where(p => !existingPermissionNames.Contains(p.Name)).ToList();
             
             if (missingPermissions.Any())
             {
-                _logger.LogInformation($"Adding {missingPermissions.Count} new permissions...");
+                _logger.LogInformation($"Adding {missingPermissions.Count} new permissions: {string.Join(", ", missingPermissions.Select(p => p.Name))}");
                 await _context.Permissions.AddRangeAsync(missingPermissions);
                 await _context.SaveChangesAsync();
                 
@@ -123,25 +125,34 @@ public class DatabaseSeeder
                 // Assign new permissions to roles
                 await AssignPermissionsToRolesAsync(permissions);
             }
+            else
+            {
+                _logger.LogInformation("No new permissions to add.");
+            }
             
-            return;
+            // Load existing permissions and continue with roles seeding
+            permissions = await _context.Permissions.ToListAsync();
         }
-
-        await _context.Permissions.AddRangeAsync(permissions);
-        await _context.SaveChangesAsync();
-
-        var roles = new List<Role>
+        else
         {
-            new Role { Name = "Administrator", Description = "Full system access", IsSystemRole = true, CreatedAt = DateTime.UtcNow },
-            new Role { Name = "InternalUser", Description = "UKNF internal staff", IsSystemRole = true, CreatedAt = DateTime.UtcNow },
-            new Role { Name = "Supervisor", Description = "UKNF supervisor", IsSystemRole = true, CreatedAt = DateTime.UtcNow },
-            new Role { Name = "ExternalUser", Description = "Supervised entity representative", IsSystemRole = true, CreatedAt = DateTime.UtcNow }
-        };
+            // First time setup - add all permissions
+            _logger.LogInformation($"Adding {permissions.Count} initial permissions...");
+            await _context.Permissions.AddRangeAsync(permissions);
+            await _context.SaveChangesAsync();
 
-        await _context.Roles.AddRangeAsync(roles);
-        await _context.SaveChangesAsync();
+            var roles = new List<Role>
+            {
+                new Role { Name = "Administrator", Description = "Full system access", IsSystemRole = true, CreatedAt = DateTime.UtcNow },
+                new Role { Name = "InternalUser", Description = "UKNF internal staff", IsSystemRole = true, CreatedAt = DateTime.UtcNow },
+                new Role { Name = "Supervisor", Description = "UKNF supervisor", IsSystemRole = true, CreatedAt = DateTime.UtcNow },
+                new Role { Name = "ExternalUser", Description = "Supervised entity representative", IsSystemRole = true, CreatedAt = DateTime.UtcNow }
+            };
 
-        await AssignPermissionsToRolesAsync(permissions);
+            await _context.Roles.AddRangeAsync(roles);
+            await _context.SaveChangesAsync();
+
+            await AssignPermissionsToRolesAsync(permissions);
+        }
     }
 
     private async Task AssignPermissionsToRolesAsync(List<Permission> permissions)
@@ -150,6 +161,7 @@ public class DatabaseSeeder
         var adminRole = await _context.Roles.FirstAsync(r => r.Name == "Administrator");
         var internalRole = await _context.Roles.FirstAsync(r => r.Name == "InternalUser");
         var supervisorRole = await _context.Roles.FirstAsync(r => r.Name == "Supervisor");
+        var externalRole = await _context.Roles.FirstAsync(r => r.Name == "ExternalUser");
 
         // Get existing role permissions
         var existingRolePermissions = await _context.RolePermissions
@@ -195,6 +207,20 @@ public class DatabaseSeeder
                 rolePermissions.Add(new RolePermission
                 {
                     RoleId = supervisorRole.Id,
+                    PermissionId = permission.Id
+                });
+            }
+        }
+
+        // Assign permissions to ExternalUser role (supervised entities)
+        var externalPermissionNames = new[] { "messages.read", "messages.write", "reports.read", "reports.create" };
+        foreach (var permission in permissions.Where(p => externalPermissionNames.Contains(p.Name)))
+        {
+            if (!existingRolePermissions.Any(rp => rp.RoleId == externalRole.Id && rp.PermissionId == permission.Id))
+            {
+                rolePermissions.Add(new RolePermission
+                {
+                    RoleId = externalRole.Id,
                     PermissionId = permission.Id
                 });
             }
