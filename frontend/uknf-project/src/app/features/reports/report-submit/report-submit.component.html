@@ -52,7 +52,8 @@
             pButton 
             label="Wybierz plik" 
             icon="pi pi-folder-open" 
-            class="p-button-outlined">
+            class="p-button-outlined"
+            (click)="triggerFileInput(); $event.preventDefault(); $event.stopPropagation();">
           </button>
         </div>
 
@@ -134,8 +135,7 @@
             rows="4"
             placeholder="Dodatkowe informacje lub uwagi dotyczące sprawozdania..."
             [disabled]="uploading"
-            class="w-full">
-          </textarea>
+            class="w-full"></textarea>
         </div>
       </div>
     </div>
