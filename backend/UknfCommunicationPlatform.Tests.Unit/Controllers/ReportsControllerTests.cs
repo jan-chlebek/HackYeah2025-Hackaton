@@ -19,6 +19,7 @@ public class ReportsControllerTests : IDisposable
     private readonly ReportsService _service;
     private readonly ReportsController _controller;
     private readonly Mock<ILogger<ReportsController>> _logger;
+    private readonly Mock<ILogger<ReportsService>> _serviceLogger;
 
     public ReportsControllerTests()
     {
@@ -27,7 +28,8 @@ public class ReportsControllerTests : IDisposable
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _service = new ReportsService(_context);
+        _serviceLogger = new Mock<ILogger<ReportsService>>();
+        _service = new ReportsService(_context, _serviceLogger.Object);
         _logger = new Mock<ILogger<ReportsController>>();
         _controller = new ReportsController(_service, _logger.Object);
 
@@ -180,7 +182,8 @@ public class ReportsControllerTests : IDisposable
             .Options;
         
         var tempContext = new ApplicationDbContext(options);
-        var tempService = new ReportsService(tempContext);
+        var tempServiceLogger = new Mock<ILogger<ReportsService>>();
+        var tempService = new ReportsService(tempContext, tempServiceLogger.Object);
         var tempController = new ReportsController(tempService, _logger.Object);
         
         // Dispose context to cause exception
@@ -260,7 +263,8 @@ public class ReportsControllerTests : IDisposable
             .Options;
         
         var tempContext = new ApplicationDbContext(options);
-        var tempService = new ReportsService(tempContext);
+        var tempServiceLogger = new Mock<ILogger<ReportsService>>();
+        var tempService = new ReportsService(tempContext, tempServiceLogger.Object);
         var tempController = new ReportsController(tempService, _logger.Object);
         
         // Dispose context to cause exception
