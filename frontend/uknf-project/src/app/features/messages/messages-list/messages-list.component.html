@@ -309,8 +309,8 @@
       </div>
     </div>
 
-    <!-- User Message Section -->
-    <div class="detail-section">
+    <!-- User Message Section (visible only for ExternalUser, read-only) -->
+    <div class="detail-section" *ngIf="isExternalUser">
       <label for="detail-wiadomosc-uzytkownika" class="detail-label">Wiadomość użytkownika</label>
       <textarea 
         id="detail-wiadomosc-uzytkownika"
@@ -319,7 +319,11 @@
         rows="5"
         [style]="{'width': '100%'}"
         placeholder="Treść wiadomości użytkownika..."
+        readonly
+        class="user-message-readonly"
+        aria-readonly="true"
       ></textarea>
+      <small class="field-hint">Pole dostępne tylko do podglądu dla użytkownika zewnętrznego.</small>
     </div>
 
     <!-- Attachments Section -->

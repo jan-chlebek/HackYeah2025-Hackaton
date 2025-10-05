@@ -86,6 +86,13 @@ export class MessagesListComponent implements OnInit {
   selectedMessage: Message | null = null;
   showDetailsDialog = false;
 
+  // Determine if currently authenticated user is an ExternalUser (by role name)
+  get isExternalUser(): boolean {
+    const user = this.authService.getCurrentUser?.() || this.authService['currentUserSignal']?.();
+    if (!user) return false;
+    return user.roles?.some((r: string) => r.toLowerCase() === 'externaluser');
+  }
+
   ngOnInit(): void {
     // Build breadcrumb based on permissions
     const items: MenuItem[] = [];
