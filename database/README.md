@@ -221,9 +221,5 @@ Key requirement sections:
 
 - [Project README](../README.md)
 - [Testing Guide](../TESTING_GUIDE.md)
-- [PostgreSQL Migration Summary](../POSTGRESQL_MIGRATION.md)
 - [Backend Instructions](../.github/instructions/backend.instructions.md)
 
-## License
-
-This schema is part of the HackYeah 2025 competition submission for UKNF.
