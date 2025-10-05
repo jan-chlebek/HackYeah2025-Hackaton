@@ -4,7 +4,7 @@ Zachęcamy do
 - Przejrzenia fragmentów dokumentacji
     - [Przygotowanie dokumentacji projektowej do programowania z AI](AIDevelopment_Documentation/3.1%20Working%20with%20AI%20-%20Planning.md)
     - [Przykłady dobrego promptowania](AIDevelopment_Documentation/2.1%20Good%20practise%20-%20prompt%20structure.md)
-- Wejścia na stronę demo (opublikowania na Azure przy pomocy skryptów z folderu *azure-deploy*) - [Kliknij mnie - wykorzystaj dane logowania wylistowane powyżej!](https://hackyeah2025chlebkiknffrontend.azurewebsites.net/auth/login):
+- Wejścia na stronę demo (opublikowania na Azure przy pomocy skryptów z folderu *azure-deploy*) - **Wykorzystaj dane logowania wylistowane poniżej** [Kliknij mnie](https://hackyeah2025chlebkiknffrontend.azurewebsites.net/auth/login):
 
     - admin@uknf.gov.pl | Admin123!
 
