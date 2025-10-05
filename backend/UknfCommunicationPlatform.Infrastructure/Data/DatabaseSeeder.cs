@@ -30,16 +30,29 @@ public class DatabaseSeeder
     /// <summary>
     /// Seeds the database with sample data
     /// </summary>
-    public async Task SeedAsync()
+    /// <param name="forceReseed">If true, clears all data before seeding (used for testing)</param>
+    public async Task SeedAsync(bool forceReseed = false)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // Check if data already exists
-            if (await _context.Users.AnyAsync())
+            // For testing: clear all data first
+            if (forceReseed)
             {
-                _logger.LogInformation("Database already contains data. Skipping seeding.");
-                return;
+                _logger.LogInformation("Force reseed requested - clearing database...");
+                await ClearAllDataAsync();
+
+                // Clear the change tracker to ensure fresh state
+                _context.ChangeTracker.Clear();
+            }
+            else
+            {
+                // For deployment: only seed if database is empty
+                if (await _context.Users.AnyAsync())
+                {
+                    _logger.LogInformation("Database already contains data. Skipping seeding.");
+                    return;
+                }
             }
 
             _logger.LogInformation("Starting database seeding...");
@@ -58,7 +71,18 @@ public class DatabaseSeeder
             await SeedMessagesAsync();
             await SeedReportsAsync();
             await SeedCasesAsync();
-            await SeedAnnouncementsAsync();
+
+            // Allow tests to opt-out of baseline announcements for deterministic counts
+            var skipAnnouncements = Environment.GetEnvironmentVariable("SKIP_SEED_ANNOUNCEMENTS") == "1";
+            var isTestingEnv = string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), "Testing", StringComparison.OrdinalIgnoreCase);
+            if (!skipAnnouncements && !isTestingEnv)
+            {
+                await SeedAnnouncementsAsync();
+            }
+            else
+            {
+                _logger.LogInformation("Skipping announcement seeding (skip={Skip} testingEnv={Testing})", skipAnnouncements, isTestingEnv);
+            }
             await SeedFileLibrariesAsync();
             await SeedFaqQuestionsAsync();
             await SeedContactsAsync();
@@ -78,6 +102,62 @@ public class DatabaseSeeder
             _logger.LogError(ex, "Error occurred while seeding database");
             throw;
         }
+    }
+
+    /// <summary>
+    /// Clears all data from the database (used for testing)
+    /// </summary>
+    private async Task ClearAllDataAsync()
+    {
+        _logger.LogInformation("Clearing all database data...");
+
+        // Delete in reverse order of dependencies - only existing tables
+        // Using TRUNCATE for performance and to reset sequences
+        var tables = new[]
+        {
+            "refresh_tokens",
+            "file_library_permissions",
+            "case_documents",
+            "case_histories",
+            "cases",
+            "announcement_attachments",
+            "announcement_reads",
+            "announcement_histories",
+            "announcement_recipients",
+            "announcements",
+            "reports",
+            "message_attachments",
+            "messages",
+            "contact_group_members",
+            "contact_groups",
+            "contacts",
+            "faq_questions",
+            "file_library_items",
+            "supervised_entity_users",
+            "supervised_entities",
+            "user_roles",
+            "users",
+            "role_permissions",
+            "permissions",
+            "roles",
+            "password_policy"
+        };
+
+        foreach (var table in tables)
+        {
+            try
+            {
+#pragma warning disable EF1002
+                await _context.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {table} RESTART IDENTITY CASCADE");
+#pragma warning restore EF1002
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Failed to truncate table {table}: {ex.Message}");
+            }
+        }
+
+        _logger.LogInformation("Database cleared successfully");
     }
 
     private async Task SeedRolesAndPermissionsAsync()
@@ -102,26 +182,26 @@ public class DatabaseSeeder
             new Permission { Name = "cases.delete", Resource = "cases", Action = "delete", Description = "Can delete cases" }
         };
 
-        // Check if permissions already exist
+        // Check if permissions already exist (only when NOT force-reseeding)
         var hasPermissions = await _context.Permissions.AnyAsync();
-        
+
         if (hasPermissions)
         {
             _logger.LogInformation("Permissions already exist. Checking for new permissions...");
-            
+
             // Check if we need to add new permissions
             var existingPermissionNames = await _context.Permissions.Select(p => p.Name).ToListAsync();
             var missingPermissions = permissions.Where(p => !existingPermissionNames.Contains(p.Name)).ToList();
-            
+
             if (missingPermissions.Any())
             {
                 _logger.LogInformation($"Adding {missingPermissions.Count} new permissions: {string.Join(", ", missingPermissions.Select(p => p.Name))}");
                 await _context.Permissions.AddRangeAsync(missingPermissions);
                 await _context.SaveChangesAsync();
-                
+
                 // Reload all permissions from database
                 permissions = await _context.Permissions.ToListAsync();
-                
+
                 // Assign new permissions to roles
                 await AssignPermissionsToRolesAsync(permissions);
             }
@@ -129,7 +209,7 @@ public class DatabaseSeeder
             {
                 _logger.LogInformation("No new permissions to add.");
             }
-            
+
             // Load existing permissions and continue with roles seeding
             permissions = await _context.Permissions.ToListAsync();
         }
@@ -198,7 +278,7 @@ public class DatabaseSeeder
         }
 
         // Assign permissions to Supervisor role
-        var supervisorPermissionNames = new[] { "messages.read", "messages.write", "entities.read", "entities.write", 
+        var supervisorPermissionNames = new[] { "messages.read", "messages.write", "entities.read", "entities.write",
             "reports.read", "reports.write", "reports.create", "users.read", "cases.read", "cases.write" };
         foreach (var permission in permissions.Where(p => supervisorPermissionNames.Contains(p.Name)))
         {
@@ -858,7 +938,7 @@ public class DatabaseSeeder
             {
                 Subject = "Re: Wyjaśnienie dotyczące raportu ryzyka",
                 Body = "Przekazujemy szczegółowe wyjaśnienie rozbieżności. Załączamy poprawiony raport.",
-                SenderId = messages[3].RecipientId.Value, // Reply from recipient of original message
+                SenderId = messages[3].RecipientId!.Value, // Reply from recipient of original message
                 RecipientId = messages[3].SenderId,
                 ParentMessageId = messages[3].Id,
                 RelatedEntityId = messages[3].RelatedEntityId,
@@ -877,7 +957,7 @@ public class DatabaseSeeder
             {
                 Subject = "Re: Prośba o uzupełnienie danych",
                 Body = "Przekazujemy uzupełnione dane zgodnie z Państwa prośbą.",
-                SenderId = messages[8].RecipientId.Value,
+                SenderId = messages[8].RecipientId!.Value,
                 RecipientId = messages[8].SenderId,
                 ParentMessageId = messages[8].Id,
                 RelatedEntityId = messages[8].RelatedEntityId,
@@ -1077,6 +1157,15 @@ public class DatabaseSeeder
 
         _logger.LogInformation("Seeded {Count} message attachments across messages (demonstrating 0, 1, 2, and 3 attachments)",
             attachments.Count);
+    }
+
+    /// <summary>
+    /// Re-seeds only reports table (used by integration tests after truncating reports)
+    /// </summary>
+    public async Task SeedReportsOnlyAsync()
+    {
+        await SeedReportsAsync();
+        await _context.SaveChangesAsync();
     }
 
     private async Task SeedReportsAsync()
@@ -1332,12 +1421,6 @@ public class DatabaseSeeder
 
     private async Task SeedFileLibrariesAsync()
     {
-        if (await _context.FileLibraries.AnyAsync())
-        {
-            _logger.LogInformation("File libraries already seeded");
-            return;
-        }
-
         _logger.LogInformation("Seeding file libraries...");
 
         var internalUsers = await _context.Users.Where(u => u.SupervisedEntityId == null).Take(3).ToListAsync();
@@ -1391,43 +1474,43 @@ public class DatabaseSeeder
         {
             new FaqQuestion
             {
-                Question = "Jak mogę zalogować się do systemu?",
-                Answer = "<p>Aby zalogować się do systemu, należy:</p><ol><li>Przejść na stronę logowania</li><li>Wprowadzić swój login i hasło</li><li>Kliknąć przycisk \"Zaloguj\"</li></ol><p>W przypadku problemów z logowaniem, skontaktuj się z administratorem systemu.</p>"
+                Question = "Jak uzyskać dostęp do platformy komunikacyjnej UKNF?",
+                Answer = "Aby uzyskać dostęp do platformy, należy:\n1. Złożyć wniosek o dostęp do systemu w formie pisemnej do UKNF\n2. Po zatwierdzeniu wniosku, otrzymacie Państwo dane dostępowe na wskazany adres e-mail\n3. Przy pierwszym logowaniu należy zmienić hasło na własne\n4. W przypadku problemów z dostępem, prosimy o kontakt z helpdesk UKNF: helpdesk@uknf.gov.pl lub +48 22 262 5000 (pn-pt, 8:00-16:00)"
             },
             new FaqQuestion
             {
-                Question = "Jak często należy składać raporty kwartalne?",
-                Answer = "<p>Raporty kwartalne należy składać cztery razy w roku:</p><ul><li>Q1 - do 30 kwietnia</li><li>Q2 - do 31 lipca</li><li>Q3 - do 31 października</li><li>Q4 - do 31 stycznia roku następnego</li></ul><p>Zaleca się składanie raportów z wyprzedzeniem, aby uniknąć problemów technicznych w ostatnim dniu.</p>"
+                Question = "Jak zgłosić sprawy rejestrowe dla mojego podmiotu?",
+                Answer = "Zgłoszenia rejestrowe należy składać poprzez platformę:\n1. Zaloguj się do systemu\n2. Przejdź do sekcji \"Sprawy rejestrowe\"\n3. Wypełnij formularz zgłoszeniowy, podając wszystkie wymagane dane\n4. Dołącz wymagane dokumenty (statut, licencje, dokumenty identyfikacyjne zarządu)\n5. Wyślij zgłoszenie - otrzymacie Państwo numer sprawy do śledzenia statusu\n\nW przypadku braków formalnych, UKNF skontaktuje się z Państwem przez platformę z prośbą o uzupełnienie dokumentacji."
             },
             new FaqQuestion
             {
-                Question = "Jakie formaty plików są akceptowane przy wysyłaniu raportów?",
-                Answer = "<p>System akceptuje wyłącznie pliki w formacie <strong>XLSX</strong> (Microsoft Excel).</p><p>Pliki w innych formatach (XLS, CSV, PDF) nie będą przyjmowane. Upewnij się, że plik został zapisany w odpowiednim formacie przed przesłaniem.</p>"
+                Question = "Jakie dokumenty mogę przesyłać jako załączniki?",
+                Answer = "System akceptuje następujące typy plików:\n- Dokumenty: PDF, DOCX, XLSX, ODT, ODS\n- Archiwa: ZIP (max 100 MB)\n- Obrazy: JPG, PNG (np. skany dokumentów)\n\nLimity:\n- Maksymalny rozmiar pojedynczego pliku: 25 MB\n- Maksymalna liczba załączników w jednej wiadomości: 10 plików\n- Dla archiwów ZIP: maksymalnie 100 MB\n\nPliki w innych formatach lub przekraczające limity zostaną odrzucone przez system."
             },
             new FaqQuestion
             {
-                Question = "Jak mogę zmienić dane mojego podmiotu nadzorowanego?",
-                Answer = "<p>Aby zmienić dane podmiotu nadzorowanego:</p><ol><li>Przejdź do zakładki \"Administracja\"</li><li>Wybierz \"Podmioty nadzorowane\"</li><li>Znajdź swój podmiot na liście i kliknij \"Edytuj\"</li><li>Wprowadź zmiany i zapisz</li></ol><p>Zmiany krytycznych danych (np. NIP, REGON) wymagają zatwierdzenia przez pracownika UKNF.</p>"
+                Question = "Jak zaktualizować dane mojego podmiotu w systemie?",
+                Answer = "Aktualizacja danych podmiotu:\n1. Zaloguj się do platformy i przejdź do sekcji \"Moje dane\"\n2. Wybierz \"Dane podmiotu\" i kliknij \"Aktualizuj\"\n3. Wprowadź zmiany (adres, osoby kontaktowe, dane zarządu itp.)\n4. Dołącz dokumenty potwierdzające zmiany (KRS, umowy, uchwały)\n5. Wyślij wniosek o aktualizację\n\nUwaga: Zmiany danych podstawowych (NIP, REGON, nazwa firmy) wymagają weryfikacji i zatwierdzenia przez pracownika UKNF. Proces może potrwać do 5 dni roboczych."
             },
             new FaqQuestion
             {
-                Question = "Gdzie mogę znaleźć archiwalne raporty?",
-                Answer = "<p>Archiwalne raporty znajdują się w zakładce <strong>\"Biblioteka plików\"</strong>.</p><p>Możesz filtrować raporty według:</p><ul><li>Okresu sprawozdawczego (kwartał)</li><li>Daty złożenia</li><li>Statusu walidacji</li></ul><p>Każdy raport można pobrać w formacie XLSX.</p>"
+                Question = "Gdzie znajdę archiwalną korespondencję z UKNF?",
+                Answer = "Cała korespondencja z UKNF jest dostępna w sekcji \"Wiadomości\":\n- Możesz filtrować wiadomości według daty, statusu lub tematu\n- Wiadomości są archiwizowane zgodnie z wymogami prawnymi (10 lat)\n- Każdą wiadomość wraz z załącznikami możesz pobrać w dowolnym momencie\n\nDokumenty związane ze sprawami rejestracyjnymi znajdują się również w zakładce \"Sprawy\" - pod numerem konkretnej sprawy."
             },
             new FaqQuestion
             {
-                Question = "Co zrobić w przypadku problemów technicznych?",
-                Answer = "<p>W przypadku problemów technicznych:</p><ol><li>Sprawdź sekcję FAQ - większość problemów jest tam opisana</li><li>Skontaktuj się z helpdesk: <a href=\"mailto:helpdesk@uknf.gov.pl\">helpdesk@uknf.gov.pl</a></li><li>W pilnych sprawach zadzwoń: +48 22 262 5000</li></ol><p>Helpdesk jest dostępny od poniedziałku do piątku w godzinach 8:00-16:00.</p>"
+                Question = "Co zrobić w przypadku problemów technicznych z platformą?",
+                Answer = "W przypadku problemów technicznych:\n1. Sprawdź sekcję FAQ oraz instrukcje użytkownika dostępne w systemie\n2. Upewnij się, że używasz aktualnej wersji przeglądarki (Chrome, Firefox, Edge)\n3. Wyczyść cache przeglądarki i spróbuj ponownie\n\nJeśli problem nadal występuje:\n- Skontaktuj się z helpdesk: helpdesk@uknf.gov.pl\n- W pilnych sprawach dzwoń: +48 22 262 5000\n- Godziny pracy helpdesk: poniedziałek-piątek, 8:00-16:00\n\nPrzy zgłoszeniu podaj: nazwę podmiotu, opis problemu oraz zrzut ekranu (jeśli dotyczy)."
             },
             new FaqQuestion
             {
-                Question = "Jak długo przechowywane są wiadomości w systemie?",
-                Answer = "<p>Wiadomości w systemie są przechowywane zgodnie z wymogami prawnymi:</p><ul><li>Wiadomości robocze: <strong>5 lat</strong></li><li>Wiadomości urzędowe: <strong>10 lat</strong></li><li>Wiadomości dotyczące postępowań: <strong>do zakończenia postępowania + 10 lat</strong></li></ul><p>Po upływie okresu archiwizacji wiadomości są automatycznie usuwane.</p>"
+                Question = "Jak długo przechowywane są dokumenty i wiadomości w systemie?",
+                Answer = "Okresy przechowywania danych zgodnie z przepisami:\n- Wiadomości i korespondencja: 10 lat od daty wysłania\n- Dokumenty związane ze sprawami rejestracyjnymi: 10 lat od zakończenia sprawy\n- Dane podmiotu: przez cały okres nadzoru + 10 lat po wykreśleniu z rejestru\n- Załączniki do wiadomości: 10 lat (ten sam okres co wiadomości)\n\nPo upływie okresu archiwizacji dane są automatycznie usuwane z systemu. Zalecamy regularne pobieranie ważnych dokumentów na własne nośniki."
             },
             new FaqQuestion
             {
-                Question = "Czy mogę dodać załączniki do wiadomości?",
-                Answer = "<p>Tak, do każdej wiadomości możesz dodać załączniki.</p><p>Ograniczenia:</p><ul><li>Maksymalny rozmiar pojedynczego pliku: <strong>25 MB</strong></li><li>Maksymalna liczba załączników: <strong>10</strong></li><li>Dozwolone formaty: PDF, XLSX, DOCX, ZIP, JPG, PNG</li></ul><p>Pliki o innych rozszerzeniach lub przekraczające limity zostaną odrzucone.</p>"
+                Question = "Czy mogę upoważnić inne osoby do korzystania z platformy w imieniu mojego podmiotu?",
+                Answer = "Tak, możesz zarządzać użytkownikami z Twojego podmiotu:\n1. Przejdź do sekcji \"Zarządzanie użytkownikami\"\n2. Dodaj nowego użytkownika, podając jego dane (imię, nazwisko, e-mail, stanowisko)\n3. Przypisz odpowiednie uprawnienia (odczyt, wysyłka wiadomości, sprawy rejestracyjne)\n4. Użytkownik otrzyma zaproszenie e-mailem z linkiem aktywacyjnym\n\nUwaga: Osoba zarządzająca kontem głównym ponosi odpowiedzialność za działania wszystkich użytkowników z danego podmiotu. Zalecamy przyznawanie uprawnień zgodnie z zasadą minimalnych niezbędnych praw dostępu."
             }
         };
 

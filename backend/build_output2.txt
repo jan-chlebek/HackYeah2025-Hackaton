@@ -1,0 +1,24 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  UknfCommunicationPlatform.Core -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Core/bin/Debug/net9.0/UknfCommunicationPlatform.Core.dll
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(175,22): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(176,30): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(178,26): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(179,20): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(182,21): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+  UknfCommunicationPlatform.Infrastructure -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/bin/Debug/net9.0/UknfCommunicationPlatform.Infrastructure.dll
+  UknfCommunicationPlatform.Api -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Api/bin/Debug/net9.0/UknfCommunicationPlatform.Api.dll
+  UknfCommunicationPlatform.Tests.Integration -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Integration/bin/Debug/net9.0/UknfCommunicationPlatform.Tests.Integration.dll
+  UknfCommunicationPlatform.Tests.Unit -> /home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Tests.Unit/bin/Debug/net9.0/UknfCommunicationPlatform.Tests.Unit.dll
+
+Build succeeded.
+
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(175,22): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(176,30): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(178,26): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(179,20): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/Services/EntityManagementService.cs(182,21): warning CS8601: Possible null reference assignment. [/home/quasar/src/hackyeah/HackYeah2025-Hackaton/backend/UknfCommunicationPlatform.Infrastructure/UknfCommunicationPlatform.Infrastructure.csproj]
+    5 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.49

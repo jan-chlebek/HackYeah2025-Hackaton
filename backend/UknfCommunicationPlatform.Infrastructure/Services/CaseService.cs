@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 using UknfCommunicationPlatform.Core.DTOs.Cases;
 using UknfCommunicationPlatform.Core.Entities;
 using UknfCommunicationPlatform.Core.Enums;
@@ -14,6 +15,32 @@ public class CaseService
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<CaseService> _logger;
+
+    // Pure projection expression so EF Core can translate entirely server-side.
+    private static readonly Expression<Func<Case, CaseResponse>> CaseProjection = c => new CaseResponse
+    {
+        Id = c.Id,
+        CaseNumber = c.CaseNumber,
+        Title = c.Title,
+        Description = c.Description,
+        Category = c.Category,
+        Status = c.Status,
+        StatusDisplay = c.Status.ToString(),
+        Priority = c.Priority,
+        SupervisedEntityId = c.SupervisedEntityId,
+        SupervisedEntityName = c.SupervisedEntity != null ? c.SupervisedEntity.Name : string.Empty,
+        HandlerId = c.HandlerId,
+        HandlerName = c.Handler != null ? c.Handler.FirstName + " " + c.Handler.LastName : null,
+        CreatedByUserId = c.CreatedByUserId,
+        CreatedByName = c.CreatedBy.FirstName + " " + c.CreatedBy.LastName,
+        CreatedAt = c.CreatedAt,
+        UpdatedAt = c.UpdatedAt,
+        ResolvedAt = c.ResolvedAt,
+        ClosedAt = c.ClosedAt,
+        IsCancelled = c.IsCancelled,
+        CancelledAt = c.CancelledAt,
+        CancellationReason = c.CancellationReason
+    };
 
     public CaseService(ApplicationDbContext context, ILogger<CaseService> logger)
     {
@@ -56,7 +83,7 @@ public class CaseService
             .OrderByDescending(c => c.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(c => MapToCaseResponse(c))
+            .Select(CaseProjection)
             .ToListAsync();
 
         return (cases, totalCount);
@@ -67,13 +94,15 @@ public class CaseService
     /// </summary>
     public async Task<CaseResponse?> GetCaseByIdAsync(long id)
     {
-        var caseEntity = await _context.Cases
+        var response = await _context.Cases
             .Include(c => c.SupervisedEntity)
             .Include(c => c.Handler)
             .Include(c => c.CreatedBy)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .Where(c => c.Id == id)
+            .Select(CaseProjection)
+            .FirstOrDefaultAsync();
 
-        return caseEntity == null ? null : MapToCaseResponse(caseEntity);
+        return response;
     }
 
     /// <summary>
@@ -177,36 +206,5 @@ public class CaseService
         return await GetCaseByIdAsync(id);
     }
 
-    /// <summary>
-    /// Map Case entity to CaseResponse DTO
-    /// </summary>
-    private CaseResponse MapToCaseResponse(Case caseEntity)
-    {
-        return new CaseResponse
-        {
-            Id = caseEntity.Id,
-            CaseNumber = caseEntity.CaseNumber,
-            Title = caseEntity.Title,
-            Description = caseEntity.Description,
-            Category = caseEntity.Category,
-            Status = caseEntity.Status,
-            StatusDisplay = caseEntity.Status.ToString(),
-            Priority = caseEntity.Priority,
-            SupervisedEntityId = caseEntity.SupervisedEntityId,
-            SupervisedEntityName = caseEntity.SupervisedEntity?.Name ?? "",
-            HandlerId = caseEntity.HandlerId,
-            HandlerName = caseEntity.Handler != null 
-                ? $"{caseEntity.Handler.FirstName} {caseEntity.Handler.LastName}" 
-                : null,
-            CreatedByUserId = caseEntity.CreatedByUserId,
-            CreatedByName = $"{caseEntity.CreatedBy.FirstName} {caseEntity.CreatedBy.LastName}",
-            CreatedAt = caseEntity.CreatedAt,
-            UpdatedAt = caseEntity.UpdatedAt,
-            ResolvedAt = caseEntity.ResolvedAt,
-            ClosedAt = caseEntity.ClosedAt,
-            IsCancelled = caseEntity.IsCancelled,
-            CancelledAt = caseEntity.CancelledAt,
-            CancellationReason = caseEntity.CancellationReason
-        };
-    }
+    // Instance mapping method removed; pure projection expression used instead to satisfy EF Core translation.
 }

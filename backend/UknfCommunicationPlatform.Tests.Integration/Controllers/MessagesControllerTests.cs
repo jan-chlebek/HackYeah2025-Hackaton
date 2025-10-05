@@ -28,13 +28,8 @@ public class MessagesControllerTests : IClassFixture<TestDatabaseFixture>, IAsyn
 
     public async Task InitializeAsync()
     {
-        // Cleanup before each test
-        using var scope = _factory.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
-        // Clear messages to have clean state
-        context.Messages.RemoveRange(context.Messages);
-        await context.SaveChangesAsync();
+        // Cleanup test-created messages before each test (keep seed data)
+        await _factory.ResetTestDataAsync();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
@@ -416,7 +411,7 @@ public class MessagesControllerTests : IClassFixture<TestDatabaseFixture>, IAsyn
 
         // Assert
         message.Priority.Should().Be(MessagePriority.High);
-        
+
         // Check that the property exists
         var properties = typeof(MessageResponse).GetProperties();
         properties.Should().Contain(p => p.Name == "Priority");

@@ -35,10 +35,10 @@ public class CasesControllerTests : IClassFixture<TestDatabaseFixture>, IAsyncLi
     {
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
+
         // Get an admin user
         var admin = context.Users.First(u => u.Email == "admin@uknf.gov.pl");
-        
+
         var client = _factory.CreateClient();
         var token = _factory.GenerateJwtToken(admin.Id, admin.Email, "UKNF");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -164,7 +164,7 @@ public class CasesControllerTests : IClassFixture<TestDatabaseFixture>, IAsyncLi
 
         // Act
         var response = await _client!.PatchAsync(
-            $"/api/v1/cases/{existingCase.Id}/status?newStatus={CaseStatus.InProgress}", 
+            $"/api/v1/cases/{existingCase.Id}/status?newStatus={CaseStatus.InProgress}",
             null);
 
         // Assert

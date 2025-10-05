@@ -10,6 +10,7 @@ using System.Text;
 using UknfCommunicationPlatform.Api;
 using UknfCommunicationPlatform.Infrastructure.Data;
 using UknfCommunicationPlatform.Infrastructure.Services;
+using Xunit.Abstractions;
 
 namespace UknfCommunicationPlatform.Tests.Integration;
 
@@ -21,7 +22,14 @@ namespace UknfCommunicationPlatform.Tests.Integration;
 public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly string _connectionString;
-    private bool _isSeeded = false;
+    private static readonly SemaphoreSlim _seedLock = new SemaphoreSlim(1, 1);
+    private static bool _globalIsSeeded = false;
+    private ITestOutputHelper? _output;
+
+    public void SetOutput(ITestOutputHelper output)
+    {
+        _output = output;
+    }
 
     public TestDatabaseFixture()
     {
@@ -68,11 +76,14 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddScoped<IPasswordHashingService>(sp => new PasswordHashingService(workFactor: 4));
         });
 
+        // Signal to seeder we want to skip baseline announcements for deterministic announcement tests
+        Environment.SetEnvironmentVariable("SKIP_SEED_ANNOUNCEMENTS", "1");
+
         builder.UseEnvironment("Testing");
     }
 
     /// <summary>
-    /// Initialize the test database before any tests run
+    /// Initialize the test database once for all tests
     /// </summary>
     public async Task InitializeAsync()
     {
@@ -82,12 +93,46 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
         // Ensure migrations are applied
         await dbContext.Database.MigrateAsync();
 
-        // Clean and seed the database once before all tests
-        if (!_isSeeded)
+        // Clean and seed the database once before all tests (with global lock to prevent race conditions)
+        await _seedLock.WaitAsync();
+        try
+        {
+            if (!_globalIsSeeded)
+            {
+                await ResetDatabaseAsync();
+                await SeedTestDataAsync();
+                _globalIsSeeded = true;
+            }
+            else
+            {
+                // Guard against a previous fixture instance having truncated data in DisposeAsync.
+                // If core seed data (users) is missing, reseed (without full reset to keep any diagnostics).
+                if (!await dbContext.Users.AnyAsync())
+                {
+                    await SeedTestDataAsync();
+                }
+            }
+        }
+        finally
+        {
+            _seedLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// Reset database and reseed for tests that need fresh data
+    /// </summary>
+    public async Task ResetAndReseedAsync()
+    {
+        await _seedLock.WaitAsync();
+        try
         {
             await ResetDatabaseAsync();
             await SeedTestDataAsync();
-            _isSeeded = true;
+        }
+        finally
+        {
+            _seedLock.Release();
         }
     }
 
@@ -96,8 +141,12 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
     /// </summary>
     public new async Task DisposeAsync()
     {
-        // Clean the database after tests finish
-        await ResetDatabaseAsync();
+        // Intentionally NO global cleanup here.
+        // Rationale: xUnit creates a new fixture instance per test class (IClassFixture).
+        // The original implementation truncated all tables in DisposeAsync of the first test class
+        // while retaining _globalIsSeeded = true. Subsequent fixture instances then skipped seeding
+        // and found an empty database, causing failures (e.g. admin user missing in Cases tests).
+        // Leaving data in place ensures later test classes reuse the baseline seed.
         await base.DisposeAsync();
     }
 
@@ -120,40 +169,79 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<DatabaseSeeder>>();
 
         var seeder = new DatabaseSeeder(dbContext, passwordHasher, logger);
-        await seeder.SeedAsync();
+        // For tests, DON'T use forceReseed - we handle clearing separately via ResetDatabaseAsync
+        // This avoids transaction issues with TRUNCATE
+        await seeder.SeedAsync(forceReseed: false);
     }
 
     /// <summary>
     /// Reset only test-created data (not seed data) between tests for better performance.
     /// This deletes only data created by tests, keeping the seeded data intact.
+    /// If base data is missing, it will reseed the database.
     /// </summary>
     public async Task ResetTestDataAsync()
     {
-        using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
+        await _seedLock.WaitAsync();
         try
         {
-            // Delete only test-created data (IDs higher than seed data)
-            // Seeded data: 20 messages, 63 reports
-            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM message_attachments WHERE message_id > 20");
-            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM messages WHERE id > 20");
-            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM reports WHERE id > 63");
+            using var scope = Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // Delete all test-created announcements (announcements are not part of seed data)
-            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM announcement_reads");
-            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM announcement_attachments");
-            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM announcements");
+            // Check if we have the base seeded data
+            var hasUsers = await dbContext.Users.AnyAsync();
 
-            // Reset any modified seed data back to original state (if needed)
-            await dbContext.Database.ExecuteSqlRawAsync("UPDATE messages SET is_read = false, read_at = NULL WHERE id <= 20");
-            await dbContext.Database.ExecuteSqlRawAsync("UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE id <= 10");
+            if (!hasUsers)
+            {
+                // Base data is missing, need to reseed
+                _output?.WriteLine("Base data missing, reseeding database...");
+                await ResetDatabaseAsync();
+                await SeedTestDataAsync();
+                return;
+            }
+
+            try
+            {
+                // Perform selective cleanup inside a transaction for atomicity
+                await using var tx = await dbContext.Database.BeginTransactionAsync();
+
+                // Delete only test-created data (IDs higher than seed data)
+                await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM message_attachments WHERE message_id > 20");
+                await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM messages WHERE id > 20");
+
+                // Reset reports entirely to avoid number collisions
+                await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE reports RESTART IDENTITY CASCADE");
+
+                // Wipe announcements entirely (including originally seeded baseline) to ensure per-test isolation
+                // Using TRUNCATE with CASCADE resets identities so tests can assert exact counts without interference
+                _output?.WriteLine("[ResetTestData] Truncating announcement tables...");
+                await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE announcement_attachments RESTART IDENTITY CASCADE");
+                await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE announcement_reads RESTART IDENTITY CASCADE");
+                await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE announcement_histories RESTART IDENTITY CASCADE");
+                await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE announcement_recipients RESTART IDENTITY CASCADE");
+                await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE announcements RESTART IDENTITY CASCADE");
+                _output?.WriteLine("[ResetTestData] Announcement tables truncated.");
+
+                // Restore modified seed data
+                await dbContext.Database.ExecuteSqlRawAsync("UPDATE messages SET is_read = false, read_at = NULL WHERE id <= 20");
+                await dbContext.Database.ExecuteSqlRawAsync("UPDATE users SET failed_login_attempts = 0, locked_until = NULL WHERE id <= 10");
+
+                await tx.CommitAsync();
+
+                // Reseed reports (outside transaction using seeder for consistency with generation logic)
+                using var seederScope = Services.CreateScope();
+                var seeder = seederScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+                await seeder.SeedReportsOnlyAsync();
+            }
+            catch (Exception ex)
+            {
+                _output?.WriteLine($"Selective reset failed: {ex.Message}, performing full reset...");
+                await ResetDatabaseAsync();
+                await SeedTestDataAsync();
+            }
         }
-        catch
+        finally
         {
-            // If selective reset fails, fall back to full reset
-            await ResetDatabaseAsync();
-            await SeedTestDataAsync();
+            _seedLock.Release();
         }
     }
 
@@ -184,7 +272,6 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
             "contact_groups",
             "contacts",
             "faq_questions",
-            "faq_ratings",
             "file_libraries",
             "audit_logs",
             "password_histories",
@@ -218,25 +305,100 @@ public class TestDatabaseFixture : WebApplicationFactory<Program>, IAsyncLifetim
     /// </summary>
     public string GenerateJwtToken(long userId, string email, string role = "InternalUser")
     {
-        var key = "ThisIsAVerySecureSecretKeyForJWTTokenGeneration_ChangeInProduction_MinimumLengthIs32Characters!";
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var claims = new[]
+        // NOTE: Integration tests previously generated tokens with only a single role claim.
+        // Many API policies require permission claims ("permission" claim type). Missing permissions
+        // caused widespread 403 responses. We now derive the user's actual roles & permissions from the
+        // seeded database so tests exercise the real authorization pipeline.
+        try
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Role, role)
-        };
+            using var scope = Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var token = new JwtSecurityToken(
-            issuer: "UKNF-API",
-            audience: "UKNF-Portal",
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: credentials
-        );
+            // Load role names assigned to this user from the join table
+            var roleNames = db.UserRoles
+                .Where(ur => ur.UserId == userId)
+                .Select(ur => ur.Role.Name)
+                .Distinct()
+                .ToList();
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+            // Backwards compatibility: some tests passed role strings like "SupervisorUser" or "UKNF".
+            // Map legacy/mistyped role names to actual seeded roles if user has none loaded yet.
+            var legacyMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "SupervisorUser", "Supervisor" },
+                { "UKNF", "Administrator" } // Treat generic UKNF as Administrator for full access in tests
+            };
+
+            if (!roleNames.Any())
+            {
+                if (legacyMap.TryGetValue(role, out var mapped))
+                {
+                    roleNames.Add(mapped);
+                }
+                else
+                {
+                    // Fallback to provided role if user-role relation not seeded yet
+                    roleNames.Add(role);
+                }
+            }
+
+            // Collect permission names for all roles
+            var permissions = db.RolePermissions
+                .Where(rp => rp.Role.UserRoles.Any(ur => ur.UserId == userId) || roleNames.Contains(rp.Role.Name))
+                .Select(rp => rp.Permission.Name)
+                .Distinct()
+                .ToList();
+
+            var key = "ThisIsAVerySecureSecretKeyForJWTTokenGeneration_ChangeInProduction_MinimumLengthIs32Characters!";
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Email, email)
+            };
+
+            foreach (var r in roleNames.Distinct())
+            {
+                claims.Add(new Claim(ClaimTypes.Role, r));
+            }
+
+            foreach (var p in permissions)
+            {
+                claims.Add(new Claim("permission", p));
+            }
+
+            var token = new JwtSecurityToken(
+                issuer: "UKNF-API",
+                audience: "UKNF-Portal",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials
+            );
+            // Debug logging removed after resolving authorization issue
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        catch
+        {
+            // If something fails (e.g., during very early seeding), fall back to the simple token.
+            var key = "ThisIsAVerySecureSecretKeyForJWTTokenGeneration_ChangeInProduction_MinimumLengthIs32Characters!";
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Role, role)
+            };
+            var token = new JwtSecurityToken(
+                issuer: "UKNF-API",
+                audience: "UKNF-Portal",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials
+            );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }

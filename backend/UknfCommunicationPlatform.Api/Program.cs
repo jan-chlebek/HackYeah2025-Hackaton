@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
 using UknfCommunicationPlatform.Core.Configuration;
 using UknfCommunicationPlatform.Core.Authorization;
 using UknfCommunicationPlatform.Infrastructure.Data;
@@ -40,7 +41,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = jwtSettings.Audience,
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
+        // Explicitly map claim types to avoid any ambiguity in tests (403 issues on role protected endpoints)
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = ClaimTypes.NameIdentifier
     };
 });
 

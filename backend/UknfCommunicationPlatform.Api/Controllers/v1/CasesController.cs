@@ -152,7 +152,7 @@ public class CasesController : ControllerBase
         try
         {
             var caseResponse = await _caseService.UpdateCaseAsync(id, request, userId);
-            
+
             if (caseResponse == null)
             {
                 return NotFound(new { message = $"Case with ID {id} not found" });
@@ -189,7 +189,7 @@ public class CasesController : ControllerBase
         try
         {
             var success = await _caseService.DeleteCaseAsync(id, userId, reason);
-            
+
             if (!success)
             {
                 return NotFound(new { message = $"Case with ID {id} not found" });
@@ -226,7 +226,7 @@ public class CasesController : ControllerBase
         try
         {
             var caseResponse = await _caseService.UpdateCaseStatusAsync(id, newStatus, userId);
-            
+
             if (caseResponse == null)
             {
                 return NotFound(new { message = $"Case with ID {id} not found" });
