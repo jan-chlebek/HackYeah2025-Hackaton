@@ -1,4 +1,4 @@
-# Dzień dobry w tym miłym i jakże słonecznym (mamy nadzieję, nie widzieliśmy) dniu.
+# Dzień dobry w tym miłym i jakże słonecznym (mamy nadzieję; nie widzieliśmy) dniu.
 
 Zachęcamy do
 - Przejrzenia fragmentów dokumentacji
